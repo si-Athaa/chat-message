@@ -1,8 +1,10 @@
+// firebase.js
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
-import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+import { getStorage } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-storage.js";
 
-// 🧩 GANTI INI PAKE PUNYA LU SENDIRI
+// GANTI ISI CONFIG INI DENGAN PUNYAMU
 const firebaseConfig = {
   apiKey: "AIzaSyCKwFNQ4Fd6yoqjQTNhITdMXIZ0JNjD-lM",
   authDomain: "chat-message-421f7.firebaseapp.com",
@@ -15,10 +17,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
+const storage = getStorage(app);
 
-// Anonymous login otomatis
-signInAnonymously(auth)
-  .then(() => console.log("✅ Signed in anonymously"))
-  .catch((e) => console.error(e));
-
-export { db, auth };
+export { db, auth, storage };
