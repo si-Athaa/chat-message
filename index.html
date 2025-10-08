@@ -1,48 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Chat-Message</title>
-  <link rel="stylesheet" href="style.css">
-  <script type="module" src="auth.js"></script>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="app">
-    <h1 class="logo">Chat-Message</h1>
-
-    <!-- Login / Register -->
-    <div id="auth-section">
-      <input id="username" type="text" placeholder="Username">
-      <input id="password" type="password" placeholder="Password">
-      <button id="registerBtn">Register</button>
-      <button id="loginBtn">Login</button>
-    </div>
-
-    <!-- Chat UI -->
-    <div id="chat-section" style="display:none;">
-      <div class="top-bar">
-        <h2 id="currentUser"></h2>
-        <button id="logoutBtn">Logout</button>
-      </div>
-
-      <div class="contacts">
+  <div class="container">
+    <h1>💬 Chat-Message</h1>
+    <div class="chat-area">
+      <div class="sidebar">
+        <b id="username"></b>
+        <button id="logout">Logout</button>
         <h3>Contacts</h3>
-        <ul id="contactList"></ul>
-        <input id="addContactInput" type="text" placeholder="Add contact username">
-        <button id="addContactBtn">Add</button>
+        <ul id="contacts"></ul>
+        <input type="text" id="addContact" placeholder="Add contact username" />
+        <button id="addBtn">Add</button>
       </div>
-
-      <div class="chat-window">
+      <div class="chatbox">
         <h3 id="chatWith">Select a contact 👇</h3>
-        <div id="messages"></div>
-
-        <div id="messageBox" style="display:none;">
-          <input id="messageInput" type="text" placeholder="Type message...">
-          <button id="sendBtn">Send</button>
+        <div id="chatBox"></div>
+        <div class="controls">
+          <input type="text" id="msg" placeholder="Tulis pesan..." />
+          <input type="file" id="fileInput" />
+          <button id="send">Kirim</button>
+          <button id="deleteAll">Hapus Semua</button>
         </div>
       </div>
     </div>
   </div>
+
+  <script type="module" src="chat.js"></script>
 </body>
 </html>
