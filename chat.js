@@ -46,9 +46,7 @@ async function loadContacts() {
 addContactBtn.onclick = async () => {
   const newUser = addContactInput.value.trim();
   if (!newUser) return alert("Enter a username!");
-
-  if (newUser === currentUsername)
-    return alert("You cannot add yourself!");
+  if (newUser === currentUsername) return alert("You cannot add yourself!");
 
   const targetSnap = await getDoc(doc(db, "users", newUser));
   if (!targetSnap.exists()) return alert("User not found!");
@@ -61,7 +59,6 @@ addContactBtn.onclick = async () => {
     await setDoc(userRef, { ...data, contacts });
   }
 
-  // also add you to the other user's contact list
   const otherRef = doc(db, "users", newUser);
   const otherData = (await getDoc(otherRef)).data();
   const otherContacts = otherData.contacts || [];
@@ -91,13 +88,16 @@ async function openChat(contact) {
     snap.forEach((d) => {
       const msg = d.data();
       const div = document.createElement("div");
-      div.className = msg.user === currentUsername ? "me" : "other";
+      div.className = `message ${msg.user === currentUsername ? "me" : "other"}`;
+      const timeStr = new Date(msg.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
       div.innerHTML = `
         <b>${msg.user}:</b> ${msg.text || ""}
         ${msg.fileURL ? `<br><a href="${msg.fileURL}" target="_blank">📎 File</a>` : ""}
+        <div class="timestamp">${timeStr}</div>
         ${msg.user === currentUsername ? `<button data-id="${d.id}" class="deleteMsg">🗑️</button>` : ""}
       `;
       chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
     });
 
     document.querySelectorAll(".deleteMsg").forEach(btn => {
@@ -149,4 +149,3 @@ async function openChat(contact) {
     }
   };
 }
-
