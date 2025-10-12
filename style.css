@@ -21,6 +21,7 @@ body {
     box-sizing: border-box;
 }
 
+/* Container utama - Menentukan dimensi total aplikasi */
 .container {
   background: #ffffff;
   padding: 0;
@@ -28,16 +29,16 @@ body {
   /* Shadow modern yang lembut dan elegan */
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   width: 90%;
-  max-width: 900px; /* Lebar lebih besar untuk layout nyaman */
+  max-width: 950px; 
   height: 90vh; 
   display: flex;
-  flex-direction: column; /* Kontainer utama tetap vertikal (judul, lalu chat-area) */
+  flex-direction: column; 
   overflow: hidden;
   min-height: 500px;
 }
 
+/* Judul Aplikasi */
 h1 {
-  /* Judul di atas (Chat-Message) */
   text-align: center;
   color: #0084FF;
   padding: 10px 0;
@@ -46,22 +47,23 @@ h1 {
   border-bottom: 1px solid #e0e0e0;
 }
 
+/* Area Chat dan Sidebar - MEMPERBAIKI LAYOUT UTAMA */
 .chat-area {
   display: flex;
-  flex: 1; /* Mengambil sisa ruang di bawah H1 */
-  overflow: hidden;
+  flex: 1; 
+  overflow: hidden; 
 }
 
 /* --- SIDEBAR (DAFTAR KONTAK) --- */
 .sidebar {
-  flex: 1;
-  min-width: 250px;
-  max-width: 300px;
+  /* Lebar tetap 300px, tidak tumbuh, tidak menyusut */
+  flex: 0 0 300px; 
   border-right: 1px solid #e0e0e0; 
   padding: 20px;
   background: #fcfcfc; 
   display: flex;
-  flex-direction: column; /* Agar list dan kontrol terpisah */
+  flex-direction: column; 
+  overflow-y: hidden; 
 }
 
 .sidebar b#username {
@@ -99,8 +101,9 @@ h1 {
     list-style: none;
     padding: 0;
     margin: 0 0 20px 0;
-    overflow-y: auto; /* List kontak bisa di-scroll */
-    flex-grow: 1; /* Mengambil ruang fleksibel di tengah */
+    /* List kontak bisa di-scroll */
+    overflow-y: auto; 
+    flex-grow: 1; 
 }
 
 #contacts li {
@@ -126,7 +129,7 @@ h1 {
     box-shadow: 0 2px 5px rgba(0, 132, 255, 0.2);
 }
 
-/* Styling untuk Kontrol Tambah Kontak */
+/* Kontrol Tambah Kontak */
 .add-contact-controls {
     display: flex;
     margin-top: auto; 
@@ -164,10 +167,11 @@ h1 {
 
 /* --- CHATBOX (AREA PESAN) --- */
 .chatbox {
-  flex: 2;
-  padding: 0; /* Padding dipindah ke elemen dalamnya */
+  /* MENGAMBIL SISA RUANG PENUH DI SAMPING SIDEBAR */
+  flex: 1; 
+  padding: 0; 
   display: flex;
-  flex-direction: column;
+  flex-direction: column; 
 }
 
 #chatWith {
@@ -181,17 +185,17 @@ h1 {
 }
 
 #chatBox {
-  /* FIX SCROLL: flex: 1 akan membuat chatBox mengambil ruang penuh */
   background: #f8f9fa;
+  /* Membuat chatBox mengambil ruang penuh yang tersisa */
   flex: 1; 
   padding: 20px;
-  overflow-y: auto; /* INI YANG MEMBUAT BISA DI SCROLL */
+  /* INI YANG MEMBUAT BISA DI SCROLL MANUAL */
+  overflow-y: auto; 
   display: flex;
-  flex-direction: column;
+  flex-direction: column; 
 }
 
 /* --- MESSAGE BUBBLES --- */
-
 .me, .other {
     padding: 10px 15px;
     margin: 8px 0;
@@ -218,14 +222,13 @@ h1 {
   border-radius: 18px 18px 18px 4px;
 }
 
-/* Styling untuk File Link */
 .me a, .other a {
     color: inherit;
     text-decoration: underline;
     font-weight: 600;
 }
 
-/* Tombol Hapus Pesan (Di-tampilkan saat hover) */
+/* Tombol Hapus Pesan */
 .deleteMsg {
     background: none;
     border: none;
@@ -263,11 +266,11 @@ h1 {
 }
 
 .controls #fileInput {
-    display: none; /* Sembunyikan input file bawaan */
+    display: none; 
 }
 
-/* Styling untuk Label File (Tombol Ikon) */
-.controls label#fileLabel {
+/* Styling untuk Label File (Tombol Ikon 📁) */
+.controls label[for="fileInput"] {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -281,7 +284,7 @@ h1 {
     font-weight: 600;
 }
 
-.controls label#fileLabel:hover {
+.controls label[for="fileInput"]:hover {
     color: #0056b3;
     background: #f0f0f0;
 }
@@ -334,7 +337,7 @@ h1 {
 }
 
 /* Penyesuaian Responsif untuk Layar Kecil */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
     .container {
         width: 100%;
         height: 100vh;
@@ -352,6 +355,10 @@ h1 {
         border-right: none;
         border-bottom: 1px solid #e0e0e0;
         padding-bottom: 10px;
+    }
+
+    .chatbox {
+        flex: 1;
     }
 
     .controls {
