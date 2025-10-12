@@ -1,3 +1,7 @@
+**How to use: -How to add a contact: first you need to add the person you want and second the person you add must add you too.
+              -How to chat : First, click on the name of the person you added. Now, you can chat with them.
+              -If you have never registered, register first.
+              -If you log out and want to log back in, you can do so by logging in.**
 🤙 **This is a chat message bro**
 
 
