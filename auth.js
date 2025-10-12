@@ -3,7 +3,6 @@ import {
   doc, getDoc, setDoc, updateDoc, arrayUnion, collection, query, where, getDocs
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-import "./chat.js"; // load chat setelah login
 
 const usernameInput = document.getElementById("username");
 const passwordInput = document.getElementById("password");
