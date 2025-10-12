@@ -39,7 +39,7 @@ logoutBtn.onclick = () => signOut(auth);
 
 // 🔹 LOAD CONTACTS
 async function loadContacts() {
-  const snap = await getDoc(doc(db, "users", currentUser.uid));
+  const snap = await getDoc(doc(db, "users", myUsername));
   const contacts = snap.data().contacts || [];
   contactsList.innerHTML = "";
   contacts.forEach(c => {
@@ -59,7 +59,7 @@ addContactBtn.onclick = async () => {
   allUsers.forEach(async (u) => {
     if (u.data().username === newUser) {
       found = true;
-      const userRef = doc(db, "users", currentUser.uid);
+      const userRef = doc(db, "users", myUsername);
       const data = (await getDoc(userRef)).data();
       const contacts = data.contacts || [];
       if (!contacts.includes(newUser)) {
@@ -78,7 +78,7 @@ async function openChat(contact) {
   chatHeader.textContent = `Chat with ${contact}`;
   chatBox.innerHTML = "";
 
-  const mySnap = await getDoc(doc(db, "users", currentUser.uid));
+  const mySnap = await getDoc(doc(db, "users", myUsername));
   const myUsername = mySnap.data().username;
   const chatId = [myUsername, contact].sort().join("__");
   const msgRef = collection(db, "chats", chatId, "messages");
