@@ -13,17 +13,19 @@
       <div class="sidebar">
         <b id="username"></b>
         <button id="logout">Logout</button>
-        <h3>Contacts</h3>
+       <h3>Contacts</h3>
         <ul id="contacts"></ul>
-        <input type="text" id="addContact" placeholder="Add contact username" />
-        <button id="addBtn">Add</button>
-      </div>
+        <div class="add-contact-controls">
+          <input type="text" id="addContact" placeholder="Tambah username kontak" />
+          <button id="addBtn">Tambah</button>
+        </div>
       <div class="chatbox">
         <h3 id="chatWith">Select a contact 👇</h3>
         <div id="chatBox"></div>
-        <div class="controls">
-          <input type="text" id="msg" placeholder="Tulis pesan..." />
+       <div class="controls">
+          <label for="fileInput" id="fileLabel">📁</label> 
           <input type="file" id="fileInput" />
+          <input type="text" id="msg" placeholder="Tulis pesan..." />
           <button id="send">Kirim</button>
           <button id="deleteAll">Hapus Semua</button>
         </div>
