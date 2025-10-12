@@ -28,7 +28,7 @@ Only picture :
 
 
 
-<img width="890" height="1006" alt="image" src="https://github.com/user-attachments/assets/c730ba9c-12fb-4435-92cc-be2da39ad9cd" />
+<img width="89" height="106" alt="image" src="https://github.com/user-attachments/assets/c730ba9c-12fb-4435-92cc-be2da39ad9cd" />
 
 
 
