@@ -24,28 +24,15 @@ let currentUser = null;
 let selectedContact = null;
 let unsubscribeChat = null;
 
-// 🔹 LOGIN ANONYMOUS
-onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    currentUser = user;
-    const userDoc = doc(db, "users", user.uid);
-    const snap = await getDoc(userDoc);
-    if (!snap.exists()) {
-      const username = prompt("Masukkan username kamu:");
-      await setDoc(userDoc, {
-        uid: user.uid,
-        username: username,
-        contacts: []
-      });
-      usernameDisplay.textContent = username;
-    } else {
-      usernameDisplay.textContent = snap.data().username;
-    }
-    loadContacts();
-  } else {
-    await signInAnonymously(auth);
-  }
-});
+// 🔹 USE LOGGED-IN USER FROM auth.js
+const myUsername = window.currentUsername;
+if (!myUsername) {
+  alert("Please log in first!");
+  location.reload();
+} else {
+  usernameDisplay.textContent = myUsername;
+  loadContacts();
+}
 
 // 🔹 LOGOUT
 logoutBtn.onclick = () => signOut(auth);
