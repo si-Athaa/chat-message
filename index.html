@@ -7,25 +7,37 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="container">
-    <h1>💬 Chat-Message</h1>
-    <div class="chat-area">
-      <div class="sidebar">
-        <b id="currentUser"></b>
-        <button id="logout">Logout</button>
-        <h3>Contacts</h3>
-        <ul id="contacts"></ul>
-        <input type="text" id="addContact" placeholder="Add contact username" />
-        <button id="addBtn">Add</button>
-      </div>
-      <div class="chatbox">
-        <h3 id="chatWith">Select a contact 👇</h3>
-        <div id="chatBox"></div>
-        <div class="controls">
-          <input type="text" id="msg" placeholder="Tulis pesan..." />
-          <input type="file" id="fileInput" />
-          <button id="send">Kirim</button>
-          <button id="deleteAll">Hapus Semua</button>
+  <!-- 🔹 Auth Section -->
+  <div id="auth-section">
+    <h2>Login/Register</h2>
+    <input type="text" id="username" placeholder="Username" />
+    <input type="password" id="password" placeholder="Password" />
+    <button id="registerBtn">Register</button>
+    <button id="loginBtn">Login</button>
+  </div>
+
+  <!-- 🔹 Chat Section -->
+  <div id="chat-section" style="display: none;">
+    <div class="container">
+      <h1>💬 Chat-Message</h1>
+      <div class="chat-area">
+        <div class="sidebar">
+          <b id="currentUser"></b>
+          <button id="logout">Logout</button>
+          <h3>Contacts</h3>
+          <ul id="contacts"></ul>
+          <input type="text" id="addContact" placeholder="Add contact username" />
+          <button id="addBtn">Add</button>
+        </div>
+        <div class="chatbox">
+          <h3 id="chatWith">Select a contact 👇</h3>
+          <div id="chatBox"></div>
+          <div class="controls">
+            <input type="text" id="msg" placeholder="Tulis pesan..." />
+            <input type="file" id="fileInput" />
+            <button id="send">Kirim</button>
+            <button id="deleteAll">Hapus Semua</button>
+          </div>
         </div>
       </div>
     </div>
