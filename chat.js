@@ -19,7 +19,6 @@ const chatBox = document.getElementById("chatBox");
 const msgInput = document.getElementById("msg");
 const sendBtn = document.getElementById("send");
 const fileInput = document.getElementById("fileInput");
-// const fileLabel = document.getElementById("fileLabel"); // Label untuk ikon file
 const deleteAllBtn = document.getElementById("deleteAll");
 
 let currentUser = null;
@@ -36,9 +35,9 @@ onAuthStateChanged(auth, async (user) => {
     currentUser = user;
     const userDoc = doc(db, "users", user.uid);
     const snap = await getDoc(userDoc);
+    
     if (!snap.exists()) {
       const username = prompt("Masukkan username kamu:");
-      // Validasi sederhana
       if (!username || username.trim() === "") {
         alert("Username tidak boleh kosong. Silakan muat ulang.");
         signOut(auth);
@@ -60,7 +59,6 @@ onAuthStateChanged(auth, async (user) => {
         await signInAnonymously(auth);
     } catch (error) {
         console.error("Gagal login anonim:", error);
-        alert("Gagal terhubung ke Firebase. Cek konfigurasi Anda.");
     }
   }
 });
@@ -68,8 +66,9 @@ onAuthStateChanged(auth, async (user) => {
 // 🔹 LOGOUT
 logoutBtn.onclick = () => {
     if (unsubscribeChat) unsubscribeChat(); // Hentikan listener
-    signOut(auth);
-    // Tambahkan reload atau redirect ke halaman login jika ada
+    signOut(auth).then(() => {
+        location.reload(); 
+    });
 };
 
 // =======================================================
@@ -82,11 +81,9 @@ async function loadContacts() {
   const contacts = snap.data().contacts || [];
   contactsList.innerHTML = "";
   
-  // Ambil username saat ini
   const myUsername = snap.data().username; 
 
   contacts.forEach(c => {
-    // Jangan tampilkan diri sendiri di daftar kontak (jika ada)
     if (c === myUsername) return; 
 
     const li = document.createElement("li");
@@ -116,7 +113,7 @@ addContactBtn.onclick = async () => {
   const allUsers = await getDocs(collection(db, "users"));
   let found = false;
   
-  allUsers.forEach(async (u) => {
+  for (const u of allUsers.docs) {
     if (u.data().username === newUser) {
       found = true;
       const userRef = doc(db, "users", currentUser.uid);
@@ -131,8 +128,9 @@ addContactBtn.onclick = async () => {
           alert(`Kontak ${newUser} sudah ada.`);
       }
       loadContacts();
+      break; 
     }
-  });
+  }
   if (!found) alert(`User dengan username '${newUser}' tidak ditemukan!`);
 };
 
@@ -165,17 +163,16 @@ async function openChat(contact) {
     snap.forEach((d) => {
       const msg = d.data();
       const div = document.createElement("div");
-      div.className = msg.user === myUsername ? "me" : "other"; // Menggunakan class .me/.other
+      div.className = msg.user === myUsername ? "me" : "other"; 
       
       let fileLink = "";
       if (msg.fileURL) {
-          // Tampilkan ikon dan link file
           fileLink = `<br><a href="${msg.fileURL}" target="_blank">📎 ${msg.fileType ? msg.fileType : 'File'}</a>`; 
       }
       
       let deleteButton = "";
       if (msg.user === myUsername) {
-          // Gunakan class .deleteMsg untuk styling modern
+          // Tombol delete menggunakan data-file-url untuk memudahkan penghapusan storage
           deleteButton = `<button data-id="${d.id}" data-file-url="${msg.fileURL || ''}" class="deleteMsg">🗑️</button>`;
       }
       
@@ -190,7 +187,7 @@ async function openChat(contact) {
       chatBox.appendChild(div);
     });
 
-    // 💡 FIX SCROLL OTOMATIS: Scroll ke bawah setiap kali ada pesan baru
+    // 💡 FIX AUTO SCROLL: Scroll ke bawah setiap kali ada pesan baru
     chatBox.scrollTop = chatBox.scrollHeight; 
 
     // Setup Event Listener untuk Tombol Hapus Pesan
@@ -203,7 +200,9 @@ async function openChat(contact) {
 
         // Hapus file dari Storage jika ada
         if (fileURL) {
-          const fileRef = ref(storage, fileURL);
+          // Mendapatkan path file yang benar dari URL Firebase Storage
+          const storagePath = decodeURIComponent(fileURL.split('/o/')[1].split('?')[0]);
+          const fileRef = ref(storage, storagePath);
           try { await deleteObject(fileRef); } catch (e) { console.warn("Gagal menghapus file dari storage:", e); }
         }
         // Hapus dokumen pesan dari Firestore
@@ -250,7 +249,10 @@ async function openChat(contact) {
       snap.forEach(async (m) => {
         const data = m.data();
         if (data.fileURL) {
-          const fileRef = ref(storage, data.fileURL);
+          const fileURL = data.fileURL;
+          // Mendapatkan path file yang benar dari URL Firebase Storage
+          const storagePath = decodeURIComponent(fileURL.split('/o/')[1].split('?')[0]);
+          const fileRef = ref(storage, storagePath);
           try { await deleteObject(fileRef); } catch {}
         }
         await deleteDoc(m.ref);
