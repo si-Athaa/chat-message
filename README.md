@@ -18,5 +18,12 @@
 
 🤙 **This is a chat message bro**
 
-<img src="https://i.ytimg.com/vi/UCEPgNM4RgY/hqdefault.jpg"/> <img src="https://i.ytimg.com/vi/BBhbOOj6c64/maxresdefault.jpg"/> <img src="https://i.ytimg.com/vi/DtiloqsVyNk/sddefault.jpg"/> <img width="550" height="329" alt="Screenshot 2025-05-08 20 05 00" src="https://github.com/user-attachments/assets/3a68be7c-3741-4e5e-bb57-3dbd25e0a2dd" />
+
+
+
+
+
+Only picture :
+<img width="496" height="769" alt="image" src="https://github.com/user-attachments/assets/1a1b6583-9d36-45bb-b4bb-e2792b65f5d3" />
+
 
