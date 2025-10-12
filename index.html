@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Chat-Message</title>
+  <link rel="icon" type="image/png" href="kainkafans.png">
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -19,30 +20,38 @@
   <!-- 🔹 Chat Section -->
   <div id="chat-section" style="display: none;">
     <div class="container">
-      <h1>💬 Chat-Message</h1>
-      <div class="chat-area">
-        <div class="sidebar">
-          <b id="currentUser"></b>
-          <button id="logout">Logout</button>
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <div class="profile">
+          <div class="avatar">😎</div>
+          <div id="currentUser" class="username">User</div>
+        </div>
+        <div class="contacts-area">
           <h3>Contacts</h3>
           <ul id="contacts"></ul>
           <input type="text" id="addContact" placeholder="Add contact username" />
           <button id="addBtn">Add</button>
         </div>
-        <div class="chatbox">
+        <button id="logout" class="logout-btn">Logout</button>
+      </div>
+
+      <!-- Chatbox -->
+      <div class="chatbox">
+        <div class="chat-header">
           <h3 id="chatWith">Select a contact 👇</h3>
-          <div id="chatBox"></div>
-          <div class="controls">
-            <input type="text" id="msg" placeholder="Tulis pesan..." />
-            <input type="file" id="fileInput" />
-            <button id="send">Kirim</button>
-            <button id="deleteAll">Hapus Semua</button>
-          </div>
+        </div>
+        <div id="chatBox" class="chat-messages"></div>
+        <div class="controls">
+          <input type="text" id="msg" placeholder="Tulis pesan..." />
+          <input type="file" id="fileInput" />
+          <button id="send">Send</button>
+          <button id="deleteAll">Hapus Semua</button>
         </div>
       </div>
     </div>
   </div>
 
   <script type="module" src="auth.js"></script>
+  <script type="module" src="chat.js"></script>
 </body>
 </html>
