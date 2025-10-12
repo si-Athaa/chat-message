@@ -1,16 +1,13 @@
-// chat.js
-import { db, auth, storage } from "./firebase.js";
+import { db, storage } from "./firebase.js";
 import {
   collection, doc, addDoc, getDoc, getDocs, setDoc, onSnapshot, query, orderBy, deleteDoc
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 import {
   ref, uploadBytes, getDownloadURL, deleteObject
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-storage.js";
-import { signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
-const usernameDisplay = document.getElementById("username");
+const usernameDisplay = document.getElementById("currentUser");
 const contactsList = document.getElementById("contacts");
-const logoutBtn = document.getElementById("logout");
 const addContactInput = document.getElementById("addContact");
 const addContactBtn = document.getElementById("addBtn");
 const chatHeader = document.getElementById("chatWith");
@@ -20,27 +17,22 @@ const sendBtn = document.getElementById("send");
 const fileInput = document.getElementById("fileInput");
 const deleteAllBtn = document.getElementById("deleteAll");
 
-let currentUser = null;
+let currentUsername = null;
 let selectedContact = null;
 let unsubscribeChat = null;
 
-// 🔹 USE LOGGED-IN USER FROM auth.js
-const myUsername = window.currentUsername;
-if (!myUsername) {
-  alert("Please log in first!");
-  location.reload();
-} else {
-  usernameDisplay.textContent = myUsername;
+// 🔹 Initialize chat system after login
+export async function initChat(username) {
+  currentUsername = username;
+  usernameDisplay.textContent = username;
   loadContacts();
 }
 
-// 🔹 LOGOUT
-logoutBtn.onclick = () => signOut(auth);
-
-// 🔹 LOAD CONTACTS
+// 🔹 Load contacts
 async function loadContacts() {
-  const snap = await getDoc(doc(db, "users", myUsername));
-  const contacts = snap.data().contacts || [];
+  const snap = await getDoc(doc(db, "users", currentUsername));
+  const contacts = snap.exists() ? (snap.data().contacts || []) : [];
+
   contactsList.innerHTML = "";
   contacts.forEach(c => {
     const li = document.createElement("li");
@@ -50,37 +42,45 @@ async function loadContacts() {
   });
 }
 
-// 🔹 TAMBAH KONTAK
+// 🔹 Add contact
 addContactBtn.onclick = async () => {
   const newUser = addContactInput.value.trim();
-  if (!newUser) return alert("Masukkan username dulu!");
-  const allUsers = await getDocs(collection(db, "users"));
-  let found = false;
-  allUsers.forEach(async (u) => {
-    if (u.data().username === newUser) {
-      found = true;
-      const userRef = doc(db, "users", myUsername);
-      const data = (await getDoc(userRef)).data();
-      const contacts = data.contacts || [];
-      if (!contacts.includes(newUser)) {
-        contacts.push(newUser);
-        await setDoc(userRef, { ...data, contacts });
-      }
-      loadContacts();
-    }
-  });
-  if (!found) alert("User tidak ditemukan!");
+  if (!newUser) return alert("Enter a username!");
+
+  if (newUser === currentUsername)
+    return alert("You cannot add yourself!");
+
+  const targetSnap = await getDoc(doc(db, "users", newUser));
+  if (!targetSnap.exists()) return alert("User not found!");
+
+  const userRef = doc(db, "users", currentUsername);
+  const data = (await getDoc(userRef)).data();
+  const contacts = data.contacts || [];
+  if (!contacts.includes(newUser)) {
+    contacts.push(newUser);
+    await setDoc(userRef, { ...data, contacts });
+  }
+
+  // also add you to the other user's contact list
+  const otherRef = doc(db, "users", newUser);
+  const otherData = (await getDoc(otherRef)).data();
+  const otherContacts = otherData.contacts || [];
+  if (!otherContacts.includes(currentUsername)) {
+    otherContacts.push(currentUsername);
+    await setDoc(otherRef, { ...otherData, contacts: otherContacts });
+  }
+
+  addContactInput.value = "";
+  loadContacts();
 };
 
-// 🔹 BUKA CHAT
+// 🔹 Open chat with a contact
 async function openChat(contact) {
   selectedContact = contact;
   chatHeader.textContent = `Chat with ${contact}`;
   chatBox.innerHTML = "";
 
-  const mySnap = await getDoc(doc(db, "users", myUsername));
-  const myUsername = mySnap.data().username;
-  const chatId = [myUsername, contact].sort().join("__");
+  const chatId = [currentUsername, contact].sort().join("__");
   const msgRef = collection(db, "chats", chatId, "messages");
 
   if (unsubscribeChat) unsubscribeChat();
@@ -91,11 +91,11 @@ async function openChat(contact) {
     snap.forEach((d) => {
       const msg = d.data();
       const div = document.createElement("div");
-      div.className = msg.user === myUsername ? "me" : "other";
+      div.className = msg.user === currentUsername ? "me" : "other";
       div.innerHTML = `
         <b>${msg.user}:</b> ${msg.text || ""}
         ${msg.fileURL ? `<br><a href="${msg.fileURL}" target="_blank">📎 File</a>` : ""}
-        ${msg.user === myUsername ? `<button data-id="${d.id}" class="deleteMsg">🗑️</button>` : ""}
+        ${msg.user === currentUsername ? `<button data-id="${d.id}" class="deleteMsg">🗑️</button>` : ""}
       `;
       chatBox.appendChild(div);
     });
@@ -127,7 +127,7 @@ async function openChat(contact) {
     if (!text && !fileURL) return;
 
     await addDoc(msgRef, {
-      user: myUsername,
+      user: currentUsername,
       text: text || "",
       fileURL: fileURL || null,
       time: Date.now()
@@ -136,7 +136,7 @@ async function openChat(contact) {
   };
 
   deleteAllBtn.onclick = async () => {
-    if (confirm("Yakin hapus semua chat?")) {
+    if (confirm("Delete all chat messages?")) {
       const snap = await getDocs(msgRef);
       snap.forEach(async (m) => {
         const data = m.data();
@@ -149,3 +149,4 @@ async function openChat(contact) {
     }
   };
 }
+
