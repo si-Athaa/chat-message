@@ -31,7 +31,7 @@ export async function initChat(username) {
 // 🔹 Load contacts
 async function loadContacts() {
   const snap = await getDoc(doc(db, "users", currentUsername));
-  const contacts = snap.exists() ? (snap.data().contacts || []) : [];
+  const contacts = (snap.exists() && Array.isArray(snap.data().contacts)) ? snap.data().contacts : [];
 
   contactsList.innerHTML = "";
   contacts.forEach(c => {
