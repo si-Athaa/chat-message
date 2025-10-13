@@ -1,85 +1,82 @@
-/* Biar semuanya pakai full layar */
-html, body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  background-color: #f1e8df; /* warna latar belakang utama */
-  font-family: 'Poppins', sans-serif;
-}
-
-/* Container utama buat layout kiri-kanan */
+/* === LAYOUT CONTAINER === */
 #chat-container {
   display: flex;
-  height: 100vh; /* full tinggi layar */
-  width: 100vw;  /* full lebar layar */
+  width: 90%;             /* dulu mungkin 70% atau 60%, ini dibikin lebih lebar */
+  max-width: 1300px;      /* batas maksimal biar gak melebar kebangetan */
+  height: 90vh;
+  margin: 30px auto;      /* biar tetap tengah */
+  border-radius: 12px;
   overflow: hidden;
+  background: #f5e9dc;    /* warna latar chat */
+  box-shadow: 0 0 25px rgba(0,0,0,0.3);
 }
 
-/* Sidebar kiri */
+/* === SIDEBAR === */
 #sidebar {
-  width: 25%;
-  background-color: #005f56;
-  color: white;
+  width: 28%;             /* tambah dikit dari biasanya (misal 25%) */
+  background: #005f55;
+  color: #fff;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 20px;
-  box-sizing: border-box;
+  padding: 15px;
 }
 
-/* Area chat kanan */
+/* === CHAT AREA === */
 #chat-area {
-  flex: 1;
-  background-color: #f5ebde;
+  width: 72%;             /* sisanya dari sidebar */
   display: flex;
   flex-direction: column;
+  background: #f9efdf;
 }
 
-/* Header chat */
+/* Chat header */
 #chat-header {
-  background-color: #ffffff;
+  background: #fff;
   padding: 15px 20px;
-  border-bottom: 2px solid #ddd;
   font-weight: bold;
+  font-size: 1.2em;
+  border-bottom: 2px solid #ddd;
 }
 
-/* Tempat isi pesan */
-#chat-messages {
+/* Chat box */
+#chatBox {
   flex: 1;
-  padding: 20px;
   overflow-y: auto;
+  padding: 15px 25px;
 }
 
-/* Input area bawah */
-#message-input-area {
+/* Input area */
+#inputArea {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 10px;
-  padding: 15px 20px;
+  padding: 12px 15px;
+  background: #fff;
   border-top: 2px solid #ddd;
-  background-color: #ffffff;
 }
 
-#message-input {
+/* Input style */
+#msg {
   flex: 1;
-  border: none;
-  padding: 12px;
-  border-radius: 30px;
+  padding: 10px 14px;
+  border: 1px solid #ccc;
+  border-radius: 20px;
   outline: none;
-  background-color: #f3f3f3;
+  margin-right: 10px;
 }
 
-button {
+/* Send Button */
+#send {
+  background: #02695f;
+  color: #fff;
   border: none;
   padding: 10px 18px;
-  border-radius: 25px;
+  border-radius: 20px;
   cursor: pointer;
   font-weight: 600;
-  background-color: #00695c;
-  color: white;
   transition: 0.2s;
 }
-
-button:hover {
-  background-color: #004d40;
+#send:hover {
+  background: #039e8c;
 }
