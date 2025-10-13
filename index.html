@@ -1,58 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Chat-Message</title>
+  <meta charset="UTF-8">
+  <title>Chat App </title>
   <link rel="icon" type="image/png" href="kainkafans.png">
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- 🔹 Auth Section -->
-  <div id="auth-section">
-    <h2>Login/Register</h2>
-    <input type="text" id="username" placeholder="Username" />
-    <input type="password" id="password" placeholder="Password" />
-    <button id="registerBtn">Register</button>
-    <button id="loginBtn">Login</button>
-  </div>
+  <div class="app-container">
+    <aside class="sidebar">
+      <h2>💬 Contacts</h2>
+      <p id="currentUser" class="username"></p>
+      <div class="add-contact">
+        <input type="text" id="addContact" placeholder="Add username...">
+        <button id="addBtn">+</button>
+      </div>
+      <ul id="contacts"></ul>
+    </aside>
 
-  <!-- 🔹 Chat Section -->
-  <div id="chat-section" style="display: none;">
-    <div class="container">
-      <!-- Sidebar -->
-      <div class="sidebar">
-        <div class="profile">
-          <div class="avatar">😎</div>
-          <div id="currentUser" class="username">User</div>
-        </div>
-        <div class="contacts-area">
-          <h3>Contacts</h3>
-          <ul id="contacts"></ul>
-          <input type="text" id="addContact" placeholder="Add contact username" />
-          <button id="addBtn">Add</button>
-        </div>
-        <button id="logout" class="logout-btn">Logout</button>
+    <main class="chat-section">
+      <div class="chat-header">
+        <h2 id="chatWith">Select a contact</h2>
+        <button id="deleteAll" class="delete-all">🗑️ Clear Chat</button>
       </div>
 
-      <!-- Chatbox -->
-      <div class="chatbox">
-        <div class="chat-header">
-          <h3 id="chatWith">Select a contact 👇</h3>
-        </div>
-        <div id="chatBox" class="chat-messages"></div>
-        <div class="controls">
-          <input type="text" id="msg" placeholder="Tulis pesan..." />
-          <input type="file" id="fileInput" />
-          <button id="send">Send</button>
-          <button id="deleteAll">Hapus Semua</button>
-        </div>
+      <div id="chatBox" class="chat-box"></div>
+
+      <div class="chat-input">
+        <input type="file" id="fileInput" style="display:none;">
+        <button onclick="document.getElementById('fileInput').click()">📎</button>
+        <input type="text" id="msg" placeholder="Type a message...">
+        <button id="send">Send ➤</button>
       </div>
-    </div>
+    </main>
   </div>
 
-  <!-- only auth.js at startup -->
-  <script type="module" src="auth.js"></script>
+  <script type="module">
+    import { initChat } from "./chat.js";
+    initChat(prompt("Masukkan username kamu:"));
+  </script>
 </body>
 </html>
-
