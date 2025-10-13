@@ -1,43 +1,90 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>Chat App </title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chat-Message</title>
   <link rel="icon" type="image/png" href="kainkafans.png">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="app-container">
-    <aside class="sidebar">
-      <h2>💬 Contacts</h2>
-      <p id="currentUser" class="username"></p>
-      <div class="add-contact">
-        <input type="text" id="addContact" placeholder="Add username...">
-        <button id="addBtn">+</button>
+  <!-- AUTH: kalau belom login, auth.js bakal tunjukin section ini -->
+  <div id="auth-section" class="auth-section">
+    <div class="auth-box">
+      <h2>Login / Register</h2>
+      <input id="username" type="text" placeholder="Username" />
+      <input id="password" type="password" placeholder="Password" />
+      <div class="auth-btns">
+        <button id="registerBtn">Register</button>
+        <button id="loginBtn">Login</button>
       </div>
-      <ul id="contacts"></ul>
-    </aside>
-
-    <main class="chat-section">
-      <div class="chat-header">
-        <h2 id="chatWith">Select a contact</h2>
-        <button id="deleteAll" class="delete-all">🗑️ Clear Chat</button>
-      </div>
-
-      <div id="chatBox" class="chat-box"></div>
-
-      <div class="chat-input">
-        <input type="file" id="fileInput" style="display:none;">
-        <button onclick="document.getElementById('fileInput').click()">📎</button>
-        <input type="text" id="msg" placeholder="Type a message...">
-        <button id="send">Send ➤</button>
-      </div>
-    </main>
+    </div>
   </div>
 
-  <script type="module">
-    import { initChat } from "./chat.js";
-    initChat(prompt("Masukkan username kamu:"));
-  </script>
+  <!-- CHAT SECTION: disembunyikan sampai login sukses (auth.js yg kontrol) -->
+  <div id="chat-section" class="chat-section" style="display:none;">
+    <div id="chat-container">
+
+      <!-- SIDEBAR KIRI -->
+      <aside id="sidebar" class="sidebar">
+        <div class="sidebar-top">
+          <div class="profile">
+            <div class="avatar">😎</div>
+            <div>
+              <div id="currentUser" class="currentUser">Username</div>
+              <div class="status">Online</div>
+            </div>
+          </div>
+
+          <h3 class="contacts-title">Contacts</h3>
+
+          <div class="contacts-wrap">
+            <ul id="contacts" class="contacts-list">
+              <!-- contacts di-render dinamis oleh chat.js -->
+            </ul>
+          </div>
+
+          <div class="add-contact">
+            <input id="addContact" type="text" placeholder="Add contact username" />
+            <button id="addBtn">Add</button>
+          </div>
+        </div>
+
+        <div class="sidebar-bottom">
+          <button id="logout" class="logout-btn">Logout</button>
+        </div>
+      </aside>
+
+      <!-- CHAT AREA KANAN -->
+      <main id="chat-area" class="chat-area">
+        <header id="chat-header" class="chat-header">
+          <h2 id="chatWith">Select a contact 👇</h2>
+          <div class="header-actions">
+            <button id="deleteAll" class="btn-link">🗑️ Hapus Semua</button>
+          </div>
+        </header>
+
+        <section id="chatBox" class="chat-box" aria-live="polite">
+          <!-- pesan akan di-append di sini oleh chat.js -->
+        </section>
+
+        <footer id="inputArea" class="input-area">
+          <div class="input-left">
+            <input id="msg" type="text" placeholder="Tulis pesan..." autocomplete="off" />
+          </div>
+
+          <div class="input-right">
+            <input id="fileInput" type="file" style="display:none" />
+            <label for="fileInput" class="file-btn" title="Attach file">📎</label>
+            <button id="send" class="send-btn">Send</button>
+          </div>
+        </footer>
+      </main>
+
+    </div>
+  </div>
+
+  <!-- Script: auth.js akan import chat.js ketika login sukses (sesuai project lo) -->
+  <script type="module" src="auth.js"></script>
 </body>
 </html>
