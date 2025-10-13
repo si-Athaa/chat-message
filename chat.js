@@ -1,3 +1,5 @@
+console.log("✅ chat.js loaded successfully");
+
 import { db, storage } from "./firebase.js";
 import {
   collection, doc, addDoc, getDoc, getDocs, setDoc, onSnapshot, query, orderBy, deleteDoc
@@ -23,6 +25,7 @@ let unsubscribeChat = null;
 
 // 🔹 Initialize chat system after login
 export async function initChat(username) {
+console.log("🔹 initChat running for:", username);
   currentUsername = username;
   usernameDisplay.textContent = username;
   loadContacts();
