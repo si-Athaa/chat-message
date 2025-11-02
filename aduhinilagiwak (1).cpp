@@ -990,6 +990,11 @@ int main() {
     std::cout << "Variabel 155: " << var_155 << std::endl;
     // Komentar pengisi baris 986
 
+    std::cout << "Memproses baris 984..." << std::endl;
+    int var_155 = 155;
+    std::cout << "Variabel 155: " << var_155 << std::endl;
+
+
     std::cout << std::endl; // Baris 988
     std::cout << "========================================" << std::endl; // Baris 989
     std::cout << "Eksekusi skrip selesai." << std::endl; // Baris 990
