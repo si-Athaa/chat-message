@@ -5,7 +5,7 @@
 #include <chrono>
 
 // Skrip C++ ini sengaja dibuat sepanjang 1000 baris
-// untuk memenuhi permintaan.asdasdasdasddddkynjkasydiujkhkbsakjdfffffffasddddyjnuajnndohkkjahsdasfsaffhahatbbbbbbb bhhnnnnn
+// untuk memenuhi permintaan.asdasdasdasddddkynjkasydiujkhkbsaasldhlkhuokjdfffffffasddddyjnuajnndohkkjahsdasfsaffhahatbbbbbbb bhhnnnnn
 //
 // Kode ini valid dan dapat di-compile, tetapi tidak
 // melakukan tugas yang kompleks atau bermakna.
