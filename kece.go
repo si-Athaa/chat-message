@@ -3,9 +3,9 @@ import "fmt"
 
 func main() {
     nama := "Atha"
-    fmt.Println(greet(nama))
+    fmt.Println(greet(athaaaaaaaaaaa))
 }
 
-func greet(nama string) string {
-    return "Hai " + nama
+func greet(athaaaaaaaaaaa string) string {
+    return "Hai " + athaaaaaaaaaaa
 }
