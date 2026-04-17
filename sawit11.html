@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sawit Sim 2: The Legendary King</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        
+        :root {
+            --primary: #10b981;
+            --bg-light: #f8fafc;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-light);
+            color: #1e293b;
+            user-select: none;
+            padding-bottom: 120px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 4px 20px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid #f1f5f9;
+        }
+
+        /* Navigasi Scrollable yang Lebih Rapi (Carousel Style) */
+        .nav-wrapper {
+            position: relative;
+            width: 100%;
+        }
+        
+        .nav-container {
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Dipusatkan karena menu sekarang lebih sedikit */
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE/Edge */
+            gap: 12px;
+            padding: 4px 12px;
+            -webkit-overflow-scrolling: touch;
+        }
+        .nav-container::-webkit-scrollbar {
+            display: none; /* Chrome, Safari */
+        }
+
+        .nav-item {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: #94a3b8;
+            width: 50px; /* Lebar seragam agar presisi */
+            flex-shrink: 0;
+            scroll-snap-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+            transform: translateY(-4px);
+        }
+
+        .nav-item.active i {
+            background: #ecfdf5;
+            padding: 10px;
+            border-radius: 16px;
+            box-shadow: 0 8px 15px -3px rgba(16, 185, 129, 0.25);
+        }
+
+        .btn-action:active { transform: scale(0.95); }
+
+        @keyframes pulse-soft {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .harvest-btn-anim { animation: pulse-soft 3s ease-in-out infinite; }
+
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+
+        .shake-anim { animation: shake 0.5s infinite; }
+
+        .rank-glow {
+            text-shadow: 0 0 15px rgba(16, 185, 129, 0.7);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { opacity: 0.8; filter: brightness(1); }
+            to { opacity: 1; filter: brightness(1.3); }
+        }
+
+        .mandor-badge {
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            color: white;
+        }
+        
+        .animate-bounce-in {
+            animation: bounceIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes bounceIn {
+            0% { transform: translate(-50%, -20px); opacity: 0; }
+            100% { transform: translate(-50%, 0); opacity: 1; }
+        }
+
+        .quest-claimed {
+            opacity: 0.5;
+            filter: grayscale(100%);
+            pointer-events: none;
+        }
+
+        .goat-title {
+            background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
+            background-size: 300% 300%;
+            color: white;
+            border: 2px solid #ffd700;
+            box-shadow: 0 0 15px #ffd700, inset 0 0 10px #ffd700;
+            animation: rainbow-bg 3s linear infinite, glow-gold 1.5s ease-in-out infinite alternate;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+        }
+        @keyframes rainbow-bg {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        @keyframes glow-gold {
+            from { box-shadow: 0 0 10px #ffd700, inset 0 0 5px #ffd700; border-color: #ffd700; }
+            to { box-shadow: 0 0 25px #ffaa00, inset 0 0 15px #ffaa00; border-color: #ffffff; }
+        }
+
+        .room-bg {
+            background: radial-gradient(circle at top, #311847, #0f172a 80%);
+        }
+        .rgb-text {
+            animation: rainbow-color 3s linear infinite;
+        }
+        @keyframes rainbow-color {
+            0% { color: #ff0000; filter: drop-shadow(0 0 8px #ff0000); }
+            33% { color: #00ff00; filter: drop-shadow(0 0 8px #00ff00); }
+            66% { color: #0000ff; filter: drop-shadow(0 0 8px #0000ff); }
+            100% { color: #ff0000; filter: drop-shadow(0 0 8px #ff0000); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="max-w-md mx-auto px-4 pt-8">
+        
+        <!-- Informasi Header -->
+        <header class="flex justify-between items-start mb-6">
+            <div class="flex-1">
+                <div class="flex items-center gap-2 mb-1">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Saldo Juragan</p>
+                    <span id="city-tag" class="text-[8px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-md font-bold uppercase">JAKARTA</span>
+                </div>
+                <h1 id="display-money" class="text-3xl font-black text-slate-800 tracking-tight">Rp 0</h1>
+            </div>
+            <div class="text-right">
+                <div id="display-rank-container" onclick="changePage('profile')" class="cursor-pointer mb-2 flex justify-end">
+                    <span id="display-rank" class="inline-block bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-[9px] font-black border border-emerald-200 uppercase tracking-tighter">
+                        Fufufafa
+                    </span>
+                </div>
+                <div id="tax-timer-ui" class="text-[9px] font-bold text-red-500 flex items-center justify-end gap-1">
+                    <i class="fa-solid fa-clock"></i> PAJAK: <span id="tax-countdown">--:--:--</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Bar Statistik -->
+        <div class="grid grid-cols-3 gap-2 mb-6">
+            <div class="card p-3 text-center">
+                <p class="text-[8px] font-bold text-slate-400 uppercase">Stok</p>
+                <p id="stat-stock" class="text-xs font-bold text-emerald-600">0 T</p>
+            </div>
+            <div class="card p-3 text-center">
+                <p class="text-[8px] font-bold text-slate-400 uppercase">Produksi</p>
+                <p id="stat-prod" class="text-xs font-bold text-blue-600">0/s</p>
+            </div>
+            <div class="card p-3 text-center relative overflow-hidden">
+                <p class="text-[8px] font-bold text-slate-400 uppercase">Lahan</p>
+                <p id="stat-hectares" class="text-xs font-bold text-orange-500">1 Ha</p>
+            </div>
+        </div>
+
+        <!-- Area Konten Utama -->
+        <div id="content-area" class="pb-4"></div>
+
+    </div>
+
+    <!-- Navigasi Bawah (Dirapikan & Digabungkan) -->
+    <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[95%] max-w-md bg-white/95 backdrop-blur-md border border-slate-200 rounded-[32px] shadow-2xl py-3 z-50 overflow-hidden">
+        <div class="nav-wrapper">
+            <div class="nav-container">
+                <!-- Kebun & Pasar -->
+                <button onclick="changePage('garden')" id="nav-garden" class="nav-item active">
+                    <i class="fa-solid fa-seedling text-lg mb-1.5"></i>
+                    <span class="text-[8px] font-bold tracking-wide">Kebun</span>
+                </button>
+                <!-- Desa -->
+                <button onclick="changePage('desa')" id="nav-desa" class="nav-item">
+                    <i class="fa-solid fa-house-chimney text-lg mb-1.5"></i>
+                    <span class="text-[8px] font-bold tracking-wide">Desa</span>
+                </button>
+                <!-- Kamar Fullscreen -->
+                <button onclick="openRoom()" id="nav-kamar" class="nav-item">
+                    <i class="fa-solid fa-door-open text-lg mb-1.5"></i>
+                    <span class="text-[8px] font-bold tracking-wide">Kamar</span>
+                </button>
+                <!-- Toko Mewah & Paket -->
+                <button onclick="changePage('shop')" id="nav-shop" class="nav-item relative">
+                    <i class="fa-solid fa-store text-lg mb-1.5"></i>
+                    <span id="paket-badge" class="absolute -top-1 right-1 bg-red-500 text-white text-[8px] w-4 h-4 rounded-full flex items-center justify-center hidden shadow-md border border-white">0</span>
+                    <span class="text-[8px] font-bold tracking-wide">Toko</span>
+                </button>
+                <!-- Upgrade & Quest -->
+                <button onclick="changePage('upgrades')" id="nav-upgrades" class="nav-item relative">
+                    <i class="fa-solid fa-bolt text-lg mb-1.5"></i>
+                    <span id="quest-badge" class="absolute -top-1 right-2 bg-red-500 text-white text-[8px] w-3 h-3 rounded-full flex items-center justify-center hidden shadow-md border border-white">!</span>
+                    <span class="text-[8px] font-bold tracking-wide">Upgrade</span>
+                </button>
+                <!-- Profil -->
+                <button onclick="changePage('profile')" id="nav-profile" class="nav-item">
+                    <i class="fa-solid fa-user-tie text-lg mb-1.5"></i>
+                    <span class="text-[8px] font-bold tracking-wide">Profil</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Modal Pajak -->
+    <div id="tax-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-6 text-center">
+        <div class="bg-white rounded-3xl p-8 max-w-xs w-full shadow-2xl">
+            <div class="w-20 h-20 bg-red-100 text-red-600 rounded-full flex items-center justify-center text-4xl mx-auto mb-4">
+                <i class="fa-solid fa-hand-holding-dollar"></i>
+            </div>
+            <h2 class="text-xl font-black text-slate-800 mb-2">Pajak Harian!</h2>
+            <p class="text-sm text-slate-500 mb-6">Pemerintah menarik pajak dari total kekayaan Juragan. (Pajak ditarik setiap 24 Jam)</p>
+            <div class="bg-slate-50 p-4 rounded-2xl mb-6">
+                <p id="tax-amount-display" class="text-xl font-black text-red-600">-Rp 0</p>
+            </div>
+            <button onclick="closeTaxModal()" class="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold">BAYAR SEKARANG</button>
+        </div>
+    </div>
+
+    <!-- Modal Kamar Fullscreen -->
+    <div id="room-modal" class="fixed inset-0 z-[200] hidden flex-col bg-slate-900 transition-opacity duration-300">
+        <!-- Top Bar -->
+        <div class="px-6 py-4 flex justify-between items-center bg-black/60 backdrop-blur-md border-b border-white/10 z-20 shadow-lg">
+            <h2 class="text-lg font-black text-white tracking-widest"><i class="fa-solid fa-door-open mr-2 text-fuchsia-500"></i> KAMAR SULTAN</h2>
+            <button onclick="closeRoom()" class="w-10 h-10 bg-red-600 text-white rounded-full flex items-center justify-center font-black active:scale-95 shadow-[0_0_15px_rgba(220,38,38,0.6)] border border-red-400">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+        </div>
+        <!-- Room Environment -->
+        <div id="room-environment" class="flex-1 relative room-bg overflow-hidden flex flex-col items-center w-full">
+            <!-- Posters/Wall -->
+            <div id="room-wall" class="w-full flex-1 p-8 flex flex-wrap justify-center content-start gap-6 z-10"></div>
+            <!-- Desk -->
+            <div class="w-full h-48 bg-gradient-to-t from-amber-950 to-amber-700 border-t-8 border-amber-600 shadow-[0_-20px_50px_rgba(0,0,0,0.9)] relative flex items-end justify-center pb-8 px-6 z-20 rounded-t-[50px] mx-auto max-w-2xl">
+                <div id="room-desk" class="w-full flex items-end justify-center gap-3 flex-wrap"></div>
+            </div>
+            <!-- Floor pattern -->
+            <div class="absolute bottom-0 w-full h-24 bg-slate-900 opacity-50 z-0 border-t-4 border-slate-800" style="background-image: repeating-linear-gradient(45deg, #1e293b 25%, transparent 25%, transparent 75%, #1e293b 75%, #1e293b), repeating-linear-gradient(45deg, #1e293b 25%, #0f172a 25%, #0f172a 75%, #1e293b 75%, #1e293b); background-position: 0 0, 10px 10px; background-size: 20px 20px;"></div>
+        </div>
+    </div>
+
+    <!-- Container Toast -->
+    <div id="toast-container" class="fixed top-8 left-1/2 -translate-x-1/2 z-[300] flex flex-col gap-2 w-[80%] max-w-xs"></div>
+
+    <script>
+        // --- DATA & KONFIGURASI ---
+        const LUXURY_ITEMS = [
+            { id: 'mouse', name: 'Mouse Gaming RGB', price: 2500000, boost: 1.05, icon: 'fa-computer-mouse', color: 'bg-indigo-100 text-indigo-700' },
+            { id: 'keyboard', name: 'Keyboard Mekanik Custom', price: 8000000, boost: 1.1, icon: 'fa-keyboard', color: 'bg-purple-100 text-purple-700' },
+            { id: 'iphone', name: 'iPhone 17 Pro Max', price: 45000000, boost: 1.2, icon: 'fa-mobile-screen-button', color: 'bg-slate-100 text-slate-700' },
+            { id: 'pc', name: 'PC Master Race RTX 6090', price: 150000000, boost: 1.5, icon: 'fa-desktop', color: 'bg-blue-100 text-blue-700' },
+            { id: 'setup', name: 'Setup Streaming Sultan', price: 600000000, boost: 2.0, icon: 'fa-headset', color: 'bg-fuchsia-100 text-fuchsia-700' },
+            { id: 'rolex', name: 'Rolex Daytona Gold', price: 1500000000, boost: 2.5, icon: 'fa-clock', color: 'bg-yellow-100 text-yellow-700' },
+            { id: 'ferrari', name: 'Ferrari SF90', price: 18000000000, boost: 10, icon: 'fa-car-side', color: 'bg-red-100 text-red-600' },
+            { id: 'jet', name: 'Private Jet Gulfstream', price: 500000000000, boost: 50, icon: 'fa-plane-departure', color: 'bg-sky-100 text-sky-600' },
+            { id: 'island', name: 'Pulau Pribadi', price: 8000000000000, boost: 200, icon: 'fa-umbrella-beach', color: 'bg-emerald-100 text-emerald-600' },
+            { id: 'timemachine', name: 'Mesin Waktu DeLorean', price: 7000000000000000000, boost: 1000, icon: 'fa-hourglass', color: 'bg-indigo-900 text-indigo-100' },
+            { id: 'mars', name: 'Planet Mars Pribadi', price: 8500000000000000000, boost: 2500, icon: 'fa-globe', color: 'bg-red-900 text-red-100' },
+            { id: 'galaxy', name: 'Inti Galaksi Bimasakti', price: 10000000000000000000, boost: 5000, icon: 'fa-meteor', color: 'bg-purple-900 text-purple-100' }
+        ];
+
+        const FOOD_ITEMS = [
+            { id: 'f1', name: 'Nasi Bungkus Kuli', price: 100000, wellness: 1, icon: '🍱' },
+            { id: 'f2', name: 'Sembako Bansos', price: 5000000, wellness: 15, icon: '🛍️' },
+            { id: 'f3', name: 'Pesta Sapi Guling', price: 250000000, wellness: 100, icon: '🥩' },
+            { id: 'f4', name: 'Impor Gandum 1 Kapal', price: 50000000000, wellness: 2500, icon: '🌾' },
+            { id: 'f5', name: 'Logistik Nasional', price: 5000000000000, wellness: 50000, icon: '📦' }
+        ];
+
+        const PALM_TREES = [
+            { id: 't1', name: 'Bibit Biasa', cost: 0, priceMulti: 1, icon: '🌱' },
+            { id: 't2', name: 'Sawit Tenera', cost: 15000000, priceMulti: 5, icon: '🌿' },
+            { id: 't3', name: 'Sawit Dura', cost: 150000000, priceMulti: 15, icon: '🪴' },
+            { id: 't4', name: 'Sawit Super', cost: 5000000000, priceMulti: 50, icon: '🌳' },
+            { id: 't5', name: 'Sawit Hibrida', cost: 50000000000, priceMulti: 150, icon: '🌲' },
+            { id: 't6', name: 'Sawit Emas', cost: 1000000000000, priceMulti: 400, icon: '✨' },
+            { id: 't7', name: 'Sawit Berlian', cost: 50000000000000, priceMulti: 800, icon: '💎' },
+            { id: 't8', name: 'Sawit Quantum', cost: 2000000000000000, priceMulti: 1500, icon: '⚛️' },
+            { id: 't9', name: 'Sawit Kosmik', cost: 50000000000000000, priceMulti: 2000, icon: '🌌' },
+            { id: 't10', name: 'Pohon Dunia Yggdrasil', cost: 500000000000000000, priceMulti: 2500, icon: '👑' }
+        ];
+
+        const VILLAGE_STAGES = [
+            { level: 1, name: 'Gubuk Pinggir Kebun', admin: 'Kawasan Hutan (Belum Ada RT)', img: '🛖 🌴 🛖', cost: 100000000 },
+            { level: 2, name: 'Desa Petani Sawit', admin: 'RT 01 / RW 01', img: '🏕️ 🚜 🏕️ 🛖', cost: 1500000000 },
+            { level: 3, name: 'Kecamatan Sawit Indah', admin: 'Kecamatan (Pusat Warga)', img: '🏡 🏪 🌳 🏡', cost: 50000000000 },
+            { level: 4, name: 'Kota Mandiri', admin: 'Kotamadya (Area Urban)', img: '🏘️ 🏥 🏫 🏘️', cost: 2000000000000 },
+            { level: 5, name: 'Megapolis Sultan', admin: 'Provinsi Metropolitan', img: '🏙️ 🏦 🏢 🏙️', cost: 50000000000000 },
+            { level: 6, name: 'Kerajaan Sawit', admin: 'Pusat Kekaisaran Dunia', img: '🏰 ⛲ 👑 🏰', cost: null }
+        ];
+
+        const CITIES = {
+            jakarta: { name: 'Jakarta', taxRate: 0.20, multiplier: 1.5 },
+            bogor: { name: 'Bogor', taxRate: 0.15, multiplier: 1.1 },
+            depok: { name: 'Depok', taxRate: 0.18, multiplier: 1.2 },
+            tangerang: { name: 'Tangerang', taxRate: 0.19, multiplier: 1.4 },
+            bekasi: { name: 'Bekasi', taxRate: 0.17, multiplier: 1.3 }
+        };
+
+        const RANK_SYSTEM = [
+            { id: 'fufufafa', name: 'Fufufafa', minMoney: 0, icon: '👶', bonus: 1.0, secret: false },
+            { id: 'pemuda', name: 'Pemuda Harapan Desa', minMoney: 50000000, icon: '👦', bonus: 1.2, secret: false },
+            { id: 'gibran', name: 'Gibran', minMoney: 100000000, icon: '💼', bonus: 1.5, secret: false },
+            { id: 'kades', name: 'Kepala Desa', minMoney: 500000000, icon: '👨‍🌾', bonus: 2.0, secret: false },
+            { id: 'prabowo', name: 'Prabowo', minMoney: 5000000000, icon: '🎖️', bonus: 3.0, secret: false },
+            { id: 'bupati', name: 'Bupati Sawit', minMoney: 50000000000, icon: '👔', bonus: 5.0, secret: false },
+            { id: 'juragan19jt', name: 'Juragan 19 Juta LP', minMoney: 1000000000000, icon: '👑', bonus: 10.0, secret: false },
+            { id: 'gubernur', name: 'Gubernur Perkebunan', minMoney: 50000000000000, icon: '🏢', bonus: 15.0, secret: false },
+            { id: 'presiden', name: 'Presiden RI', minMoney: 1000000000000000, icon: '🎖️', bonus: 25.0, secret: false },
+            { id: 'king_sawit', name: 'The King Of Sawit', minMoney: 9000000000000000, icon: '🔥', bonus: 50.0, secret: true },
+            { id: 'legend_19m', name: 'The Legendary King Of 19M L.P', minMoney: 19000000000000000, icon: '🌌', bonus: 200.0, secret: true },
+            { id: 'dewa', name: 'Dewa Sawit', minMoney: 1000000000000000000, icon: '⚡', bonus: 500.0, secret: true },
+            { id: 'galaksi', name: 'Penguasa Galaksi', minMoney: 10000000000000000000, icon: '🪐', bonus: 1000.0, secret: true }
+        ];
+
+        // --- SISTEM QUEST ---
+        const QUESTS = [
+            { id: 'q1', title: 'Tangan Kapalan', desc: 'Lakukan panen (klik) sebanyak 100 kali.', reqType: 'clicks', reqAmount: 100, rewardText: 'Rp 5 Juta', rewardObj: { money: 5000000 } },
+            { id: 'q2', title: 'Juragan Lahan', desc: 'Miliki total 5 Hektar lahan.', reqType: 'hectares', reqAmount: 5, rewardText: 'Rp 50 Juta', rewardObj: { money: 50000000 } },
+            { id: 'q3', title: 'Pemula Tajir', desc: 'Kumpulkan Saldo Rp 100 Juta.', reqType: 'money', reqAmount: 100000000, rewardText: '2 Hektar Lahan', rewardObj: { land: 2 } },
+            { id: 'q4', title: 'Gamer Sawit', desc: 'Beli PC Master Race di Toko Mewah.', reqType: 'item', reqId: 'pc', rewardText: 'Rp 500 Juta', rewardObj: { money: 500000000 } },
+            { id: 'q5', title: 'Tuan Tanah', desc: 'Miliki total 20 Hektar lahan.', reqType: 'hectares', reqAmount: 20, rewardText: 'Rp 2 Miliar', rewardObj: { money: 2000000000 } },
+            { id: 'q6', title: 'Dewa Klik', desc: 'Lakukan panen (klik) sebanyak 2,500 kali.', reqType: 'clicks', reqAmount: 2500, rewardText: 'Rp 10 Miliar', rewardObj: { money: 10000000000 } },
+            { id: 'q7', title: 'Warga Makmur', desc: 'Tingkatkan Kesejahteraan Warga hingga 5,000 poin.', reqType: 'wellness', reqAmount: 5000, rewardText: 'Rp 50 Miliar', rewardObj: { money: 50000000000 } },
+            { id: 'q8', title: 'Miliarder Sejati', desc: 'Kumpulkan Saldo Rp 1 Triliun.', reqType: 'money', reqAmount: 1000000000000, rewardText: 'Level Pohon +1', rewardObj: { tree: 1 } },
+        ];
+
+        // --- STATE DEFAULT GAME ---
+        let defaultState = {
+            money: 10000,
+            stock: 0,
+            hectares: 1,
+            city: 'jakarta',
+            inventory: [],
+            pendingPackages: [],
+            treeLevel: 0,
+            villageLevel: 1,
+            villageWellness: 0,
+            questsClaimed: [],
+            upgrades: { kuli: 1, truk: 0, mandor: 0 },
+            currentPage: 'garden',
+            lastTaxDate: Date.now(),
+            stats: { 
+                totalEarned: 0, 
+                totalClicks: 0, 
+                playStartTime: Date.now(),
+                taxesPaid: 0 
+            },
+            marketPrice: 12000
+        };
+
+        let state = { ...defaultState };
+        const TAX_INTERVAL_MS = 1 * 24 * 60 * 60 * 1000;
+
+        // --- FUNGSI INTI ---
+        function changePage(page) {
+            state.currentPage = page;
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            const activeEl = document.getElementById('nav-' + page);
+            if(activeEl) activeEl.classList.add('active');
+            render();
+        }
+
+        function formatMoney(num) {
+            if (num >= 1e18) return 'Rp ' + (num / 1e18).toFixed(2) + ' Quin';
+            if (num >= 1e15) return 'Rp ' + (num / 1e15).toFixed(2) + ' Quad';
+            if (num >= 1e12) return 'Rp ' + (num / 1e12).toFixed(2) + 'T';
+            if (num >= 1e9) return 'Rp ' + (num / 1e9).toFixed(1) + 'M';
+            if (num >= 1e6) return 'Rp ' + (num / 1e6).toFixed(1) + ' Jt';
+            return 'Rp ' + Math.floor(num).toLocaleString('id-ID');
+        }
+
+        function getUpgradeCost(type) {
+            if(type === 'kuli') return 1000000 * Math.pow(1.5, state.upgrades.kuli - 1);
+            if(type === 'truk') return 5000000 * Math.pow(1.5, state.upgrades.truk);
+            if(type === 'mandor') return 100000000 * Math.pow(2.0, state.upgrades.mandor);
+            if(type === 'land') return 50000000 * Math.pow(1.15, state.hectares - 1);
+            return Infinity;
+        }
+
+        function getCurrentRank() {
+            let rank = RANK_SYSTEM[0];
+            for (let r of RANK_SYSTEM) {
+                if (state.money >= r.minMoney) rank = r;
+            }
+            return rank;
+        }
+
+        function getWellnessMultiplier() {
+            return 1 + (state.villageWellness * 0.001);
+        }
+
+        function getProductionRate() {
+            let rank = getCurrentRank();
+            let mandorBonus = 1 + (state.upgrades.mandor * 0.25);
+            let wellnessBonus = getWellnessMultiplier();
+            let base = ((state.upgrades.truk * 2.5) + (state.hectares * 1.5)) * mandorBonus * wellnessBonus;
+            
+            let luxuryMulti = 1;
+            state.inventory.forEach(itemId => {
+                const item = LUXURY_ITEMS.find(i => i.id === itemId);
+                if (item) luxuryMulti += (item.boost - 1);
+            });
+            
+            let cityMulti = CITIES[state.city].multiplier;
+            return base * luxuryMulti * cityMulti * rank.bonus;
+        }
+
+        function checkQuests() {
+            let questCompleted = false;
+            QUESTS.forEach(q => {
+                if(!state.questsClaimed.includes(q.id)) {
+                    let met = false;
+                    if(q.reqType === 'clicks' && state.stats.totalClicks >= q.reqAmount) met = true;
+                    if(q.reqType === 'hectares' && state.hectares >= q.reqAmount) met = true;
+                    if(q.reqType === 'money' && state.money >= q.reqAmount) met = true;
+                    if(q.reqType === 'wellness' && state.villageWellness >= q.reqAmount) met = true;
+                    if(q.reqType === 'item' && state.inventory.includes(q.reqId)) met = true;
+                    
+                    if(met) questCompleted = true;
+                }
+            });
+
+            const badge = document.getElementById('quest-badge');
+            if(questCompleted) {
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        function update() {
+            state.stock += (getProductionRate() / 10);
+            if (Date.now() - state.lastTaxDate >= TAX_INTERVAL_MS) triggerTax();
+            checkQuests();
+            updateUI();
+        }
+
+        function updateUI() {
+            document.getElementById('display-money').innerText = formatMoney(state.money);
+            document.getElementById('stat-stock').innerText = Math.floor(state.stock).toLocaleString() + ' T';
+            document.getElementById('stat-prod').innerText = getProductionRate().toFixed(1) + '/s';
+            document.getElementById('stat-hectares').innerText = state.hectares.toLocaleString() + ' Ha';
+            
+            const rank = getCurrentRank();
+            const rankEl = document.getElementById('display-rank');
+            const isGoat = state.inventory.includes('timemachine') && state.inventory.includes('mars') && state.inventory.includes('galaxy');
+            
+            if(isGoat) {
+                rankEl.innerText = "👑 THE GOAT 👑";
+                rankEl.className = "inline-block px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter goat-title";
+            } else {
+                rankEl.innerText = rank.name;
+                if(rank.secret) {
+                    rankEl.className = "inline-block bg-orange-500 text-white px-3 py-1 rounded-full text-[9px] font-black border border-orange-300 uppercase tracking-tighter rank-glow";
+                } else {
+                    rankEl.className = "inline-block bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-[9px] font-black border border-emerald-200 uppercase tracking-tighter";
+                }
+            }
+
+            const timeLeft = TAX_INTERVAL_MS - (Date.now() - state.lastTaxDate);
+            const hours = Math.floor(timeLeft / 3600000);
+            const mins = Math.floor((timeLeft % 3600000) / 60000);
+            const secs = Math.floor((timeLeft % 60000) / 1000);
+            document.getElementById('tax-countdown').innerText = `${hours}j ${mins}m ${secs}s`;
+            document.getElementById('city-tag').innerText = CITIES[state.city].name.toUpperCase();
+
+            // Update Badge Paket
+            const badge = document.getElementById('paket-badge');
+            if(state.pendingPackages.length > 0) {
+                badge.innerText = state.pendingPackages.length;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        // --- AKSI ---
+        function harvest() {
+            let rank = getCurrentRank();
+            let mandorBonus = 1 + (state.upgrades.mandor * 0.25);
+            let wellnessBonus = getWellnessMultiplier();
+            let amount = (state.upgrades.kuli * rank.bonus * mandorBonus * wellnessBonus) * (1 + (state.hectares * 0.05));
+            state.stock += amount;
+            state.stats.totalClicks++;
+            updateUI();
+        }
+
+        function getSellingPricePerTon() {
+            let treeMultiplier = PALM_TREES[state.treeLevel].priceMulti;
+            return state.marketPrice * treeMultiplier;
+        }
+
+        function sellAll() {
+            if (state.stock < 1) return showToast("Stok kosong!", "error");
+            let revenue = state.stock * getSellingPricePerTon();
+            state.money += revenue;
+            state.stats.totalEarned += revenue;
+            state.stock = 0;
+            showToast(`Lokal: +${formatMoney(revenue)}`, "success");
+            save(); render();
+        }
+
+        function sellGlobal() {
+            if (state.stock < 100) return showToast("Minimal 100T untuk Ekspor!", "error");
+            let revenue = state.stock * (getSellingPricePerTon() * 1.5);
+            state.money += revenue;
+            state.stats.totalEarned += revenue;
+            state.stock = 0;
+            showToast(`Global: +${formatMoney(revenue)}`, "success");
+            save(); render();
+        }
+
+        function triggerTax() {
+            const taxAmount = state.money * CITIES[state.city].taxRate;
+            document.getElementById('tax-amount-display').innerText = `-${formatMoney(taxAmount)}`;
+            document.getElementById('tax-modal').classList.remove('hidden');
+            state.money -= taxAmount;
+            state.stats.taxesPaid += taxAmount;
+            state.lastTaxDate = Date.now();
+            save();
+        }
+
+        function closeTaxModal() { document.getElementById('tax-modal').classList.add('hidden'); }
+
+        function openRoom() {
+            const modal = document.getElementById('room-modal');
+            const wall = document.getElementById('room-wall');
+            const desk = document.getElementById('room-desk');
+            
+            wall.innerHTML = '';
+            desk.innerHTML = '';
+
+            let hasItems = false;
+
+            if(state.inventory.includes('pc')) {
+                desk.innerHTML += `<div class="text-[5rem] text-blue-400 drop-shadow-[0_0_20px_rgba(96,165,250,0.9)] mx-1 hover:-translate-y-2 transition-transform cursor-pointer" title="PC Master Race"><i class="fa-solid fa-desktop"></i></div>`;
+                hasItems = true;
+            }
+            if(state.inventory.includes('setup')) {
+                desk.innerHTML += `<div class="text-[4rem] rgb-text mx-1 hover:-translate-y-2 transition-transform cursor-pointer" title="Setup Sultan"><i class="fa-solid fa-headset"></i></div>`;
+                hasItems = true;
+            }
+            if(state.inventory.includes('keyboard')) {
+                desk.innerHTML += `<div class="text-[3.5rem] rgb-text mx-1 mt-4 hover:-translate-y-2 transition-transform cursor-pointer" title="Keyboard Mekanik"><i class="fa-solid fa-keyboard"></i></div>`;
+                hasItems = true;
+            }
+            if(state.inventory.includes('mouse')) {
+                desk.innerHTML += `<div class="text-[2.5rem] rgb-text mx-1 mt-6 hover:-translate-y-2 transition-transform cursor-pointer" title="Mouse RGB"><i class="fa-solid fa-computer-mouse"></i></div>`;
+                hasItems = true;
+            }
+            if(state.inventory.includes('iphone')) {
+                desk.innerHTML += `<div class="text-[2.5rem] text-slate-300 drop-shadow-[0_0_10px_white] mx-1 mt-6 hover:-translate-y-2 transition-transform cursor-pointer" title="iPhone 17"><i class="fa-solid fa-mobile-screen-button"></i></div>`;
+                hasItems = true;
+            }
+            if(state.inventory.includes('rolex')) {
+                desk.innerHTML += `<div class="text-[2.5rem] text-yellow-400 drop-shadow-[0_0_15px_rgba(250,204,21,0.9)] mx-1 mt-6 hover:-translate-y-2 transition-transform cursor-pointer" title="Rolex Gold"><i class="fa-solid fa-clock"></i></div>`;
+                hasItems = true;
+            }
+            if(state.inventory.includes('timemachine')) {
+                desk.innerHTML += `<div class="text-[4rem] text-indigo-300 drop-shadow-[0_0_25px_rgba(165,180,252,0.9)] mx-1 hover:-translate-y-2 transition-transform cursor-pointer animate-pulse" title="Mesin Waktu"><i class="fa-solid fa-hourglass"></i></div>`;
+                hasItems = true;
+            }
+
+            const addPoster = (icon, color, title) => {
+                wall.innerHTML += `
+                    <div class="w-24 h-32 bg-slate-800 border-4 border-amber-800 shadow-[0_15px_30px_rgba(0,0,0,0.8)] flex flex-col items-center justify-center gap-2 p-2 relative hover:scale-110 transition-transform cursor-pointer">
+                        <div class="absolute -top-2 w-4 h-4 bg-slate-300 rounded-full shadow-sm border border-slate-500"></div>
+                        <i class="fa-solid ${icon} text-4xl ${color}"></i>
+                        <span class="text-[8px] text-white text-center font-bold bg-black/60 px-1 py-0.5 rounded w-full leading-tight truncate">${title}</span>
+                    </div>
+                `;
+                hasItems = true;
+            };
+
+            if(state.inventory.includes('ferrari')) addPoster('fa-car-side', 'text-red-500 drop-shadow-[0_0_15px_red]', 'Ferrari SF90');
+            if(state.inventory.includes('jet')) addPoster('fa-plane-departure', 'text-sky-400 drop-shadow-[0_0_15px_cyan]', 'Private Jet');
+            if(state.inventory.includes('island')) addPoster('fa-umbrella-beach', 'text-emerald-400 drop-shadow-[0_0_15px_lime]', 'Pulau Pribadi');
+            if(state.inventory.includes('mars')) addPoster('fa-globe', 'text-orange-500 drop-shadow-[0_0_20px_orange]', 'Planet Mars');
+            if(state.inventory.includes('galaxy')) addPoster('fa-meteor', 'text-purple-400 drop-shadow-[0_0_25px_magenta]', 'Inti Galaksi');
+
+            if(!hasItems) {
+                wall.innerHTML = `<div class="text-center text-white/50 mt-20 flex flex-col items-center"><i class="fa-solid fa-spider text-5xl mb-4 opacity-50"></i><p class="text-lg font-black tracking-widest">KAMAR MASIH KOSONG</p><p class="text-xs mt-2 bg-black/30 px-4 py-2 rounded-xl border border-white/10">Beli perlengkapan di Toko Mewah untuk mendekorasi.</p></div>`;
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeRoom() {
+            const modal = document.getElementById('room-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function upgradeTree() {
+            const nextTreeIndex = state.treeLevel + 1;
+            if(nextTreeIndex >= PALM_TREES.length) return showToast("Pohon sudah Maksimal!", "info");
+            
+            const cost = PALM_TREES[nextTreeIndex].cost;
+            if(state.money < cost) return showToast("Dana kurang!", "error");
+
+            state.money -= cost;
+            state.treeLevel = nextTreeIndex;
+            showToast(`Bibit berevolusi menjadi: ${PALM_TREES[nextTreeIndex].name}!`, "success");
+            save(); render();
+        }
+
+        function upgradeVillage() {
+            const stage = VILLAGE_STAGES[state.villageLevel - 1];
+            if(!stage.cost) return showToast("Wilayah sudah Maksimal!", "info");
+            
+            if(state.money < stage.cost) return showToast("Dana kurang!", "error");
+
+            state.money -= stage.cost;
+            state.villageLevel++;
+            showToast(`Wilayah berkembang menjadi: ${VILLAGE_STAGES[state.villageLevel - 1].name}!`, "success");
+            save(); render();
+        }
+
+        function buyFood(id) {
+            const item = FOOD_ITEMS.find(f => f.id === id);
+            if(state.money < item.price) return showToast("Dana kurang!", "error");
+
+            state.money -= item.price;
+            state.villageWellness += item.wellness;
+            showToast(`Membeli ${item.name}! Kesejahteraan +${item.wellness}`, "success");
+            save(); render();
+        }
+
+        function claimQuest(id) {
+            if(state.questsClaimed.includes(id)) return;
+            
+            const q = QUESTS.find(x => x.id === id);
+            let met = false;
+            if(q.reqType === 'clicks' && state.stats.totalClicks >= q.reqAmount) met = true;
+            if(q.reqType === 'hectares' && state.hectares >= q.reqAmount) met = true;
+            if(q.reqType === 'money' && state.money >= q.reqAmount) met = true;
+            if(q.reqType === 'wellness' && state.villageWellness >= q.reqAmount) met = true;
+            if(q.reqType === 'item' && state.inventory.includes(q.reqId)) met = true;
+
+            if(!met) return showToast("Syarat belum terpenuhi!", "error");
+
+            if(q.rewardObj.money) state.money += q.rewardObj.money;
+            if(q.rewardObj.land) state.hectares += q.rewardObj.land;
+            if(q.rewardObj.tree) {
+                if(state.treeLevel < PALM_TREES.length - 1) state.treeLevel++;
+            }
+
+            state.questsClaimed.push(id);
+            showToast(`Quest "${q.title}" Selesai! Reward: ${q.rewardText}`, "success");
+            save(); render(); checkQuests();
+        }
+
+        function buyUpgrade(type) {
+            let cost = getUpgradeCost(type);
+            if (state.money < cost) return showToast("Dana kurang!", "error");
+            
+            state.money -= cost;
+            if (type === 'land') {
+                state.hectares += 1;
+                showToast("Lahan Bertambah 1 Ha!", "success");
+            } else {
+                state.upgrades[type]++;
+                showToast("Upgrade Berhasil!", "success");
+            }
+            save(); render();
+        }
+
+        function buyLuxury(id) {
+            const item = LUXURY_ITEMS.find(i => i.id === id);
+            if (state.money < item.price) return showToast("Dana kurang!", "error");
+            
+            state.money -= item.price;
+            state.pendingPackages.push(id);
+            showToast(`Barang dibeli! Kurir sedang mengirim Paket.`, "success");
+            save(); render();
+        }
+
+        function openPackage(index) {
+            const id = state.pendingPackages.splice(index, 1)[0];
+            state.inventory.push(id);
+            const item = LUXURY_ITEMS.find(i => i.id === id);
+            showToast(`📦 Unboxing berhasil! Mendapat ${item.name}.`, "success");
+            save(); render();
+        }
+
+        function setCity(id) {
+            state.city = id;
+            showToast(`Pindah ke ${CITIES[id].name}`, "info");
+            save(); render();
+        }
+
+        function showToast(msg, type = 'info') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            const el = document.createElement('div');
+            const colors = { success: 'bg-emerald-600', error: 'bg-red-600', info: 'bg-slate-800' };
+            el.className = `${colors[type]} text-white p-4 rounded-2xl shadow-xl text-[10px] font-bold animate-bounce-in text-center mb-2 z-[9999]`;
+            el.innerText = msg;
+            container.appendChild(el);
+            setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 500); }, 3000);
+        }
+
+        // --- RENDERER UTAMA ---
+        function render() {
+            const area = document.getElementById('content-area');
+            if (!area) return;
+            
+            let htmlContent = '';
+
+            // --- 1. TAB KEBUN (TERMASUK PASAR) ---
+            if (state.currentPage === 'garden') {
+                const currentTree = PALM_TREES[state.treeLevel];
+                let maxRender = 120;
+                let displayCount = Math.min(state.hectares, maxRender);
+                
+                let sizeRem = 4;
+                if (state.hectares > 1) sizeRem = 3.5;
+                if (state.hectares >= 5) sizeRem = 2.5;
+                if (state.hectares >= 15) sizeRem = 1.8;
+                if (state.hectares >= 40) sizeRem = 1.2;
+                if (state.hectares >= 80) sizeRem = 0.9;
+
+                let treeElements = '';
+                for(let i = 0; i < displayCount; i++) {
+                    let zIndex = Math.floor(Math.random() * 10);
+                    let offset = (Math.random() * 10) - 5;
+                    let scale = 0.9 + (Math.random() * 0.2);
+                    treeElements += `<span class="inline-block transition-all drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)]" style="font-size: ${sizeRem}rem; line-height: 0.8; transform: translateX(${offset}px) scale(${scale}); z-index: ${zIndex}; pointer-events: none;">${currentTree.icon}</span>`;
+                }
+
+                // Bagian Kebun
+                htmlContent += `
+                    <div class="card p-5 text-center mb-6 relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-full h-1 bg-emerald-500"></div>
+                        <div class="flex justify-between items-center mb-3">
+                            <p class="text-[10px] font-bold text-slate-500 tracking-widest uppercase">Kebun: <span class="text-emerald-600">${state.hectares} Ha</span></p>
+                            <p class="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-100">${formatMoney(getSellingPricePerTon())} / T</p>
+                        </div>
+
+                        <div class="relative w-full h-56 bg-gradient-to-b from-sky-300 via-sky-100 to-emerald-400 rounded-3xl overflow-hidden shadow-inner mb-5 border-4 border-emerald-50/50">
+                            <div class="absolute top-4 left-6 w-12 h-12 bg-gradient-to-tr from-yellow-300 to-yellow-100 rounded-full shadow-[0_0_30px_rgba(253,224,71,0.8)] opacity-90 animate-pulse"></div>
+                            <div class="absolute top-6 right-8 text-4xl opacity-70">☁️</div>
+                            <div class="absolute top-2 left-1/2 text-2xl opacity-50">☁️</div>
+                            <div class="absolute bottom-0 left-0 w-full h-1/4 bg-gradient-to-t from-amber-900 via-amber-700 to-emerald-600 opacity-90"></div>
+                            <div class="absolute bottom-2 left-0 w-full flex flex-wrap justify-center items-end content-end px-2" style="height: 100%;">
+                                ${treeElements}
+                            </div>
+                            ${state.hectares > maxRender ? `<div class="absolute bottom-2 right-3 text-[9px] font-black text-white drop-shadow-md z-20 bg-black/30 px-2 py-1 rounded-full">+${state.hectares - maxRender} Ha</div>` : ''}
+                        </div>
+
+                        <button onclick="harvest()" class="w-full py-5 bg-gradient-to-b from-emerald-400 to-emerald-600 text-white rounded-3xl font-black text-xl flex flex-col items-center justify-center shadow-[0_10px_20px_rgba(16,185,129,0.3)] border-b-[6px] border-emerald-700 active:border-b-0 active:translate-y-2 transition-all harvest-btn-anim mb-4 cursor-pointer">
+                            <span class="drop-shadow-lg flex items-center gap-2"><i class="fa-solid fa-hand-sparkles"></i> KLIK UNTUK PANEN!</span>
+                        </button>
+
+                        <div class="space-y-2 mt-2">
+                            <button onclick="sellAll()" class="w-full py-3 bg-slate-800 text-white rounded-xl font-black text-xs uppercase shadow-md active:scale-95 transition">Jual Semua Lokal</button>
+                            <button onclick="sellGlobal()" class="w-full py-3 bg-blue-600 text-white rounded-xl font-black text-xs flex items-center justify-center gap-2 uppercase tracking-wide shadow-md active:scale-95 transition">
+                                <i class="fa-solid fa-earth-americas"></i> Ekspor Global (+50%)
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                // Bagian Pasar (Trading) digabungkan di bawah Kebun
+                const currentMultiplier = PALM_TREES[state.treeLevel].priceMulti;
+                htmlContent += `
+                    <div class="mt-8 border-t-2 border-slate-200 pt-6">
+                        <div class="mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-chart-line text-blue-500 text-xl"></i>
+                            <h2 class="text-lg font-black text-slate-800">Bursa Pasar CPO</h2>
+                        </div>
+                        <div class="card p-6 text-center mb-6 border-b-4 border-blue-500 bg-gradient-to-b from-white to-blue-50">
+                            <p class="text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-widest">Harga Dasar CPO (Bursa)</p>
+                            <p class="text-sm font-bold text-slate-500 mb-4">${formatMoney(state.marketPrice)} / T</p>
+                            
+                            <div class="bg-blue-100 p-3 rounded-xl border border-blue-200 shadow-inner">
+                                <p class="text-[9px] font-bold text-blue-700 uppercase">Estimasi Jual Anda (${PALM_TREES[state.treeLevel].name})</p>
+                                <h2 class="text-3xl font-black text-blue-800 mt-1">${formatMoney(state.marketPrice * currentMultiplier)}</h2>
+                            </div>
+                        </div>
+                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Pilih Kota Operasional</h3>
+                        <div class="space-y-3">
+                            ${Object.entries(CITIES).map(([id, data]) => `
+                                <div onclick="setCity('${id}')" class="card p-4 cursor-pointer border-2 transition ${state.city === id ? 'border-emerald-500 bg-emerald-50' : 'border-transparent hover:border-slate-200'}">
+                                    <div class="flex justify-between items-center">
+                                        <div>
+                                            <h4 class="font-black text-slate-800">${data.name}</h4>
+                                            <p class="text-[10px] text-slate-500">Pajak: ${data.taxRate * 100}% | Multiplier: x${data.multiplier}</p>
+                                        </div>
+                                        ${state.city === id ? '<i class="fa-solid fa-circle-check text-emerald-500 text-xl drop-shadow-md"></i>' : ''}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            // --- 2. TAB DESA ---
+            if (state.currentPage === 'desa') {
+                const stage = VILLAGE_STAGES[state.villageLevel - 1];
+                
+                let inventoryHTML = '';
+                if(state.inventory.length === 0) {
+                    inventoryHTML = `<p class="text-xs text-slate-400 text-center py-4">Gudang kosong. Beli perlengkapan di Toko Mewah.</p>`;
+                } else {
+                    inventoryHTML = `<div class="grid grid-cols-3 gap-2 mt-3">`;
+                    state.inventory.forEach(itemId => {
+                        const item = LUXURY_ITEMS.find(i => i.id === itemId);
+                        if(item) {
+                            inventoryHTML += `
+                                <div class="bg-slate-50 p-2 rounded-xl border border-slate-100 flex flex-col items-center text-center">
+                                    <div class="w-8 h-8 ${item.color} rounded-full flex items-center justify-center mb-1 text-sm shadow-sm"><i class="fa-solid ${item.icon}"></i></div>
+                                    <p class="text-[8px] font-bold text-slate-700 leading-tight">${item.name}</p>
+                                </div>
+                            `;
+                        }
+                    });
+                    inventoryHTML += `</div>`;
+                }
+
+                htmlContent += `
+                    <div class="card p-6 text-center mb-4 bg-gradient-to-b from-blue-50 to-emerald-50 border-0 shadow-md">
+                        <h2 class="text-sm font-black text-slate-800 mb-2 uppercase tracking-widest">${stage.name}</h2>
+                        
+                        <div class="inline-flex items-center gap-1 bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-[9px] font-bold mb-2 shadow-sm border border-emerald-200">
+                            <i class="fa-solid fa-map-location-dot"></i> Wilayah: ${stage.admin}
+                        </div>
+                        <div class="text-[10px] font-bold text-blue-600 mb-4 bg-blue-100 inline-block px-3 py-1 rounded-full border border-blue-200 shadow-sm">
+                            Kesejahteraan: ${state.villageWellness.toLocaleString()} Poin (+${(state.villageWellness * 0.1).toFixed(1)}% Produksi)
+                        </div>
+
+                        <div class="bg-gradient-to-b from-sky-100 to-emerald-100 p-2 rounded-2xl mb-6 relative overflow-hidden border border-emerald-200/50 h-32 flex flex-col justify-end shadow-inner">
+                            <div class="absolute top-2 left-4 text-2xl opacity-60 animate-pulse">☁️</div>
+                            <div class="absolute top-4 right-6 text-xl opacity-40">☁️</div>
+                            <div class="absolute bottom-0 left-0 w-full h-5 ${state.villageLevel >= 4 ? 'bg-slate-400' : 'bg-amber-700/40'} border-t-2 ${state.villageLevel >= 4 ? 'border-slate-300' : 'border-amber-800/30'}"></div>
+                            <div class="relative z-10 flex justify-center items-end gap-1 text-4xl pb-1 hover:scale-105 transition-transform duration-500 cursor-default" style="letter-spacing: -2px;">
+                                ${stage.img}
+                            </div>
+                        </div>
+
+                        ${stage.cost ? `
+                            <button onclick="upgradeVillage()" class="px-4 py-3 bg-slate-900 text-white rounded-2xl text-[10px] font-bold w-full active:scale-95 transition flex justify-between items-center shadow-lg">
+                                <span>Perluas Peradaban Desa</span>
+                                <span class="text-emerald-400">${formatMoney(stage.cost)}</span>
+                            </button>
+                        ` : `
+                            <div class="px-6 py-3 bg-emerald-600 text-white rounded-2xl text-xs font-bold w-full uppercase shadow-lg border-2 border-emerald-400">Pusat Dunia</div>
+                        `}
+                    </div>
+
+                    <div class="card p-5 mb-4 border-2 border-orange-100 bg-orange-50/30 shadow-sm">
+                        <div class="flex items-center gap-2 mb-3">
+                            <i class="fa-solid fa-bowl-rice text-orange-500 text-xl"></i>
+                            <div>
+                                <h3 class="text-sm font-black text-slate-800">Pasar Pangan & Logistik</h3>
+                                <p class="text-[9px] text-slate-500">Suplai pangan menaikkan kesejahteraan warga.</p>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            ${FOOD_ITEMS.map(f => `
+                                <div class="flex justify-between items-center bg-white p-3 rounded-xl border border-orange-100 shadow-sm">
+                                    <div class="flex items-center gap-3">
+                                        <span class="text-2xl">${f.icon}</span>
+                                        <div>
+                                            <p class="text-xs font-bold text-slate-800">${f.name}</p>
+                                            <p class="text-[9px] text-emerald-600 font-bold">+${f.wellness} Kesejahteraan</p>
+                                        </div>
+                                    </div>
+                                    <button onclick="buyFood('${f.id}')" class="px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-[9px] font-bold active:scale-95 transition">
+                                        Beli (${formatMoney(f.price)})
+                                    </button>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <div class="card p-5 shadow-sm">
+                        <div class="flex items-center gap-2 mb-2">
+                            <i class="fa-solid fa-vault text-amber-500 text-xl"></i>
+                            <h3 class="text-sm font-black text-slate-800">Gudang Harta Mewah</h3>
+                        </div>
+                        ${inventoryHTML}
+                    </div>
+                `;
+            }
+
+            // --- 3. TAB TOKO (TOKO MEWAH + PAKET) ---
+            if (state.currentPage === 'shop') {
+                // Bagian Paket (Unboxing) di atas jika ada
+                if(state.pendingPackages.length > 0) {
+                    htmlContent += `<div class="mb-4 flex items-center gap-2"><i class="fa-solid fa-truck-fast text-red-500 text-xl animate-bounce"></i><h2 class="text-lg font-black text-slate-800">Kurir Pengiriman Paket!</h2></div>`;
+                    state.pendingPackages.forEach((itemId, idx) => {
+                        htmlContent += `
+                            <div class="card p-6 flex flex-col items-center justify-center gap-4 border-2 border-dashed border-emerald-300 bg-emerald-50/80 shadow-md mb-6 relative">
+                                <div class="absolute top-2 right-2 bg-red-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full animate-pulse">Menunggu Dibuka</div>
+                                <div class="text-6xl shake-anim cursor-pointer drop-shadow-xl" onclick="openPackage(${idx})">📦</div>
+                                <div class="text-center">
+                                    <p class="text-xs font-bold text-slate-700 uppercase tracking-widest">Paket Misterius #${idx+1}</p>
+                                </div>
+                                <button onclick="openPackage(${idx})" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-black uppercase shadow-lg active:scale-95 transition">
+                                    Buka Paket (Unboxing)
+                                </button>
+                            </div>
+                        `;
+                    });
+                }
+
+                // Bagian Daftar Barang Mewah
+                htmlContent += `
+                    <div class="mb-4 mt-2 flex items-center gap-2 border-t-2 border-slate-200 pt-4 ${state.pendingPackages.length > 0 ? '' : 'border-t-0 pt-0'}">
+                        <i class="fa-solid fa-gem text-fuchsia-500 text-xl"></i>
+                        <h2 class="text-lg font-black text-slate-800">Toko Barang Mewah & IT</h2>
+                    </div>
+                    <p class="text-[10px] text-slate-500 mb-4">Membeli barang mewah akan memberikan efisiensi produksi yang sangat tinggi!</p>
+                    <div class="space-y-4">
+                        ${LUXURY_ITEMS.map(item => {
+                            const isOwned = state.inventory.includes(item.id) || state.pendingPackages.includes(item.id);
+                            return `
+                            <div class="card p-4 flex items-center gap-4 ${isOwned ? 'opacity-50' : 'hover:border-slate-300 transition-colors shadow-sm'}">
+                                <div class="w-14 h-14 ${item.color} rounded-2xl flex items-center justify-center text-2xl shadow-inner"><i class="fa-solid ${item.icon}"></i></div>
+                                <div class="flex-1">
+                                    <h4 class="text-sm font-bold text-slate-800 leading-tight">${item.name}</h4>
+                                    <p class="text-[10px] text-emerald-600 font-bold mt-0.5">+${(item.boost - 1) * 100}% Efisiensi</p>
+                                </div>
+                                <button onclick="buyLuxury('${item.id}')" ${isOwned ? 'disabled' : ''} class="px-4 py-2 ${isOwned ? 'bg-slate-300 text-slate-500' : 'bg-slate-900 text-white active:scale-95'} rounded-xl text-[10px] font-bold transition shadow-md">
+                                    ${isOwned ? 'DIBELI' : formatMoney(item.price)}
+                                </button>
+                            </div>
+                        `}).join('')}
+                    </div>
+                `;
+            }
+
+            // --- 4. TAB UPGRADE (UPGRADE + QUEST) ---
+            if (state.currentPage === 'upgrades') {
+                const nextTree = PALM_TREES[state.treeLevel + 1];
+                
+                // Bagian Upgrade
+                htmlContent += `
+                    <div class="mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-bolt text-yellow-500 text-xl drop-shadow-sm"></i>
+                        <h2 class="text-lg font-black text-slate-800">Pusat Upgrade</h2>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="card p-5 bg-gradient-to-r from-emerald-900 to-slate-900 text-white border-0 shadow-xl relative overflow-hidden">
+                            <div class="absolute -right-4 -bottom-4 text-6xl opacity-20">🌴</div>
+                            <h3 class="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-1">Evolusi Pohon Sawit</h3>
+                            <p class="text-[10px] text-slate-300 mb-4">Meningkatkan harga jual sawit berkali-kali lipat!</p>
+                            
+                            <div class="flex items-center gap-3 mb-4 bg-black/40 p-3 rounded-xl border border-white/10">
+                                <span class="text-3xl drop-shadow-md">${PALM_TREES[state.treeLevel].icon}</span>
+                                <div>
+                                    <p class="text-[9px] text-slate-400 uppercase">Saat ini</p>
+                                    <p class="text-sm font-bold text-white">${PALM_TREES[state.treeLevel].name}</p>
+                                </div>
+                            </div>
+
+                            ${nextTree ? `
+                                <button onclick="upgradeTree()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-white rounded-xl text-xs font-black uppercase transition flex justify-between px-4 items-center shadow-lg active:scale-95">
+                                    <span>Evolusi ke ${nextTree.name}</span>
+                                    <span>${formatMoney(nextTree.cost)}</span>
+                                </button>
+                            ` : `
+                                <div class="w-full py-3 bg-amber-500 text-slate-900 text-center rounded-xl text-xs font-black uppercase shadow-lg">
+                                    Pohon Level Maksimal (Kekuatan Dewa)
+                                </div>
+                            `}
+                        </div>
+
+                        <div class="card p-4 flex items-center gap-4 border-2 border-emerald-100 bg-emerald-50/30 shadow-sm">
+                            <div class="w-12 h-12 bg-emerald-500 text-white rounded-2xl flex items-center justify-center text-xl shadow-inner"><i class="fa-solid fa-map-location-dot"></i></div>
+                            <div class="flex-1">
+                                <p class="text-sm font-black text-emerald-900 leading-tight">Ekspansi Hektar (Total: ${state.hectares} Ha)</p>
+                                <p class="text-[9px] text-emerald-600 font-bold uppercase tracking-tight mt-0.5">+Produksi & Bonus Klik</p>
+                            </div>
+                            <button onclick="buyUpgrade('land')" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-[10px] font-bold shadow-md active:scale-95 transition">
+                                ${formatMoney(getUpgradeCost('land'))}
+                            </button>
+                        </div>
+
+                        <div class="card p-4 flex items-center gap-4 border-2 border-indigo-100 bg-indigo-50/30 shadow-sm">
+                            <div class="w-12 h-12 mandor-badge rounded-2xl flex items-center justify-center text-xl shadow-inner"><i class="fa-solid fa-user-gear"></i></div>
+                            <div class="flex-1">
+                                <p class="text-sm font-black text-indigo-900 leading-tight">Mandor Efisiensi (Lv ${state.upgrades.mandor})</p>
+                                <p class="text-[9px] text-indigo-600 font-bold uppercase tracking-tight mt-0.5">+25% Semua Produksi</p>
+                            </div>
+                            <button onclick="buyUpgrade('mandor')" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-[10px] font-bold shadow-md active:scale-95 transition">
+                                ${formatMoney(getUpgradeCost('mandor'))}
+                            </button>
+                        </div>
+
+                        <div class="card p-4 flex items-center gap-4 shadow-sm">
+                            <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-2xl flex items-center justify-center text-xl shadow-inner"><i class="fa-solid fa-person-digging"></i></div>
+                            <div class="flex-1">
+                                <p class="text-sm font-bold text-slate-800 leading-tight">Kuli Panen (Lv ${state.upgrades.kuli})</p>
+                                <p class="text-[9px] text-slate-500 mt-0.5">Meningkatkan hasil klik manual</p>
+                            </div>
+                            <button onclick="buyUpgrade('kuli')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-[10px] font-bold shadow-sm active:scale-95 transition">
+                                ${formatMoney(getUpgradeCost('kuli'))}
+                            </button>
+                        </div>
+                        
+                        <div class="card p-4 flex items-center gap-4 shadow-sm">
+                            <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center text-xl shadow-inner"><i class="fa-solid fa-truck-fast"></i></div>
+                            <div class="flex-1">
+                                <p class="text-sm font-bold text-slate-800 leading-tight">Truk Logistik (Lv ${state.upgrades.truk})</p>
+                                <p class="text-[9px] text-slate-500 mt-0.5">Meningkatkan produksi otomatis</p>
+                            </div>
+                            <button onclick="buyUpgrade('truk')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-[10px] font-bold shadow-sm active:scale-95 transition">
+                                ${formatMoney(getUpgradeCost('truk'))}
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                // Bagian Buku Quest digabungkan di bawah Upgrade
+                let questHTML = '';
+                QUESTS.forEach(q => {
+                    const isClaimed = state.questsClaimed.includes(q.id);
+                    let met = false;
+                    let progressText = '';
+                    if(q.reqType === 'clicks') { met = state.stats.totalClicks >= q.reqAmount; progressText = `${state.stats.totalClicks}/${q.reqAmount}`; }
+                    if(q.reqType === 'hectares') { met = state.hectares >= q.reqAmount; progressText = `${state.hectares}/${q.reqAmount}`; }
+                    if(q.reqType === 'money') { met = state.money >= q.reqAmount; progressText = `${formatMoney(state.money)} / ${formatMoney(q.reqAmount)}`; }
+                    if(q.reqType === 'wellness') { met = state.villageWellness >= q.reqAmount; progressText = `${state.villageWellness}/${q.reqAmount}`; }
+                    if(q.reqType === 'item') { met = state.inventory.includes(q.reqId); progressText = met ? '1/1' : '0/1'; }
+
+                    questHTML += `
+                        <div class="card p-4 mb-3 ${isClaimed ? 'quest-claimed shadow-none' : 'shadow-sm'} border-l-4 ${met && !isClaimed ? 'border-emerald-500 bg-emerald-50/50' : 'border-slate-200'} flex justify-between items-center gap-3">
+                            <div class="flex-1">
+                                <h4 class="text-sm font-black text-slate-800">${q.title}</h4>
+                                <p class="text-[10px] text-slate-500 mb-1 leading-tight">${q.desc}</p>
+                                <p class="text-[9px] font-bold text-emerald-600 bg-emerald-100 inline-block px-2 py-0.5 rounded shadow-sm">Hadiah: ${q.rewardText}</p>
+                                <p class="text-[9px] text-slate-400 mt-1 font-medium">Progress: ${progressText}</p>
+                            </div>
+                            <button onclick="claimQuest('${q.id}')" ${!met || isClaimed ? 'disabled' : ''} class="px-4 py-2 rounded-xl text-[10px] font-bold transition ${met && !isClaimed ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-md active:scale-95' : 'bg-slate-100 text-slate-400'}">
+                                ${isClaimed ? 'SELESAI' : 'KLAIM'}
+                            </button>
+                        </div>
+                    `;
+                });
+
+                htmlContent += `
+                    <div class="mt-8 border-t-2 border-slate-200 pt-6">
+                        <div class="mb-4 flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-scroll text-amber-600 text-xl drop-shadow-sm"></i>
+                                <h2 class="text-lg font-black text-slate-800">Buku Quest</h2>
+                            </div>
+                            <span class="text-[10px] font-bold bg-slate-100 text-slate-600 px-3 py-1 rounded-full border border-slate-200 shadow-inner">${state.questsClaimed.length} / ${QUESTS.length} Selesai</span>
+                        </div>
+                        ${questHTML}
+                    </div>
+                `;
+            }
+
+            // --- 5. TAB PROFIL ---
+            if (state.currentPage === 'profile') {
+                const rank = getCurrentRank();
+                const isGoat = state.inventory.includes('timemachine') && state.inventory.includes('mars') && state.inventory.includes('galaxy');
+                const displayName = isGoat ? "THE GOAT (Terhebat Sepanjang Masa)" : rank.name;
+                const displayIcon = isGoat ? "🐐" : rank.icon;
+                const titleClass = isGoat ? "goat-title px-4 py-2 mt-2 rounded-2xl inline-block" : "rank-glow";
+
+                htmlContent += `
+                    <div class="mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-address-card text-slate-600 text-xl"></i>
+                        <h2 class="text-lg font-black text-slate-800">Profil Juragan</h2>
+                    </div>
+                    <div class="card p-6 text-center mb-6 bg-slate-900 text-white border-0 overflow-hidden relative shadow-xl">
+                        <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent"></div>
+                        <div class="relative z-10 text-5xl mb-4 drop-shadow-xl">${displayIcon}</div>
+                        <h2 class="relative z-10 text-2xl font-black mb-1 ${titleClass}">${displayName}</h2>
+                        <div class="relative z-10 mt-4 p-3 bg-white/10 rounded-2xl border border-white/20 shadow-inner">
+                            <p class="text-[10px] text-orange-400 font-bold uppercase tracking-widest">Global Multiplier</p>
+                            <p class="text-lg font-black text-white drop-shadow-md">x${(rank.bonus * (1 + (state.upgrades.mandor * 0.25)) * getWellnessMultiplier()).toFixed(2)}</p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3 mt-6 text-left relative z-10">
+                            <div class="bg-white/5 p-3 rounded-2xl border border-white/10 hover:bg-white/10 transition-colors">
+                                <span class="text-[8px] text-slate-400 block font-bold uppercase">Kekayaan Saat Ini</span>
+                                <span class="text-xs font-bold text-emerald-400 drop-shadow-sm">${formatMoney(state.money)}</span>
+                            </div>
+                            <div class="bg-white/5 p-3 rounded-2xl border border-white/10 hover:bg-white/10 transition-colors">
+                                <span class="text-[8px] text-slate-400 block font-bold uppercase">Total Penghasilan</span>
+                                <span class="text-xs font-bold drop-shadow-sm">${formatMoney(state.stats.totalEarned)}</span>
+                            </div>
+                            <div class="bg-white/5 p-3 rounded-2xl border border-white/10 hover:bg-white/10 transition-colors">
+                                <span class="text-[8px] text-slate-400 block font-bold uppercase">Total Klik Panen</span>
+                                <span class="text-xs font-bold text-blue-400 drop-shadow-sm"><i class="fa-solid fa-hand-pointer mr-1"></i>${state.stats.totalClicks.toLocaleString()} Kali</span>
+                            </div>
+                            <div class="bg-white/5 p-3 rounded-2xl border border-white/10 hover:bg-white/10 transition-colors">
+                                <span class="text-[8px] text-slate-400 block font-bold uppercase">Pajak Terbayar</span>
+                                <span class="text-xs font-bold text-red-400 drop-shadow-sm">${formatMoney(state.stats.taxesPaid)}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card p-6 shadow-sm">
+                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4"><i class="fa-solid fa-list mr-2"></i>Daftar Pangkat & Hierarki</h3>
+                        <div class="space-y-4">
+                            ${RANK_SYSTEM.filter(r => !r.secret || state.money >= r.minMoney).map(r => `
+                                <div class="flex items-center gap-3 opacity-${state.money >= r.minMoney ? '100' : '30'}">
+                                    <div class="text-xl w-8 text-center drop-shadow-sm">${r.icon}</div>
+                                    <div class="flex-1">
+                                        <p class="text-xs font-bold ${state.money >= r.minMoney ? 'text-emerald-600' : 'text-slate-400'}">${r.name}</p>
+                                        <p class="text-[8px] text-slate-400">Target: ${formatMoney(r.minMoney)} | Multi: x${r.bonus}</p>
+                                    </div>
+                                    ${state.money >= r.minMoney ? '<i class="fa-solid fa-circle-check text-[14px] text-emerald-500 drop-shadow-md"></i>' : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <div class="mt-8 p-4 text-center">
+                        <button onclick="if(confirm('Hapus seluruh progres dan kembalikan ke awal?')){localStorage.clear(); location.reload();}" class="text-[9px] font-bold text-red-500 uppercase tracking-widest opacity-40 hover:opacity-100 transition bg-red-50 px-4 py-2 rounded-full border border-red-200">Hapus Data & Reset Kekaisaran</button>
+                    </div>
+                `;
+            }
+
+            // Append HTML ke dalam Container Utama
+            area.innerHTML = htmlContent;
+        }
+
+        // --- SISTEM PENYIMPANAN LOCALSTORAGE ---
+        function save() { 
+            localStorage.setItem('sawitSim2_Legendary_Extended', JSON.stringify(state)); 
+        }
+
+        function load() {
+            let saved = localStorage.getItem('sawitSim2_Legendary_Extended');
+            
+            if (!saved) {
+                saved = localStorage.getItem('sawitSim2_Legendary_Final_V2');
+                if (saved) {
+                    setTimeout(() => showToast("Memulihkan Save Data dari versi lama berhasil!", "success"), 1000);
+                }
+            }
+
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    state = {...defaultState, ...data};
+                    state.villageWellness = state.villageWellness || 0;
+                    state.questsClaimed = state.questsClaimed || [];
+                    
+                    // Transisi Tab lama ke Tab baru jika pemain reload
+                    if (['trading'].includes(state.currentPage)) state.currentPage = 'garden';
+                    if (['luxury', 'paket'].includes(state.currentPage)) state.currentPage = 'shop';
+                    if (['quest'].includes(state.currentPage)) state.currentPage = 'upgrades';
+
+                } catch(e) {
+                    console.error("Gagal memuat data:", e);
+                }
+            }
+        }
+
+        // Inisialisasi Game
+        window.onload = () => {
+            load();
+            changePage(state.currentPage);
+            
+            setInterval(update, 100);
+            
+            setInterval(() => {
+                state.marketPrice += (Math.random() - 0.5) * 600;
+                state.marketPrice = Math.max(8000, Math.min(state.marketPrice, 60000));
+            }, 5000);
+            
+            setInterval(save, 10000);
+        };
+    </script>
+    <footer class="w-full text-center pb-8 pt-4">
+        <p class="text-[10px] font-bold text-slate-400 tracking-widest uppercase">
+            Copyright © 2026 Atha & Levi Dev. Built with passion.
+        </p>
+    </footer>
+</body>
+</html>
