@@ -168,11 +168,6 @@
 </head>
 <body>
 
-    <!-- Tombol Admin Draggable -->
-    <div id="admin-btn" class="fixed top-24 right-4 z-[999] w-10 h-10 bg-slate-900/80 backdrop-blur text-emerald-400 rounded-full flex items-center justify-center cursor-move shadow-[0_0_15px_rgba(0,0,0,0.5)] border border-slate-500 hover:scale-110 transition-transform" style="touch-action: none;">
-        <i class="fa-solid fa-terminal text-sm"></i>
-    </div>
-
     <!-- Modal Admin Auth (Login) -->
     <div id="admin-auth-modal" class="fixed inset-0 z-[1000] hidden flex-col items-center justify-center bg-slate-900/90 backdrop-blur-sm p-4">
         <div class="bg-slate-800 p-6 rounded-2xl w-full max-w-xs border border-slate-600 shadow-2xl text-center">
@@ -573,7 +568,7 @@
             const isGoat = state.inventory.includes('timemachine') && state.inventory.includes('mars') && state.inventory.includes('galaxy');
             
             if (state.hasAdminTitle) {
-                rankEl.innerHTML = `SANG ADMIN <i class="fa-solid fa-circle-check text-blue-500 bg-white rounded-full ml-1 text-[8px] border border-white"></i>`;
+                rankEl.innerHTML = `SANG ADMIN <i class="fa-solid fa-circle-check text-[#1d9bf0] bg-white rounded-full ml-1 text-[8px] border border-white"></i>`;
                 rankEl.className = "inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter goat-title";
             } else if(isGoat) {
                 rankEl.innerText = "👑 THE GOAT 👑";
@@ -835,6 +830,24 @@
 
         // --- SISTEM ADMIN COMMAND ---
         let isAdminUnlocked = false;
+        let adminClickCount = 0;
+        let adminClickTimer = null;
+
+        // Fungsi untuk membuka admin lewat klik footer 3x
+        function handleFooterClick() {
+            adminClickCount++;
+            clearTimeout(adminClickTimer);
+            
+            if (adminClickCount >= 3) {
+                openAdminAuth();
+                adminClickCount = 0; // Reset
+            } else {
+                // Reset hitungan jika tidak diklik lagi dalam 2 detik
+                adminClickTimer = setTimeout(() => {
+                    adminClickCount = 0;
+                }, 2000);
+            }
+        }
 
         function openAdminAuth() {
             if(isAdminUnlocked) {
@@ -859,7 +872,7 @@
 
         function checkAdminCode() {
             const pw = document.getElementById('admin-pw-input').value;
-            if(pw === 'juraganlevixkingatha') {
+            if(pw === 'juraganlevixkingathaandmarwit') {
                 isAdminUnlocked = true;
                 closeAdminModals();
                 openAdminAuth();
@@ -899,74 +912,6 @@
             document.getElementById('admin-cmd-input').value = '';
             save(); updateUI(); render();
             if(document.getElementById('ranked-modal').classList.contains('flex')) updateRankedUI();
-        }
-
-        // Logika Draggable Element (Geser Tombol)
-        function makeDraggable(elmnt) {
-            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-            let isDragging = false;
-            let startX, startY;
-
-            elmnt.onmousedown = dragMouseDown;
-            elmnt.ontouchstart = dragTouchStart;
-
-            function dragMouseDown(e) {
-                e = e || window.event;
-                e.preventDefault();
-                startX = e.clientX;
-                startY = e.clientY;
-                isDragging = false;
-                document.onmouseup = closeDragElement;
-                document.onmousemove = elementDrag;
-            }
-
-            function elementDrag(e) {
-                e = e || window.event;
-                e.preventDefault();
-                let dx = startX - e.clientX;
-                let dy = startY - e.clientY;
-                if(Math.abs(dx) > 5 || Math.abs(dy) > 5) isDragging = true;
-                pos1 = dx;
-                pos2 = dy;
-                startX = e.clientX;
-                startY = e.clientY;
-                elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-                elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
-            }
-
-            function closeDragElement() {
-                document.onmouseup = null;
-                document.onmousemove = null;
-                if (!isDragging) openAdminAuth();
-            }
-
-            function dragTouchStart(e) {
-                e = e || window.event;
-                startX = e.touches[0].clientX;
-                startY = e.touches[0].clientY;
-                isDragging = false;
-                document.ontouchend = closeDragElementTouch;
-                document.ontouchmove = elementDragTouch;
-            }
-
-            function elementDragTouch(e) {
-                e = e || window.event;
-                let dx = startX - e.touches[0].clientX;
-                let dy = startY - e.touches[0].clientY;
-                if(Math.abs(dx) > 5 || Math.abs(dy) > 5) isDragging = true;
-                pos1 = dx;
-                pos2 = dy;
-                startX = e.touches[0].clientX;
-                startY = e.touches[0].clientY;
-                elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-                elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
-            }
-
-            function closeDragElementTouch() {
-                document.ontouchend = null;
-                document.ontouchmove = null;
-                if (!isDragging) openAdminAuth();
-            }
         }
 
         function rollGacha() {
@@ -1712,9 +1657,6 @@
             load();
             changePage(state.currentPage);
             
-            // Aktifkan draggable pada tombol admin
-            makeDraggable(document.getElementById("admin-btn"));
-
             setInterval(update, 100);
             
             setInterval(() => {
@@ -1726,7 +1668,7 @@
         };
     </script>
     <footer class="w-full text-center pb-8 pt-4">
-        <p class="text-[10px] font-bold text-slate-400 tracking-widest uppercase">
+        <p onclick="handleFooterClick()" class="text-[10px] font-bold text-slate-400 tracking-widest uppercase cursor-pointer">
             Copyright © 2026 Atha & Levi Dev. Built with passion.
         </p>
     </footer>
