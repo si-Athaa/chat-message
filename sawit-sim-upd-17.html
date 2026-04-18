@@ -200,7 +200,8 @@
                 <span class="text-emerald-300">> /add_rate [nominal]</span><br/>
                 <span class="text-emerald-300">> /set_hektar [nominal]</span><br/>
                 <span class="text-emerald-300">> /add_stok [nominal]</span><br/>
-                <span class="text-emerald-300">> /give_titleadmin</span>
+                <span class="text-emerald-300">> /give_titleadmin</span><br/>
+                <span class="text-yellow-400">> /unlock_all</span>
             </p>
             <input type="text" id="admin-cmd-input" class="w-full bg-slate-900 text-emerald-400 px-4 py-3 rounded-xl mb-4 font-mono text-sm border border-emerald-900 focus:outline-none focus:border-emerald-500" placeholder="> enter command...">
             <button onclick="executeCommand()" class="w-full py-3 bg-emerald-700 hover:bg-emerald-600 text-white rounded-xl font-black tracking-widest transition shadow-lg active:scale-95">EXECUTE</button>
@@ -979,6 +980,16 @@
             } else if (cmd === '/give_titleadmin') {
                 state.hasAdminTitle = true;
                 showToast(`[Admin] Title "Sang Admin" berhasil diaktifkan!`, "success");
+            } else if (cmd === '/unlock_all') {
+                state.money = 1e27; // 1 Octillion
+                state.hectares = 100;
+                state.treeLevel = PALM_TREES.length - 1;
+                state.villageLevel = VILLAGE_STAGES.length;
+                state.hasAdminTitle = true;
+                LUXURY_ITEMS.forEach(i => {
+                    if(!state.inventory.includes(i.id)) state.inventory.push(i.id);
+                });
+                showToast(`[Admin] SEMUA TELAH DIBUKA!`, "success");
             } else {
                 showToast(`Command / Nominal tidak valid!`, "error");
                 return;
@@ -1688,18 +1699,11 @@
 
         // --- SISTEM PENYIMPANAN LOCALSTORAGE ---
         function save() { 
-            localStorage.setItem('sawitSim2_Legendary_Extended', JSON.stringify(state)); 
+            localStorage.setItem('sawitSim2_Legendary_Clean', JSON.stringify(state)); 
         }
 
         function load() {
-            let saved = localStorage.getItem('sawitSim2_Legendary_Extended');
-            
-            if (!saved) {
-                saved = localStorage.getItem('sawitSim2_Legendary_Final_V2');
-                if (saved) {
-                    setTimeout(() => showToast("Memulihkan Save Data dari versi lama berhasil!", "success"), 1000);
-                }
-            }
+            let saved = localStorage.getItem('sawitSim2_Legendary_Clean');
 
             if (saved) {
                 try {
