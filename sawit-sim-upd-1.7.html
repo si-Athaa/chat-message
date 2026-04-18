@@ -29,7 +29,6 @@
             border: 1px solid #f1f5f9;
         }
 
-        /* Navigasi Scrollable yang Lebih Rapi (Carousel Style) */
         .nav-wrapper {
             position: relative;
             width: 100%;
@@ -164,6 +163,13 @@
         .animate-spin-slow { 
             animation: spin 4s linear infinite; 
         }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
     </style>
 </head>
 <body>
@@ -249,34 +255,28 @@
     <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[95%] max-w-md bg-white/95 backdrop-blur-md border border-slate-200 rounded-[32px] shadow-2xl py-3 z-50 overflow-hidden">
         <div class="nav-wrapper">
             <div class="nav-container">
-                <!-- Kebun & Pasar -->
                 <button onclick="changePage('garden')" id="nav-garden" class="nav-item active">
                     <i class="fa-solid fa-seedling text-lg mb-1.5"></i>
                     <span class="text-[8px] font-bold tracking-wide">Kebun</span>
                 </button>
-                <!-- Desa -->
                 <button onclick="changePage('desa')" id="nav-desa" class="nav-item">
                     <i class="fa-solid fa-house-chimney text-lg mb-1.5"></i>
                     <span class="text-[8px] font-bold tracking-wide">Desa</span>
                 </button>
-                <!-- Kamar Fullscreen -->
                 <button onclick="openRoom()" id="nav-kamar" class="nav-item">
                     <i class="fa-solid fa-door-open text-lg mb-1.5"></i>
                     <span class="text-[8px] font-bold tracking-wide">Kamar</span>
                 </button>
-                <!-- Toko Mewah & Paket -->
                 <button onclick="changePage('shop')" id="nav-shop" class="nav-item relative">
                     <i class="fa-solid fa-store text-lg mb-1.5"></i>
                     <span id="paket-badge" class="absolute -top-1 right-1 bg-red-500 text-white text-[8px] w-4 h-4 rounded-full flex items-center justify-center hidden shadow-md border border-white">0</span>
                     <span class="text-[8px] font-bold tracking-wide">Toko</span>
                 </button>
-                <!-- Upgrade & Quest -->
                 <button onclick="changePage('upgrades')" id="nav-upgrades" class="nav-item relative">
                     <i class="fa-solid fa-bolt text-lg mb-1.5"></i>
                     <span id="quest-badge" class="absolute -top-1 right-2 bg-red-500 text-white text-[8px] w-3 h-3 rounded-full flex items-center justify-center hidden shadow-md border border-white">!</span>
                     <span class="text-[8px] font-bold tracking-wide">Upgrade</span>
                 </button>
-                <!-- Profil -->
                 <button onclick="changePage('profile')" id="nav-profile" class="nav-item">
                     <i class="fa-solid fa-user-tie text-lg mb-1.5"></i>
                     <span class="text-[8px] font-bold tracking-wide">Profil</span>
@@ -300,20 +300,51 @@
         </div>
     </div>
 
-    <!-- Modal Kamar Fullscreen -->
+    <!-- Modal Kamar & Garasi Fullscreen (Swipeable) -->
     <div id="room-modal" class="fixed inset-0 z-[200] hidden flex-col bg-slate-900 transition-opacity duration-300">
-        <div class="px-6 py-4 flex justify-between items-center bg-black/60 backdrop-blur-md border-b border-white/10 z-20 shadow-lg">
-            <h2 class="text-lg font-black text-white tracking-widest"><i class="fa-solid fa-door-open mr-2 text-fuchsia-500"></i> KAMAR SULTAN</h2>
+        <!-- Top Bar -->
+        <div class="px-6 py-4 flex justify-between items-center bg-black/60 backdrop-blur-md border-b border-white/10 z-20 shadow-lg absolute top-0 w-full">
+            <h2 class="text-lg font-black text-white tracking-widest"><i class="fa-solid fa-door-open mr-2 text-fuchsia-500"></i> PROPERTI SULTAN</h2>
             <button onclick="closeRoom()" class="w-10 h-10 bg-red-600 text-white rounded-full flex items-center justify-center font-black active:scale-95 shadow-[0_0_15px_rgba(220,38,38,0.6)] border border-red-400">
                 <i class="fa-solid fa-xmark text-xl"></i>
             </button>
         </div>
-        <div id="room-environment" class="flex-1 relative room-bg overflow-hidden flex flex-col items-center w-full">
-            <div id="room-wall" class="w-full flex-1 p-8 flex flex-wrap justify-center content-start gap-6 z-10"></div>
-            <div class="w-full h-48 bg-gradient-to-t from-amber-950 to-amber-700 border-t-8 border-amber-600 shadow-[0_-20px_50px_rgba(0,0,0,0.9)] relative flex items-end justify-center pb-8 px-6 z-20 rounded-t-[50px] mx-auto max-w-2xl">
-                <div id="room-desk" class="w-full flex items-end justify-center gap-3 flex-wrap"></div>
+
+        <!-- Scrollable Horizontal Container -->
+        <div id="room-scroll-container" class="flex-1 w-full flex overflow-x-auto snap-x snap-mandatory scroll-smooth hide-scrollbar mt-[72px]">
+            
+            <!-- Room 1: Kamar Gaming -->
+            <div class="w-full h-full flex-shrink-0 snap-center relative room-bg flex flex-col items-center">
+                <!-- Hint Swap -->
+                <div class="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 animate-pulse flex flex-col items-center z-30">
+                    <span class="text-[8px] font-bold mb-1 tracking-widest text-center">GARASI</span>
+                    <i class="fa-solid fa-chevron-right text-3xl"></i>
+                </div>
+
+                <div id="room-wall" class="w-full flex-1 p-8 flex flex-wrap justify-center content-start gap-6 z-10 pt-10"></div>
+                <div class="w-full h-48 bg-gradient-to-t from-amber-950 to-amber-700 border-t-8 border-amber-600 shadow-[0_-20px_50px_rgba(0,0,0,0.9)] relative flex items-end justify-center pb-8 px-6 z-20 rounded-t-[50px] mx-auto max-w-2xl">
+                    <div id="room-desk" class="w-full flex items-end justify-center gap-3 flex-wrap"></div>
+                </div>
+                <div class="absolute bottom-0 w-full h-24 bg-slate-900 opacity-50 z-0 border-t-4 border-slate-800" style="background-image: repeating-linear-gradient(45deg, #1e293b 25%, transparent 25%, transparent 75%, #1e293b 75%, #1e293b), repeating-linear-gradient(45deg, #1e293b 25%, #0f172a 25%, #0f172a 75%, #1e293b 75%, #1e293b); background-position: 0 0, 10px 10px; background-size: 20px 20px;"></div>
             </div>
-            <div class="absolute bottom-0 w-full h-24 bg-slate-900 opacity-50 z-0 border-t-4 border-slate-800" style="background-image: repeating-linear-gradient(45deg, #1e293b 25%, transparent 25%, transparent 75%, #1e293b 75%, #1e293b), repeating-linear-gradient(45deg, #1e293b 25%, #0f172a 25%, #0f172a 75%, #1e293b 75%, #1e293b); background-position: 0 0, 10px 10px; background-size: 20px 20px;"></div>
+
+            <!-- Room 2: Garasi Sultan -->
+            <div class="w-full h-full flex-shrink-0 snap-center relative bg-gradient-to-b from-slate-800 to-black flex flex-col items-center justify-end border-l-4 border-slate-700">
+                <!-- Hint Swap -->
+                <div class="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 animate-pulse flex flex-col items-center z-30">
+                    <span class="text-[8px] font-bold mb-1 tracking-widest text-center">KAMAR</span>
+                    <i class="fa-solid fa-chevron-left text-3xl"></i>
+                </div>
+
+                <h2 class="absolute top-10 text-4xl font-black text-transparent bg-clip-text bg-gradient-to-b from-yellow-300 to-yellow-600 drop-shadow-[0_0_15px_rgba(234,179,8,0.5)] tracking-widest uppercase z-20 text-center w-full">Garasi Sultan</h2>
+                
+                <div id="room-garage-vehicles" class="w-full flex-1 flex flex-wrap content-end justify-center gap-6 p-6 z-10 pb-10">
+                    <!-- Vehicles injected here -->
+                </div>
+
+                <!-- Garage Floor -->
+                <div class="absolute bottom-0 w-full h-32 bg-slate-800 border-t-8 border-yellow-500 z-0 shadow-inner" style="background-image: repeating-linear-gradient(90deg, #1e293b 0px, #1e293b 60px, #334155 60px, #334155 120px);"></div>
+            </div>
         </div>
     </div>
 
@@ -374,7 +405,14 @@
             { id: 'island', name: 'Pulau Pribadi', price: 800000000000000, boost: 200, icon: 'fa-umbrella-beach', color: 'bg-emerald-100 text-emerald-600' },
             { id: 'timemachine', name: 'Mesin Waktu DeLorean', price: 7000000000000000000, boost: 1000, icon: 'fa-hourglass', color: 'bg-indigo-900 text-indigo-100' },
             { id: 'mars', name: 'Planet Mars Pribadi', price: 8500000000000000000, boost: 2500, icon: 'fa-globe', color: 'bg-red-900 text-red-100' },
-            { id: 'galaxy', name: 'Inti Galaksi Bimasakti', price: 10000000000000000000, boost: 5000, icon: 'fa-meteor', color: 'bg-purple-900 text-purple-100' }
+            { id: 'galaxy', name: 'Inti Galaksi Bimasakti', price: 10000000000000000000, boost: 5000, icon: 'fa-meteor', color: 'bg-purple-900 text-purple-100' },
+            // Kendaraan Tambahan Ekstrem
+            { id: 'harley', name: 'Harley Davidson Road Glide', price: 1000000000000000000000, boost: 15000, icon: 'fa-motorcycle', color: 'bg-orange-100 text-orange-700' },
+            { id: 'raptor', name: 'Ford Raptor F-150', price: 5000000000000000000000, boost: 30000, icon: 'fa-truck-monster', color: 'bg-stone-100 text-stone-700' },
+            { id: 'testarossa', name: 'Ferrari Testarossa', price: 20000000000000000000000, boost: 80000, icon: 'fa-car', color: 'bg-red-100 text-red-800' },
+            { id: 'porsche', name: 'Porsche 911 Turbo S', price: 50000000000000000000000, boost: 150000, icon: 'fa-car-side', color: 'bg-zinc-100 text-zinc-700' },
+            { id: 'mclaren', name: 'McLaren 720s', price: 150000000000000000000000, boost: 300000, icon: 'fa-car-burst', color: 'bg-amber-100 text-amber-600' },
+            { id: 'huracan', name: 'Lamborghini Huracan STO', price: 500000000000000000000000, boost: 800000, icon: 'fa-car-rear', color: 'bg-green-100 text-green-700' }
         ];
 
         const FOOD_ITEMS = [
@@ -454,10 +492,10 @@
             villageLevel: 1,
             villageWellness: 0,
             questsClaimed: [],
-            rankedPoints: 0, // Poin dari Mode Ranked
-            activeRankedSeed: null, // Menyimpan bibit yang belum dipanen
-            luckyBoostEndTime: 0, // Batas waktu buff Lucky Boost
-            hasAdminTitle: false, // Menyimpan status Title Admin
+            rankedPoints: 0,
+            activeRankedSeed: null, 
+            luckyBoostEndTime: 0, 
+            hasAdminTitle: false, 
             upgrades: { kuli: 1, truk: 0, mandor: 0 },
             currentPage: 'garden',
             lastTaxDate: Date.now(),
@@ -483,6 +521,8 @@
         }
 
         function formatMoney(num) {
+            if (num >= 1e24) return 'Rp ' + (num / 1e24).toFixed(2) + ' Sept';
+            if (num >= 1e21) return 'Rp ' + (num / 1e21).toFixed(2) + ' Sext';
             if (num >= 1e18) return 'Rp ' + (num / 1e18).toFixed(2) + ' Quin';
             if (num >= 1e15) return 'Rp ' + (num / 1e15).toFixed(2) + ' Quad';
             if (num >= 1e12) return 'Rp ' + (num / 1e12).toFixed(2) + 'T';
@@ -589,7 +629,7 @@
             document.getElementById('tax-countdown').innerText = `${hours}j ${mins}m ${secs}s`;
             document.getElementById('city-tag').innerText = CITIES[state.city].name.toUpperCase();
 
-            // Memperbarui Timer UI Lucky Boost (Jika Berada di Shop)
+            // Memperbarui Timer UI Lucky Boost
             const boostTimerEl = document.getElementById('lucky-boost-timer');
             if (boostTimerEl) {
                 if (Date.now() < state.luckyBoostEndTime) {
@@ -678,46 +718,51 @@
             showToast("Lucky Boost Aktif! (+15% Sukses Ranked)", "success");
         }
 
-        // KAMAR
+        // KAMAR & GARASI
         function openRoom() {
             const modal = document.getElementById('room-modal');
             const wall = document.getElementById('room-wall');
             const desk = document.getElementById('room-desk');
+            const garageVehicles = document.getElementById('room-garage-vehicles');
             
             wall.innerHTML = '';
             desk.innerHTML = '';
+            garageVehicles.innerHTML = '';
 
-            let hasItems = false;
+            let hasRoomItems = false;
+            let hasGarageItems = false;
 
+            // --- Dekorasi Meja Kamar ---
             if(state.inventory.includes('pc')) {
                 desk.innerHTML += `<div class="text-[5rem] text-blue-400 drop-shadow-[0_0_20px_rgba(96,165,250,0.9)] mx-1 hover:-translate-y-2 transition-transform cursor-pointer" title="PC Master Race"><i class="fa-solid fa-desktop"></i></div>`;
-                hasItems = true;
+                hasRoomItems = true;
             }
             if(state.inventory.includes('setup')) {
                 desk.innerHTML += `<div class="text-[4rem] rgb-text mx-1 hover:-translate-y-2 transition-transform cursor-pointer" title="Setup Sultan"><i class="fa-solid fa-headset"></i></div>`;
-                hasItems = true;
+                hasRoomItems = true;
             }
             if(state.inventory.includes('keyboard')) {
                 desk.innerHTML += `<div class="text-[3.5rem] rgb-text mx-1 mt-4 hover:-translate-y-2 transition-transform cursor-pointer" title="Keyboard Mekanik"><i class="fa-solid fa-keyboard"></i></div>`;
-                hasItems = true;
+                hasRoomItems = true;
             }
             if(state.inventory.includes('mouse')) {
                 desk.innerHTML += `<div class="text-[2.5rem] rgb-text mx-1 mt-6 hover:-translate-y-2 transition-transform cursor-pointer" title="Mouse RGB"><i class="fa-solid fa-computer-mouse"></i></div>`;
-                hasItems = true;
+                hasRoomItems = true;
             }
             if(state.inventory.includes('iphone')) {
                 desk.innerHTML += `<div class="text-[2.5rem] text-slate-300 drop-shadow-[0_0_10px_white] mx-1 mt-6 hover:-translate-y-2 transition-transform cursor-pointer" title="iPhone 17"><i class="fa-solid fa-mobile-screen-button"></i></div>`;
-                hasItems = true;
+                hasRoomItems = true;
             }
             if(state.inventory.includes('rolex')) {
                 desk.innerHTML += `<div class="text-[2.5rem] text-yellow-400 drop-shadow-[0_0_15px_rgba(250,204,21,0.9)] mx-1 mt-6 hover:-translate-y-2 transition-transform cursor-pointer" title="Rolex Gold"><i class="fa-solid fa-clock"></i></div>`;
-                hasItems = true;
+                hasRoomItems = true;
             }
             if(state.inventory.includes('timemachine')) {
                 desk.innerHTML += `<div class="text-[4rem] text-indigo-300 drop-shadow-[0_0_25px_rgba(165,180,252,0.9)] mx-1 hover:-translate-y-2 transition-transform cursor-pointer animate-pulse" title="Mesin Waktu"><i class="fa-solid fa-hourglass"></i></div>`;
-                hasItems = true;
+                hasRoomItems = true;
             }
 
+            // --- Poster Dinding Kamar ---
             const addPoster = (icon, color, title) => {
                 wall.innerHTML += `
                     <div class="w-24 h-32 bg-slate-800 border-4 border-amber-800 shadow-[0_15px_30px_rgba(0,0,0,0.8)] flex flex-col items-center justify-center gap-2 p-2 relative hover:scale-110 transition-transform cursor-pointer">
@@ -726,21 +771,56 @@
                         <span class="text-[8px] text-white text-center font-bold bg-black/60 px-1 py-0.5 rounded w-full leading-tight truncate">${title}</span>
                     </div>
                 `;
-                hasItems = true;
+                hasRoomItems = true;
             };
 
-            if(state.inventory.includes('ferrari')) addPoster('fa-car-side', 'text-red-500 drop-shadow-[0_0_15px_red]', 'Ferrari SF90');
-            if(state.inventory.includes('jet')) addPoster('fa-plane-departure', 'text-sky-400 drop-shadow-[0_0_15px_cyan]', 'Private Jet');
             if(state.inventory.includes('island')) addPoster('fa-umbrella-beach', 'text-emerald-400 drop-shadow-[0_0_15px_lime]', 'Pulau Pribadi');
             if(state.inventory.includes('mars')) addPoster('fa-globe', 'text-orange-500 drop-shadow-[0_0_20px_orange]', 'Planet Mars');
             if(state.inventory.includes('galaxy')) addPoster('fa-meteor', 'text-purple-400 drop-shadow-[0_0_25px_magenta]', 'Inti Galaksi');
 
-            if(!hasItems) {
-                wall.innerHTML = `<div class="text-center text-white/50 mt-20 flex flex-col items-center"><i class="fa-solid fa-spider text-5xl mb-4 opacity-50"></i><p class="text-lg font-black tracking-widest">KAMAR MASIH KOSONG</p><p class="text-xs mt-2 bg-black/30 px-4 py-2 rounded-xl border border-white/10">Beli perlengkapan di Toko Mewah untuk mendekorasi.</p></div>`;
+            if(!hasRoomItems) {
+                wall.innerHTML = `<div class="text-center text-white/50 mt-20 flex flex-col items-center w-full"><i class="fa-solid fa-spider text-5xl mb-4 opacity-50"></i><p class="text-lg font-black tracking-widest">KAMAR MASIH KOSONG</p><p class="text-xs mt-2 bg-black/30 px-4 py-2 rounded-xl border border-white/10">Beli perlengkapan IT di Toko Mewah.</p></div>`;
+            }
+
+            // --- Koleksi Garasi Sultan ---
+            const gItems = {
+                'becak': { icon: 'fa-bicycle', color: 'text-slate-400 drop-shadow-[0_5px_5px_black]', size: 'text-[3.5rem]', name: 'Becak Balap' },
+                'pickup': { icon: 'fa-truck-pickup', color: 'text-blue-400 drop-shadow-[0_5px_10px_black]', size: 'text-[4.5rem]', name: 'Pick Up' },
+                'ferrari': { icon: 'fa-car-side', color: 'text-red-500 drop-shadow-[0_0_15px_red]', size: 'text-[5.5rem]', name: 'Ferrari SF90' },
+                'jet': { icon: 'fa-plane-departure', color: 'text-sky-400 drop-shadow-[0_0_25px_cyan]', size: 'text-[6rem]', name: 'Private Jet' },
+                'harley': { icon: 'fa-motorcycle', color: 'text-orange-500 drop-shadow-[0_0_15px_orange]', size: 'text-[4.5rem]', name: 'Harley Davidson' },
+                'raptor': { icon: 'fa-truck-monster', color: 'text-stone-300 drop-shadow-[0_0_15px_white]', size: 'text-[5rem]', name: 'Ford Raptor' },
+                'testarossa': { icon: 'fa-car', color: 'text-red-600 drop-shadow-[0_0_20px_red]', size: 'text-[5rem]', name: 'Testarossa' },
+                'porsche': { icon: 'fa-car-side', color: 'text-zinc-300 drop-shadow-[0_0_20px_white]', size: 'text-[5.5rem]', name: 'Porsche 911' },
+                'mclaren': { icon: 'fa-car-burst', color: 'text-amber-500 drop-shadow-[0_0_25px_orange]', size: 'text-[5.5rem]', name: 'McLaren 720s' },
+                'huracan': { icon: 'fa-car-rear', color: 'text-green-500 drop-shadow-[0_0_25px_lime]', size: 'text-[5.5rem]', name: 'Huracan STO' }
+            };
+
+            let garageHTML = '';
+            state.inventory.forEach(itemId => {
+                if(gItems[itemId]) {
+                    hasGarageItems = true;
+                    const v = gItems[itemId];
+                    garageHTML += `
+                        <div class="flex flex-col items-center justify-end mx-2 hover:-translate-y-3 transition-transform cursor-pointer" title="${v.name}">
+                            <div class="${v.size} ${v.color} mb-3">${v.icon ? `<i class="fa-solid ${v.icon}"></i>` : ''}</div>
+                            <span class="text-[8px] font-black text-white bg-black/70 px-2 py-1 rounded-full border border-white/20 uppercase tracking-widest shadow-lg">${v.name}</span>
+                        </div>
+                    `;
+                }
+            });
+
+            if(!hasGarageItems) {
+                garageVehicles.innerHTML = `<div class="text-center text-white/50 mb-10 w-full"><i class="fa-solid fa-car-tunnel text-5xl mb-4 opacity-50"></i><p class="text-lg font-black tracking-widest">GARASI KOSONG</p><p class="text-xs mt-2 bg-black/30 inline-block px-4 py-2 rounded-xl border border-white/10">Beli kendaraan di Toko Mewah.</p></div>`;
+            } else {
+                garageVehicles.innerHTML = garageHTML;
             }
 
             modal.classList.remove('hidden');
             modal.classList.add('flex');
+            
+            // Scroll ke Kamar Utama saat dibuka
+            document.getElementById('room-scroll-container').scrollLeft = 0;
         }
 
         function closeRoom() {
@@ -763,9 +843,8 @@
             const btnGacha = document.getElementById('btn-roll-gacha');
 
             const isBoosted = Date.now() < state.luckyBoostEndTime;
-            const successChance = isBoosted ? 55 : 40; // 60% gagal (40% sukses) base, +15% jika boost
+            const successChance = isBoosted ? 55 : 40;
 
-            // Indikator Buff
             let buffIndicator = isBoosted ? `
                 <div class="absolute top-4 left-4 bg-emerald-900/80 px-3 py-1.5 rounded-xl border border-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)] text-center z-10 flex items-center gap-2">
                     <i class="fa-solid fa-clover text-emerald-400 animate-spin-slow"></i>
@@ -788,7 +867,6 @@
 
             if (state.activeRankedSeed) {
                 let progress = (state.activeRankedSeed.currentClicks / state.activeRankedSeed.targetClicks) * 100;
-                // Jika sudah punya bibit dari Gacha
                 farmArea.innerHTML = `
                     <div class="text-center animate-bounce-in w-full max-w-xs">
                         <p class="text-yellow-400 text-[10px] mb-2 font-bold bg-black/50 inline-block px-3 py-1 rounded-full border border-yellow-600/50">Peluang Sukses: ${successChance}% (Gagal ${100 - successChance}%)</p>
@@ -808,7 +886,6 @@
                 btnGacha.classList.add('opacity-50', 'cursor-not-allowed', 'grayscale');
                 btnGacha.innerHTML = `SELESAIKAN PANEN DULU`;
             } else {
-                // Jika lahan kosong
                 farmArea.innerHTML = `
                     <div class="w-32 h-32 border-4 border-dashed border-red-800/50 rounded-full flex items-center justify-center text-red-900/50 mb-4">
                         <i class="fa-solid fa-seedling text-4xl"></i>
@@ -833,16 +910,14 @@
         let adminClickCount = 0;
         let adminClickTimer = null;
 
-        // Fungsi untuk membuka admin lewat klik footer 3x
         function handleFooterClick() {
             adminClickCount++;
             clearTimeout(adminClickTimer);
             
             if (adminClickCount >= 3) {
                 openAdminAuth();
-                adminClickCount = 0; // Reset
+                adminClickCount = 0; 
             } else {
-                // Reset hitungan jika tidak diklik lagi dalam 2 detik
                 adminClickTimer = setTimeout(() => {
                     adminClickCount = 0;
                 }, 2000);
@@ -915,22 +990,20 @@
         }
 
         function rollGacha() {
-            if (state.activeRankedSeed) return; // Mencegah gacha double
+            if (state.activeRankedSeed) return; 
 
-            const cost = 900000000000000000; // 900 Quad
+            const cost = 900000000000000000; 
             if (state.money < cost) {
                 return showToast(`Saldo kurang! Butuh ${formatMoney(cost)} (900 Quad).`, "error");
             }
             
-            // Bayar tiket gacha
             state.money -= cost;
             save();
-            updateUI(); // Memperbarui tampilan uang di latar belakang
+            updateUI(); 
             
             const farmArea = document.getElementById('ranked-farm-area');
             const btnGacha = document.getElementById('btn-roll-gacha');
 
-            // Set UI ke loading state
             farmArea.innerHTML = `
                 <div class="flex flex-col items-center justify-center h-48">
                     <i class="fa-solid fa-spinner fa-spin text-6xl text-yellow-400 mb-4"></i>
@@ -940,12 +1013,11 @@
             btnGacha.disabled = true;
             btnGacha.classList.add('opacity-50');
             
-            // Animasi spinning (1.5 detik)
             setTimeout(() => {
                 const rankedSeeds = [
-                    { name: 'Bibit Surgawi', icon: '👼', profit: 2500000000000000000, color: 'drop-shadow-[0_0_20px_white]' }, // 2500 Quad
-                    { name: 'Bibit Neraka', icon: '🔥', profit: 6000000000000000000, color: 'drop-shadow-[0_0_20px_red]' }, // 6000 Quad
-                    { name: 'Bibit Kosong', icon: '🌌', profit: 20000000000000000000, color: 'drop-shadow-[0_0_20px_purple]' } // 20000 Quad
+                    { name: 'Bibit Surgawi', icon: '👼', profit: 2500000000000000000, color: 'drop-shadow-[0_0_20px_white]' },
+                    { name: 'Bibit Neraka', icon: '🔥', profit: 6000000000000000000, color: 'drop-shadow-[0_0_20px_red]' }, 
+                    { name: 'Bibit Kosong', icon: '🌌', profit: 20000000000000000000, color: 'drop-shadow-[0_0_20px_purple]' } 
                 ];
                 
                 const randSeed = Math.random();
@@ -958,7 +1030,7 @@
                     icon: pickedSeed.icon,
                     profit: pickedSeed.profit,
                     color: pickedSeed.color,
-                    targetClicks: 30, // Harus di klik 30 kali
+                    targetClicks: 30,
                     currentClicks: 0
                 };
                 
@@ -971,7 +1043,6 @@
         function farmRankedSeed() {
             if (!state.activeRankedSeed) return;
 
-            // Tambahkan klik
             state.activeRankedSeed.currentClicks++;
             
             if (state.activeRankedSeed.currentClicks >= state.activeRankedSeed.targetClicks) {
@@ -979,9 +1050,8 @@
                 const farmArea = document.getElementById('ranked-farm-area');
                 
                 const isBoosted = Date.now() < state.luckyBoostEndTime;
-                const successChance = isBoosted ? 0.55 : 0.40; // 60% gagal default, 45% gagal dengan buff
+                const successChance = isBoosted ? 0.55 : 0.40; 
 
-                // Animasi menghitung hasil
                 farmArea.innerHTML = `
                     <div class="flex flex-col items-center justify-center h-48">
                         <div class="text-[5rem] ${pickedSeed.color} animate-ping mb-4">${pickedSeed.icon}</div>
@@ -1017,21 +1087,20 @@
                         showToast("PANEN GAGAL! SALDO -80%", "error");
                     }
                     
-                    state.activeRankedSeed = null; // Menghapus bibit dari lahan
+                    state.activeRankedSeed = null;
                     save(); 
                     updateUI();
                     render(); 
                     
-                    // Kembalikan area farming ke mode kosong setelah 3 detik
                     setTimeout(() => {
                         if(!state.activeRankedSeed && document.getElementById('ranked-modal').classList.contains('flex')) {
                             updateRankedUI();
                         }
                     }, 3000);
 
-                }, 1000); // Waktu jeda deg-degan
+                }, 1000); 
             } else {
-                updateRankedUI(); // Refresh progres bar
+                updateRankedUI(); 
             }
         }
 
