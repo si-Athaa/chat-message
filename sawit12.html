@@ -38,23 +38,23 @@
         .nav-container {
             display: flex;
             align-items: center;
-            justify-content: center; /* Dipusatkan karena menu sekarang lebih sedikit */
+            justify-content: center;
             overflow-x: auto;
             scroll-snap-type: x mandatory;
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* IE/Edge */
+            scrollbar-width: none;
+            -ms-overflow-style: none;
             gap: 12px;
             padding: 4px 12px;
             -webkit-overflow-scrolling: touch;
         }
         .nav-container::-webkit-scrollbar {
-            display: none; /* Chrome, Safari */
+            display: none;
         }
 
         .nav-item {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             color: #94a3b8;
-            width: 50px; /* Lebar seragam agar presisi */
+            width: 50px;
             flex-shrink: 0;
             scroll-snap-align: center;
             display: flex;
@@ -161,9 +161,50 @@
             66% { color: #0000ff; filter: drop-shadow(0 0 8px #0000ff); }
             100% { color: #ff0000; filter: drop-shadow(0 0 8px #ff0000); }
         }
+        .animate-spin-slow { 
+            animation: spin 4s linear infinite; 
+        }
     </style>
 </head>
 <body>
+
+    <!-- Tombol Admin Draggable -->
+    <div id="admin-btn" class="fixed top-24 right-4 z-[999] w-10 h-10 bg-slate-900/80 backdrop-blur text-emerald-400 rounded-full flex items-center justify-center cursor-move shadow-[0_0_15px_rgba(0,0,0,0.5)] border border-slate-500 hover:scale-110 transition-transform" style="touch-action: none;">
+        <i class="fa-solid fa-terminal text-sm"></i>
+    </div>
+
+    <!-- Modal Admin Auth (Login) -->
+    <div id="admin-auth-modal" class="fixed inset-0 z-[1000] hidden flex-col items-center justify-center bg-slate-900/90 backdrop-blur-sm p-4">
+        <div class="bg-slate-800 p-6 rounded-2xl w-full max-w-xs border border-slate-600 shadow-2xl text-center">
+            <i class="fa-solid fa-lock text-4xl text-slate-400 mb-4"></i>
+            <h2 class="text-white font-black mb-4">SYSTEM OVERRIDE</h2>
+            <input type="password" id="admin-pw-input" class="w-full bg-slate-900 text-white px-4 py-3 rounded-xl mb-4 text-center tracking-widest border border-slate-700 focus:outline-none focus:border-emerald-500" placeholder="ENTER PASSCODE">
+            <div class="flex gap-2">
+                <button onclick="closeAdminModals()" class="flex-1 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-bold transition">CANCEL</button>
+                <button onclick="checkAdminCode()" class="flex-1 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold transition">UNLOCK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Admin Command Console -->
+    <div id="admin-cmd-modal" class="fixed inset-0 z-[1000] hidden flex-col items-center justify-center bg-slate-900/90 backdrop-blur-sm p-4">
+        <div class="bg-slate-800 p-6 rounded-2xl w-full max-w-sm border border-emerald-500/50 shadow-[0_0_30px_rgba(16,185,129,0.2)]">
+            <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-2">
+                <h2 class="text-emerald-400 font-black tracking-widest"><i class="fa-solid fa-terminal mr-2"></i>ADMIN CONSOLE</h2>
+                <button onclick="closeAdminModals()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <p class="text-[10px] text-slate-400 mb-3 font-mono leading-relaxed">
+                Available Commands:<br/>
+                <span class="text-emerald-300">> /add_saldo [nominal]</span><br/>
+                <span class="text-emerald-300">> /add_rate [nominal]</span><br/>
+                <span class="text-emerald-300">> /set_hektar [nominal]</span><br/>
+                <span class="text-emerald-300">> /add_stok [nominal]</span><br/>
+                <span class="text-emerald-300">> /give_titleadmin</span>
+            </p>
+            <input type="text" id="admin-cmd-input" class="w-full bg-slate-900 text-emerald-400 px-4 py-3 rounded-xl mb-4 font-mono text-sm border border-emerald-900 focus:outline-none focus:border-emerald-500" placeholder="> enter command...">
+            <button onclick="executeCommand()" class="w-full py-3 bg-emerald-700 hover:bg-emerald-600 text-white rounded-xl font-black tracking-widest transition shadow-lg active:scale-95">EXECUTE</button>
+        </div>
+    </div>
 
     <div class="max-w-md mx-auto px-4 pt-8">
         
@@ -209,7 +250,7 @@
 
     </div>
 
-    <!-- Navigasi Bawah (Dirapikan & Digabungkan) -->
+    <!-- Navigasi Bawah -->
     <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[95%] max-w-md bg-white/95 backdrop-blur-md border border-slate-200 rounded-[32px] shadow-2xl py-3 z-50 overflow-hidden">
         <div class="nav-wrapper">
             <div class="nav-container">
@@ -266,23 +307,56 @@
 
     <!-- Modal Kamar Fullscreen -->
     <div id="room-modal" class="fixed inset-0 z-[200] hidden flex-col bg-slate-900 transition-opacity duration-300">
-        <!-- Top Bar -->
         <div class="px-6 py-4 flex justify-between items-center bg-black/60 backdrop-blur-md border-b border-white/10 z-20 shadow-lg">
             <h2 class="text-lg font-black text-white tracking-widest"><i class="fa-solid fa-door-open mr-2 text-fuchsia-500"></i> KAMAR SULTAN</h2>
             <button onclick="closeRoom()" class="w-10 h-10 bg-red-600 text-white rounded-full flex items-center justify-center font-black active:scale-95 shadow-[0_0_15px_rgba(220,38,38,0.6)] border border-red-400">
                 <i class="fa-solid fa-xmark text-xl"></i>
             </button>
         </div>
-        <!-- Room Environment -->
         <div id="room-environment" class="flex-1 relative room-bg overflow-hidden flex flex-col items-center w-full">
-            <!-- Posters/Wall -->
             <div id="room-wall" class="w-full flex-1 p-8 flex flex-wrap justify-center content-start gap-6 z-10"></div>
-            <!-- Desk -->
             <div class="w-full h-48 bg-gradient-to-t from-amber-950 to-amber-700 border-t-8 border-amber-600 shadow-[0_-20px_50px_rgba(0,0,0,0.9)] relative flex items-end justify-center pb-8 px-6 z-20 rounded-t-[50px] mx-auto max-w-2xl">
                 <div id="room-desk" class="w-full flex items-end justify-center gap-3 flex-wrap"></div>
             </div>
-            <!-- Floor pattern -->
             <div class="absolute bottom-0 w-full h-24 bg-slate-900 opacity-50 z-0 border-t-4 border-slate-800" style="background-image: repeating-linear-gradient(45deg, #1e293b 25%, transparent 25%, transparent 75%, #1e293b 75%, #1e293b), repeating-linear-gradient(45deg, #1e293b 25%, #0f172a 25%, #0f172a 75%, #1e293b 75%, #1e293b); background-position: 0 0, 10px 10px; background-size: 20px 20px;"></div>
+        </div>
+    </div>
+
+    <!-- Modal Ranked Mode Fullscreen -->
+    <div id="ranked-modal" class="fixed inset-0 z-[200] hidden flex-col bg-slate-900 transition-opacity duration-300">
+        <div class="px-6 py-4 flex justify-between items-center bg-black/80 backdrop-blur-md border-b border-red-900 z-20 shadow-lg">
+            <h2 class="text-lg font-black text-white tracking-widest"><i class="fa-solid fa-trophy mr-2 text-yellow-500"></i> MODE RANKED</h2>
+            <button onclick="closeRankedMode()" class="w-10 h-10 bg-slate-800 text-white rounded-full flex items-center justify-center font-black active:scale-95 shadow-[0_0_15px_rgba(0,0,0,0.6)] border border-slate-600">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+        </div>
+        <div class="flex-1 relative bg-gradient-to-b from-slate-900 via-red-950 to-black overflow-y-auto flex flex-col w-full p-6">
+            <div class="absolute top-4 right-4 bg-black/60 px-4 py-2 rounded-xl border border-yellow-500 shadow-[0_0_10px_rgba(234,179,8,0.3)] text-center z-10">
+                <p class="text-[8px] text-yellow-500 uppercase font-bold tracking-widest">Rate Petani</p>
+                <p class="text-xl font-black text-yellow-400"><span id="ranked-rate-display">0</span> Pts</p>
+            </div>
+
+            <!-- Area Farming (Atas) -->
+            <div class="mt-16 mb-6 flex-1 flex flex-col items-center justify-center border-b-2 border-red-900/50 pb-8">
+                <h3 class="text-xl font-black text-white mb-6 drop-shadow-[0_0_10px_red]">AREA FARMING KOSMIK</h3>
+                <div id="ranked-farm-area" class="w-full flex flex-col items-center justify-center min-h-[200px]">
+                    <!-- Konten dinamis dari JS -->
+                </div>
+            </div>
+
+            <!-- Area Gacha (Bawah) -->
+            <div class="w-full flex flex-col items-center justify-end pb-4">
+                <p class="text-xs text-red-300 bg-red-900/50 px-4 py-2 rounded-lg border border-red-800/50 mb-4 text-center">
+                    Biaya Gacha: <b>900 Quad</b>.<br/>
+                    Menang = Untung Besar + 10 Poin Rate.<br/>
+                    Gagal = <span class="text-red-500 font-bold">Saldo Berkurang 80%!</span>
+                </p>
+                <div class="w-full max-w-xs">
+                    <button onclick="rollGacha()" id="btn-roll-gacha" class="w-full py-5 bg-gradient-to-r from-yellow-500 to-red-600 text-white rounded-2xl font-black text-xl shadow-[0_0_30px_rgba(220,38,38,0.5)] border-2 border-yellow-400 active:scale-95 transition-all hover:shadow-[0_0_40px_rgba(234,179,8,0.6)]">
+                        ROLL GACHA<br/><span class="text-xs font-bold text-yellow-200">Rp 900 Quad</span>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -292,15 +366,17 @@
     <script>
         // --- DATA & KONFIGURASI ---
         const LUXURY_ITEMS = [
-            { id: 'mouse', name: 'Mouse Gaming RGB', price: 2500000, boost: 1.05, icon: 'fa-computer-mouse', color: 'bg-indigo-100 text-indigo-700' },
-            { id: 'keyboard', name: 'Keyboard Mekanik Custom', price: 8000000, boost: 1.1, icon: 'fa-keyboard', color: 'bg-purple-100 text-purple-700' },
-            { id: 'iphone', name: 'iPhone 17 Pro Max', price: 45000000, boost: 1.2, icon: 'fa-mobile-screen-button', color: 'bg-slate-100 text-slate-700' },
-            { id: 'pc', name: 'PC Master Race RTX 6090', price: 150000000, boost: 1.5, icon: 'fa-desktop', color: 'bg-blue-100 text-blue-700' },
-            { id: 'setup', name: 'Setup Streaming Sultan', price: 600000000, boost: 2.0, icon: 'fa-headset', color: 'bg-fuchsia-100 text-fuchsia-700' },
-            { id: 'rolex', name: 'Rolex Daytona Gold', price: 1500000000, boost: 2.5, icon: 'fa-clock', color: 'bg-yellow-100 text-yellow-700' },
-            { id: 'ferrari', name: 'Ferrari SF90', price: 18000000000, boost: 10, icon: 'fa-car-side', color: 'bg-red-100 text-red-600' },
-            { id: 'jet', name: 'Private Jet Gulfstream', price: 500000000000, boost: 50, icon: 'fa-plane-departure', color: 'bg-sky-100 text-sky-600' },
-            { id: 'island', name: 'Pulau Pribadi', price: 8000000000000, boost: 200, icon: 'fa-umbrella-beach', color: 'bg-emerald-100 text-emerald-600' },
+            { id: 'becak', name: 'Becak Balap', price: 50000, boost: 1.01, icon: 'fa-bicycle', color: 'bg-slate-100 text-slate-700' },
+            { id: 'pickup', name: 'Mobil Pick Up', price: 15000000, boost: 1.05, icon: 'fa-truck-pickup', color: 'bg-blue-100 text-blue-700' },
+            { id: 'mouse', name: 'Mouse Gaming RGB', price: 250000000, boost: 1.1, icon: 'fa-computer-mouse', color: 'bg-indigo-100 text-indigo-700' },
+            { id: 'keyboard', name: 'Keyboard Mekanik Custom', price: 800000000, boost: 1.2, icon: 'fa-keyboard', color: 'bg-purple-100 text-purple-700' },
+            { id: 'iphone', name: 'iPhone 17 Pro Max', price: 4500000000, boost: 1.3, icon: 'fa-mobile-screen-button', color: 'bg-slate-100 text-slate-700' },
+            { id: 'pc', name: 'PC Master Race RTX 6090', price: 15000000000, boost: 1.5, icon: 'fa-desktop', color: 'bg-blue-100 text-blue-700' },
+            { id: 'setup', name: 'Setup Streaming Sultan', price: 60000000000, boost: 2.0, icon: 'fa-headset', color: 'bg-fuchsia-100 text-fuchsia-700' },
+            { id: 'rolex', name: 'Rolex Daytona Gold', price: 150000000000, boost: 2.5, icon: 'fa-clock', color: 'bg-yellow-100 text-yellow-700' },
+            { id: 'ferrari', name: 'Ferrari SF90', price: 1800000000000, boost: 10, icon: 'fa-car-side', color: 'bg-red-100 text-red-600' },
+            { id: 'jet', name: 'Private Jet Gulfstream', price: 50000000000000, boost: 50, icon: 'fa-plane-departure', color: 'bg-sky-100 text-sky-600' },
+            { id: 'island', name: 'Pulau Pribadi', price: 800000000000000, boost: 200, icon: 'fa-umbrella-beach', color: 'bg-emerald-100 text-emerald-600' },
             { id: 'timemachine', name: 'Mesin Waktu DeLorean', price: 7000000000000000000, boost: 1000, icon: 'fa-hourglass', color: 'bg-indigo-900 text-indigo-100' },
             { id: 'mars', name: 'Planet Mars Pribadi', price: 8500000000000000000, boost: 2500, icon: 'fa-globe', color: 'bg-red-900 text-red-100' },
             { id: 'galaxy', name: 'Inti Galaksi Bimasakti', price: 10000000000000000000, boost: 5000, icon: 'fa-meteor', color: 'bg-purple-900 text-purple-100' }
@@ -360,7 +436,6 @@
             { id: 'galaksi', name: 'Penguasa Galaksi', minMoney: 10000000000000000000, icon: '🪐', bonus: 1000.0, secret: true }
         ];
 
-        // --- SISTEM QUEST ---
         const QUESTS = [
             { id: 'q1', title: 'Tangan Kapalan', desc: 'Lakukan panen (klik) sebanyak 100 kali.', reqType: 'clicks', reqAmount: 100, rewardText: 'Rp 5 Juta', rewardObj: { money: 5000000 } },
             { id: 'q2', title: 'Juragan Lahan', desc: 'Miliki total 5 Hektar lahan.', reqType: 'hectares', reqAmount: 5, rewardText: 'Rp 50 Juta', rewardObj: { money: 50000000 } },
@@ -384,6 +459,10 @@
             villageLevel: 1,
             villageWellness: 0,
             questsClaimed: [],
+            rankedPoints: 0, // Poin dari Mode Ranked
+            activeRankedSeed: null, // Menyimpan bibit yang belum dipanen
+            luckyBoostEndTime: 0, // Batas waktu buff Lucky Boost
+            hasAdminTitle: false, // Menyimpan status Title Admin
             upgrades: { kuli: 1, truk: 0, mandor: 0 },
             currentPage: 'garden',
             lastTaxDate: Date.now(),
@@ -493,7 +572,10 @@
             const rankEl = document.getElementById('display-rank');
             const isGoat = state.inventory.includes('timemachine') && state.inventory.includes('mars') && state.inventory.includes('galaxy');
             
-            if(isGoat) {
+            if (state.hasAdminTitle) {
+                rankEl.innerHTML = `SANG ADMIN <i class="fa-solid fa-circle-check text-blue-500 bg-white rounded-full ml-1 text-[8px] border border-white"></i>`;
+                rankEl.className = "inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter goat-title";
+            } else if(isGoat) {
                 rankEl.innerText = "👑 THE GOAT 👑";
                 rankEl.className = "inline-block px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter goat-title";
             } else {
@@ -512,7 +594,23 @@
             document.getElementById('tax-countdown').innerText = `${hours}j ${mins}m ${secs}s`;
             document.getElementById('city-tag').innerText = CITIES[state.city].name.toUpperCase();
 
-            // Update Badge Paket
+            // Memperbarui Timer UI Lucky Boost (Jika Berada di Shop)
+            const boostTimerEl = document.getElementById('lucky-boost-timer');
+            if (boostTimerEl) {
+                if (Date.now() < state.luckyBoostEndTime) {
+                    const tLeft = Math.ceil((state.luckyBoostEndTime - Date.now()) / 1000);
+                    const bMins = Math.floor(tLeft / 60);
+                    const bSecs = tLeft % 60;
+                    boostTimerEl.innerText = `${bMins}:${bSecs < 10 ? '0' : ''}${bSecs}`;
+                    boostTimerEl.dataset.active = 'true';
+                } else if (boostTimerEl.dataset.active === 'true') {
+                    // Timer habis, Refresh UI
+                    boostTimerEl.dataset.active = 'false';
+                    render();
+                    if(document.getElementById('ranked-modal').classList.contains('flex')) updateRankedUI();
+                }
+            }
+
             const badge = document.getElementById('paket-badge');
             if(state.pendingPackages.length > 0) {
                 badge.innerText = state.pendingPackages.length;
@@ -570,6 +668,22 @@
 
         function closeTaxModal() { document.getElementById('tax-modal').classList.add('hidden'); }
 
+        function buyLuckyBoost() {
+            const cost = 500000000000000000; // 500 Quad
+            if (state.money < cost) {
+                return showToast(`Saldo kurang! Butuh ${formatMoney(cost)} (500 Quad).`, "error");
+            }
+            state.money -= cost;
+            state.luckyBoostEndTime = Date.now() + (2 * 60 * 1000); // 2 Menit Real Time
+            save();
+            render();
+            if (document.getElementById('ranked-modal').classList.contains('flex')) {
+                updateRankedUI();
+            }
+            showToast("Lucky Boost Aktif! (+15% Sukses Ranked)", "success");
+        }
+
+        // KAMAR
         function openRoom() {
             const modal = document.getElementById('room-modal');
             const wall = document.getElementById('room-wall');
@@ -638,6 +752,342 @@
             const modal = document.getElementById('room-modal');
             modal.classList.add('hidden');
             modal.classList.remove('flex');
+        }
+
+        // RANKED MODE
+        function openRankedMode() {
+            const modal = document.getElementById('ranked-modal');
+            updateRankedUI();
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function updateRankedUI() {
+            document.getElementById('ranked-rate-display').innerText = state.rankedPoints;
+            const farmArea = document.getElementById('ranked-farm-area');
+            const btnGacha = document.getElementById('btn-roll-gacha');
+
+            const isBoosted = Date.now() < state.luckyBoostEndTime;
+            const successChance = isBoosted ? 55 : 40; // 60% gagal (40% sukses) base, +15% jika boost
+
+            // Indikator Buff
+            let buffIndicator = isBoosted ? `
+                <div class="absolute top-4 left-4 bg-emerald-900/80 px-3 py-1.5 rounded-xl border border-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)] text-center z-10 flex items-center gap-2">
+                    <i class="fa-solid fa-clover text-emerald-400 animate-spin-slow"></i>
+                    <div class="text-left">
+                        <p class="text-[8px] text-emerald-300 uppercase font-bold tracking-widest leading-none mb-0.5">Lucky Boost</p>
+                        <p class="text-[10px] font-black text-emerald-400 leading-none">+15% Peluang</p>
+                    </div>
+                </div>
+            ` : '';
+
+            let modalInner = document.getElementById('ranked-modal').querySelector('.relative');
+            let existingBuff = document.getElementById('ranked-buff-indicator');
+            if (isBoosted && !existingBuff) {
+                modalInner.insertAdjacentHTML('afterbegin', `<div id="ranked-buff-indicator">${buffIndicator}</div>`);
+            } else if (!isBoosted && existingBuff) {
+                existingBuff.remove();
+            } else if (isBoosted && existingBuff) {
+                existingBuff.innerHTML = buffIndicator;
+            }
+
+            if (state.activeRankedSeed) {
+                let progress = (state.activeRankedSeed.currentClicks / state.activeRankedSeed.targetClicks) * 100;
+                // Jika sudah punya bibit dari Gacha
+                farmArea.innerHTML = `
+                    <div class="text-center animate-bounce-in w-full max-w-xs">
+                        <p class="text-yellow-400 text-[10px] mb-2 font-bold bg-black/50 inline-block px-3 py-1 rounded-full border border-yellow-600/50">Peluang Sukses: ${successChance}% (Gagal ${100 - successChance}%)</p>
+                        <div class="text-[6rem] mb-2 cursor-pointer transition-transform active:scale-90 ${state.activeRankedSeed.color}" onclick="farmRankedSeed()">
+                            ${state.activeRankedSeed.icon}
+                        </div>
+                        <p class="text-white font-bold text-lg tracking-widest uppercase">${state.activeRankedSeed.name}</p>
+                        <p class="text-slate-400 text-[10px] mb-3">Klik bibit terus menerus untuk memanen!</p>
+                        
+                        <div class="w-full bg-slate-800 rounded-full h-4 border border-slate-600 overflow-hidden shadow-inner">
+                            <div class="bg-gradient-to-r from-emerald-500 to-emerald-300 h-4 rounded-full transition-all duration-100" style="width: ${progress}%"></div>
+                        </div>
+                        <p class="text-[10px] text-emerald-400 font-bold mt-1">${state.activeRankedSeed.currentClicks} / ${state.activeRankedSeed.targetClicks} Klik</p>
+                    </div>
+                `;
+                btnGacha.disabled = true;
+                btnGacha.classList.add('opacity-50', 'cursor-not-allowed', 'grayscale');
+                btnGacha.innerHTML = `SELESAIKAN PANEN DULU`;
+            } else {
+                // Jika lahan kosong
+                farmArea.innerHTML = `
+                    <div class="w-32 h-32 border-4 border-dashed border-red-800/50 rounded-full flex items-center justify-center text-red-900/50 mb-4">
+                        <i class="fa-solid fa-seedling text-4xl"></i>
+                    </div>
+                    <p class="text-slate-400 text-sm font-bold tracking-widest uppercase">Lahan Kosong</p>
+                    <p class="text-slate-500 text-[10px] mt-1">Roll Gacha di bawah untuk mendapat bibit</p>
+                `;
+                btnGacha.disabled = false;
+                btnGacha.classList.remove('opacity-50', 'cursor-not-allowed', 'grayscale');
+                btnGacha.innerHTML = `ROLL GACHA<br/><span class="text-xs font-bold text-yellow-200">Rp 900 Quad</span>`;
+            }
+        }
+
+        function closeRankedMode() {
+            const modal = document.getElementById('ranked-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // --- SISTEM ADMIN COMMAND ---
+        let isAdminUnlocked = false;
+
+        function openAdminAuth() {
+            if(isAdminUnlocked) {
+                document.getElementById('admin-cmd-modal').classList.remove('hidden');
+                document.getElementById('admin-cmd-modal').classList.add('flex');
+                document.getElementById('admin-cmd-input').focus();
+            } else {
+                document.getElementById('admin-auth-modal').classList.remove('hidden');
+                document.getElementById('admin-auth-modal').classList.add('flex');
+                document.getElementById('admin-pw-input').focus();
+            }
+        }
+
+        function closeAdminModals() {
+            document.getElementById('admin-auth-modal').classList.add('hidden');
+            document.getElementById('admin-auth-modal').classList.remove('flex');
+            document.getElementById('admin-cmd-modal').classList.add('hidden');
+            document.getElementById('admin-cmd-modal').classList.remove('flex');
+            document.getElementById('admin-pw-input').value = '';
+            document.getElementById('admin-cmd-input').value = '';
+        }
+
+        function checkAdminCode() {
+            const pw = document.getElementById('admin-pw-input').value;
+            if(pw === 'juraganlevixkingatha') {
+                isAdminUnlocked = true;
+                closeAdminModals();
+                openAdminAuth();
+                showToast("Admin Access Granted.", "success");
+            } else {
+                showToast("Access Denied. Invalid Passcode.", "error");
+                closeAdminModals();
+            }
+        }
+
+        function executeCommand() {
+            const input = document.getElementById('admin-cmd-input').value.trim();
+            const parts = input.split(' ');
+            const cmd = parts[0].toLowerCase();
+            const arg = parseFloat(parts[1]);
+
+            if (cmd === '/add_saldo' && !isNaN(arg)) {
+                state.money += arg;
+                showToast(`[Admin] Saldo ditambahkan: +${formatMoney(arg)}`, "success");
+            } else if (cmd === '/add_rate' && !isNaN(arg)) {
+                state.rankedPoints += arg;
+                showToast(`[Admin] Rate Petani ditambahkan: +${arg}`, "success");
+            } else if (cmd === '/set_hektar' && !isNaN(arg)) {
+                state.hectares = arg;
+                showToast(`[Admin] Hektar diubah menjadi: ${arg}`, "success");
+            } else if (cmd === '/add_stok' && !isNaN(arg)) {
+                state.stock += arg;
+                showToast(`[Admin] Stok ditambahkan: +${arg}T`, "success");
+            } else if (cmd === '/give_titleadmin') {
+                state.hasAdminTitle = true;
+                showToast(`[Admin] Title "Sang Admin" berhasil diaktifkan!`, "success");
+            } else {
+                showToast(`Command / Nominal tidak valid!`, "error");
+                return;
+            }
+
+            document.getElementById('admin-cmd-input').value = '';
+            save(); updateUI(); render();
+            if(document.getElementById('ranked-modal').classList.contains('flex')) updateRankedUI();
+        }
+
+        // Logika Draggable Element (Geser Tombol)
+        function makeDraggable(elmnt) {
+            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            let isDragging = false;
+            let startX, startY;
+
+            elmnt.onmousedown = dragMouseDown;
+            elmnt.ontouchstart = dragTouchStart;
+
+            function dragMouseDown(e) {
+                e = e || window.event;
+                e.preventDefault();
+                startX = e.clientX;
+                startY = e.clientY;
+                isDragging = false;
+                document.onmouseup = closeDragElement;
+                document.onmousemove = elementDrag;
+            }
+
+            function elementDrag(e) {
+                e = e || window.event;
+                e.preventDefault();
+                let dx = startX - e.clientX;
+                let dy = startY - e.clientY;
+                if(Math.abs(dx) > 5 || Math.abs(dy) > 5) isDragging = true;
+                pos1 = dx;
+                pos2 = dy;
+                startX = e.clientX;
+                startY = e.clientY;
+                elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+                elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+            }
+
+            function closeDragElement() {
+                document.onmouseup = null;
+                document.onmousemove = null;
+                if (!isDragging) openAdminAuth();
+            }
+
+            function dragTouchStart(e) {
+                e = e || window.event;
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+                isDragging = false;
+                document.ontouchend = closeDragElementTouch;
+                document.ontouchmove = elementDragTouch;
+            }
+
+            function elementDragTouch(e) {
+                e = e || window.event;
+                let dx = startX - e.touches[0].clientX;
+                let dy = startY - e.touches[0].clientY;
+                if(Math.abs(dx) > 5 || Math.abs(dy) > 5) isDragging = true;
+                pos1 = dx;
+                pos2 = dy;
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+                elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+                elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+            }
+
+            function closeDragElementTouch() {
+                document.ontouchend = null;
+                document.ontouchmove = null;
+                if (!isDragging) openAdminAuth();
+            }
+        }
+
+        function rollGacha() {
+            if (state.activeRankedSeed) return; // Mencegah gacha double
+
+            const cost = 900000000000000000; // 900 Quad
+            if (state.money < cost) {
+                return showToast(`Saldo kurang! Butuh ${formatMoney(cost)} (900 Quad).`, "error");
+            }
+            
+            // Bayar tiket gacha
+            state.money -= cost;
+            save();
+            updateUI(); // Memperbarui tampilan uang di latar belakang
+            
+            const farmArea = document.getElementById('ranked-farm-area');
+            const btnGacha = document.getElementById('btn-roll-gacha');
+
+            // Set UI ke loading state
+            farmArea.innerHTML = `
+                <div class="flex flex-col items-center justify-center h-48">
+                    <i class="fa-solid fa-spinner fa-spin text-6xl text-yellow-400 mb-4"></i>
+                    <p class="text-yellow-400 font-bold animate-pulse tracking-widest">Mencari Bibit Kosmik...</p>
+                </div>
+            `;
+            btnGacha.disabled = true;
+            btnGacha.classList.add('opacity-50');
+            
+            // Animasi spinning (1.5 detik)
+            setTimeout(() => {
+                const rankedSeeds = [
+                    { name: 'Bibit Surgawi', icon: '👼', profit: 2500000000000000000, color: 'drop-shadow-[0_0_20px_white]' }, // 2500 Quad
+                    { name: 'Bibit Neraka', icon: '🔥', profit: 6000000000000000000, color: 'drop-shadow-[0_0_20px_red]' }, // 6000 Quad
+                    { name: 'Bibit Kosong', icon: '🌌', profit: 20000000000000000000, color: 'drop-shadow-[0_0_20px_purple]' } // 20000 Quad
+                ];
+                
+                const randSeed = Math.random();
+                let pickedSeed = rankedSeeds[0];
+                if (randSeed > 0.4 && randSeed <= 0.75) pickedSeed = rankedSeeds[1];
+                if (randSeed > 0.75) pickedSeed = rankedSeeds[2];
+                
+                state.activeRankedSeed = {
+                    name: pickedSeed.name,
+                    icon: pickedSeed.icon,
+                    profit: pickedSeed.profit,
+                    color: pickedSeed.color,
+                    targetClicks: 30, // Harus di klik 30 kali
+                    currentClicks: 0
+                };
+                
+                save();
+                updateRankedUI();
+                showToast(`Gacha Berhasil! Anda mendapat ${pickedSeed.name}.`, "info");
+            }, 1500);
+        }
+
+        function farmRankedSeed() {
+            if (!state.activeRankedSeed) return;
+
+            // Tambahkan klik
+            state.activeRankedSeed.currentClicks++;
+            
+            if (state.activeRankedSeed.currentClicks >= state.activeRankedSeed.targetClicks) {
+                const pickedSeed = state.activeRankedSeed;
+                const farmArea = document.getElementById('ranked-farm-area');
+                
+                const isBoosted = Date.now() < state.luckyBoostEndTime;
+                const successChance = isBoosted ? 0.55 : 0.40; // 60% gagal default, 45% gagal dengan buff
+
+                // Animasi menghitung hasil
+                farmArea.innerHTML = `
+                    <div class="flex flex-col items-center justify-center h-48">
+                        <div class="text-[5rem] ${pickedSeed.color} animate-ping mb-4">${pickedSeed.icon}</div>
+                        <p class="text-white font-bold tracking-widest animate-pulse">Menentukan Nasib...</p>
+                    </div>
+                `;
+
+                setTimeout(() => {
+                    const isWin = Math.random() < successChance;
+                    
+                    if (isWin) {
+                        state.money += pickedSeed.profit;
+                        state.rankedPoints += 10;
+                        farmArea.innerHTML = `
+                            <div class="text-center animate-bounce-in w-full">
+                                <div class="text-6xl mb-2 ${pickedSeed.color}">${pickedSeed.icon}</div>
+                                <p class="text-emerald-400 font-black text-2xl mt-2 drop-shadow-[0_0_10px_lime]">PANEN SUKSES!</p>
+                                <p class="text-emerald-300 text-sm font-bold mt-1">+${formatMoney(pickedSeed.profit)}</p>
+                                <p class="text-yellow-400 text-xs font-bold mt-3 bg-yellow-900/50 inline-block px-3 py-1 rounded-full border border-yellow-500 shadow-sm">+10 Point Rate</p>
+                            </div>
+                        `;
+                        showToast("PANEN SUKSES! UNTUNG BESAR!", "success");
+                    } else {
+                        const lostAmount = state.money * 0.8;
+                        state.money -= lostAmount;
+                        farmArea.innerHTML = `
+                            <div class="text-center animate-bounce-in w-full">
+                                <div class="text-6xl mb-2 ${pickedSeed.color} grayscale opacity-50">${pickedSeed.icon}</div>
+                                <p class="text-red-500 font-black text-2xl mt-2 drop-shadow-[0_0_10px_red]">PANEN GAGAL!</p>
+                                <p class="text-red-400 text-sm font-bold bg-red-950/80 inline-block px-3 py-1 mt-2 rounded border border-red-800 shadow-sm">Saldo hangus 80%<br/>(-${formatMoney(lostAmount)})</p>
+                            </div>
+                        `;
+                        showToast("PANEN GAGAL! SALDO -80%", "error");
+                    }
+                    
+                    state.activeRankedSeed = null; // Menghapus bibit dari lahan
+                    save(); 
+                    updateUI();
+                    render(); 
+                    
+                    // Kembalikan area farming ke mode kosong setelah 3 detik
+                    setTimeout(() => {
+                        if(!state.activeRankedSeed && document.getElementById('ranked-modal').classList.contains('flex')) {
+                            updateRankedUI();
+                        }
+                    }, 3000);
+
+                }, 1000); // Waktu jeda deg-degan
+            } else {
+                updateRankedUI(); // Refresh progres bar
+            }
         }
 
         function upgradeTree() {
@@ -777,8 +1227,11 @@
                     treeElements += `<span class="inline-block transition-all drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)]" style="font-size: ${sizeRem}rem; line-height: 0.8; transform: translateX(${offset}px) scale(${scale}); z-index: ${zIndex}; pointer-events: none;">${currentTree.icon}</span>`;
                 }
 
-                // Bagian Kebun
                 htmlContent += `
+                    <button onclick="openRankedMode()" class="w-full mb-3 py-3 bg-gradient-to-r from-yellow-600 to-red-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-[0_0_10px_rgba(220,38,38,0.5)] active:scale-95 transition border border-yellow-400 animate-pulse">
+                        <i class="fa-solid fa-trophy mr-2"></i> Mode Ranked (Gacha Bibit)
+                    </button>
+
                     <div class="card p-5 text-center mb-6 relative overflow-hidden">
                         <div class="absolute top-0 left-0 w-full h-1 bg-emerald-500"></div>
                         <div class="flex justify-between items-center mb-3">
@@ -810,7 +1263,7 @@
                     </div>
                 `;
 
-                // Bagian Pasar (Trading) digabungkan di bawah Kebun
+                // Pasar (Trading)
                 const currentMultiplier = PALM_TREES[state.treeLevel].priceMulti;
                 htmlContent += `
                     <div class="mt-8 border-t-2 border-slate-200 pt-6">
@@ -936,7 +1389,6 @@
 
             // --- 3. TAB TOKO (TOKO MEWAH + PAKET) ---
             if (state.currentPage === 'shop') {
-                // Bagian Paket (Unboxing) di atas jika ada
                 if(state.pendingPackages.length > 0) {
                     htmlContent += `<div class="mb-4 flex items-center gap-2"><i class="fa-solid fa-truck-fast text-red-500 text-xl animate-bounce"></i><h2 class="text-lg font-black text-slate-800">Kurir Pengiriman Paket!</h2></div>`;
                     state.pendingPackages.forEach((itemId, idx) => {
@@ -955,12 +1407,48 @@
                     });
                 }
 
-                // Bagian Daftar Barang Mewah
+                // Item Lucky Boost Baru
+                const isBoostActive = Date.now() < state.luckyBoostEndTime;
+                let boostHtml = '';
+                if (isBoostActive) {
+                    boostHtml = `
+                        <div class="card p-4 mb-4 bg-gradient-to-r from-emerald-600 to-emerald-800 text-white border-0 shadow-lg relative overflow-hidden">
+                            <div class="absolute -right-4 -bottom-4 text-6xl opacity-10"><i class="fa-solid fa-clover"></i></div>
+                            <div class="flex items-center justify-between relative z-10">
+                                <div class="flex items-center gap-3">
+                                    <i class="fa-solid fa-clover text-3xl text-emerald-300 animate-spin-slow"></i>
+                                    <div>
+                                        <h4 class="text-sm font-bold leading-tight drop-shadow-md">Lucky Boost Aktif!</h4>
+                                        <p class="text-[10px] text-emerald-200">+15% Peluang Sukses Ranked</p>
+                                    </div>
+                                </div>
+                                <div class="text-xl font-black text-emerald-100 bg-black/30 px-3 py-1 rounded-xl shadow-inner border border-white/10" id="lucky-boost-timer" data-active="true">--:--</div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    boostHtml = `
+                        <div class="card p-4 mb-4 border-2 border-emerald-300 bg-emerald-50/50 shadow-sm flex items-center gap-3">
+                            <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center text-2xl shadow-inner"><i class="fa-solid fa-clover"></i></div>
+                            <div class="flex-1">
+                                <h4 class="text-sm font-bold text-slate-800 leading-tight">Lucky Boost Ranked</h4>
+                                <p class="text-[9px] text-slate-500 mt-0.5">+15% Peluang Sukses (Durasi 2 Mnt)</p>
+                            </div>
+                            <button onclick="buyLuckyBoost()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-[10px] font-bold shadow-md active:scale-95 transition">
+                                Beli (500 Quad)
+                            </button>
+                        </div>
+                    `;
+                }
+
                 htmlContent += `
                     <div class="mb-4 mt-2 flex items-center gap-2 border-t-2 border-slate-200 pt-4 ${state.pendingPackages.length > 0 ? '' : 'border-t-0 pt-0'}">
                         <i class="fa-solid fa-gem text-fuchsia-500 text-xl"></i>
                         <h2 class="text-lg font-black text-slate-800">Toko Barang Mewah & IT</h2>
                     </div>
+                    
+                    ${boostHtml}
+
                     <p class="text-[10px] text-slate-500 mb-4">Membeli barang mewah akan memberikan efisiensi produksi yang sangat tinggi!</p>
                     <div class="space-y-4">
                         ${LUXURY_ITEMS.map(item => {
@@ -985,7 +1473,6 @@
             if (state.currentPage === 'upgrades') {
                 const nextTree = PALM_TREES[state.treeLevel + 1];
                 
-                // Bagian Upgrade
                 htmlContent += `
                     <div class="mb-4 flex items-center gap-2">
                         <i class="fa-solid fa-bolt text-yellow-500 text-xl drop-shadow-sm"></i>
@@ -1063,7 +1550,6 @@
                     </div>
                 `;
 
-                // Bagian Buku Quest digabungkan di bawah Upgrade
                 let questHTML = '';
                 QUESTS.forEach(q => {
                     const isClaimed = state.questsClaimed.includes(q.id);
@@ -1108,9 +1594,20 @@
             if (state.currentPage === 'profile') {
                 const rank = getCurrentRank();
                 const isGoat = state.inventory.includes('timemachine') && state.inventory.includes('mars') && state.inventory.includes('galaxy');
-                const displayName = isGoat ? "THE GOAT (Terhebat Sepanjang Masa)" : rank.name;
-                const displayIcon = isGoat ? "🐐" : rank.icon;
-                const titleClass = isGoat ? "goat-title px-4 py-2 mt-2 rounded-2xl inline-block" : "rank-glow";
+                
+                let displayName = rank.name;
+                let displayIcon = rank.icon;
+                let titleClass = "rank-glow";
+
+                if (state.hasAdminTitle) {
+                    displayName = `SANG ADMIN <i class="fa-solid fa-circle-check text-[#1d9bf0] bg-white rounded-full ml-1 drop-shadow-md border border-white"></i>`;
+                    displayIcon = "🛡️";
+                    titleClass = "goat-title px-4 py-2 mt-2 rounded-2xl inline-flex items-center justify-center";
+                } else if (isGoat) {
+                    displayName = "THE GOAT (Terhebat Sepanjang Masa)";
+                    displayIcon = "🐐";
+                    titleClass = "goat-title px-4 py-2 mt-2 rounded-2xl inline-block";
+                }
 
                 htmlContent += `
                     <div class="mb-4 flex items-center gap-2">
@@ -1126,6 +1623,10 @@
                             <p class="text-lg font-black text-white drop-shadow-md">x${(rank.bonus * (1 + (state.upgrades.mandor * 0.25)) * getWellnessMultiplier()).toFixed(2)}</p>
                         </div>
                         <div class="grid grid-cols-2 gap-3 mt-6 text-left relative z-10">
+                            <div class="bg-white/5 p-3 rounded-2xl border border-white/10 hover:bg-white/10 transition-colors col-span-2 flex flex-col items-center">
+                                <span class="text-[8px] text-yellow-500 block font-bold uppercase text-center mb-1">Point Rate Petani (Ranked Mode)</span>
+                                <span class="text-sm font-black text-yellow-400 drop-shadow-sm flex items-center gap-2"><i class="fa-solid fa-trophy"></i>${state.rankedPoints} Pts</span>
+                            </div>
                             <div class="bg-white/5 p-3 rounded-2xl border border-white/10 hover:bg-white/10 transition-colors">
                                 <span class="text-[8px] text-slate-400 block font-bold uppercase">Kekayaan Saat Ini</span>
                                 <span class="text-xs font-bold text-emerald-400 drop-shadow-sm">${formatMoney(state.money)}</span>
@@ -1192,8 +1693,10 @@
                     state = {...defaultState, ...data};
                     state.villageWellness = state.villageWellness || 0;
                     state.questsClaimed = state.questsClaimed || [];
+                    state.rankedPoints = state.rankedPoints || 0;
+                    state.activeRankedSeed = state.activeRankedSeed || null;
+                    state.hasAdminTitle = state.hasAdminTitle || false;
                     
-                    // Transisi Tab lama ke Tab baru jika pemain reload
                     if (['trading'].includes(state.currentPage)) state.currentPage = 'garden';
                     if (['luxury', 'paket'].includes(state.currentPage)) state.currentPage = 'shop';
                     if (['quest'].includes(state.currentPage)) state.currentPage = 'upgrades';
@@ -1209,6 +1712,9 @@
             load();
             changePage(state.currentPage);
             
+            // Aktifkan draggable pada tombol admin
+            makeDraggable(document.getElementById("admin-btn"));
+
             setInterval(update, 100);
             
             setInterval(() => {
