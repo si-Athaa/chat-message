@@ -1,0 +1,2195 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gocar Simulator - Ultimate Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+
+        :root {
+            --primary: #00aa13;
+            --primary-dark: #008910;
+            --bg-city: #f3f4f6;
+            --text-main: #111827;
+            --grass: #91c483;
+            --grass-dark: #7aa56d;
+            --gold: #fbbf24;
+        }
+
+        body, html {
+            margin: 0; padding: 0;
+            width: 100vw; height: 100vh;
+            background-color: #e2e8f0;
+            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        #game-container {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+        }
+
+        canvas { width: 100% !important; height: 100% !important; display: block; }
+
+        /* HUD STYLING */
+        #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 100; }
+        
+        .hud-top {
+            position: absolute; top: 20px; left: 20px; right: 20px;
+            display: flex; flex-direction: column; gap: 10px; pointer-events: all;
+        }
+
+        .hud-row { display: flex; justify-content: space-between; gap: 15px; }
+
+        .hud-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            padding: 10px 20px; border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+            border: 1px solid rgba(255,255,255,0.5);
+            display: flex; align-items: center; gap: 12px;
+        }
+
+        /* PROGRESS BARS */
+        .bar-container { width: 120px; }
+        .bar-bg { height: 8px; background: #f1f5f9; border-radius: 10px; overflow: hidden; margin-top: 4px; }
+        .bar-fill { height: 100%; transition: 0.4s; }
+
+        /* SIDEBAR NAV */
+        .sidebar-nav {
+            position: absolute; left: 20px; top: 50%; transform: translateY(-50%);
+            display: flex; flex-direction: column; gap: 12px; pointer-events: all;
+        }
+
+        .nav-item {
+            background: white; width: 54px; height: 54px; border-radius: 18px;
+            display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            cursor: pointer; transition: 0.3s; border: none;
+        }
+        .nav-item:hover { transform: scale(1.1); background: var(--primary); }
+        .nav-item:hover svg { fill: white; }
+
+        /* MODALS & SCREENS */
+        #phone-wrapper {
+            position: absolute; bottom: -800px; left: 50%; transform: translateX(-50%);
+            width: 320px; height: 620px; background: #1a1a1a;
+            border: 10px solid #333; border-radius: 45px;
+            z-index: 1000; transition: bottom 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+            box-shadow: 0 40px 100px rgba(0,0,0,0.4); pointer-events: all;
+            overflow: hidden;
+        }
+        #phone-wrapper.active { bottom: 30px; }
+        .phone-screen { width: 100%; height: 100%; background: #f8fafc; display: flex; flex-direction: column; }
+        .phone-header { padding: 15px 20px; background: white; display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 800; }
+
+        .modal-wrap {
+            position: absolute; bottom: -1000px; left: 50%; transform: translateX(-50%);
+            width: 90%; max-width: 400px; background: white; border-radius: 30px 30px 0 0;
+            padding: 25px; transition: 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+            pointer-events: all; z-index: 1000; box-shadow: 0 -10px 40px rgba(0,0,0,0.2);
+        }
+        .modal-wrap.active { bottom: 0; }
+
+        /* FULLSCREEN ROOM */
+        #room-screen {
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #0f172a; z-index: 900; color: white; flex-direction: column;
+            pointer-events: all;
+        }
+
+        /* SHOP ITEMS */
+        .shop-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px; background: #f8fafc; border-radius: 15px; margin-bottom: 10px;
+            border: 1px solid #e2e8f0;
+        }
+
+        /* FULLSCREEN MAP */
+        #fullscreen-map {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #e5e7eb; z-index: 2000; display: none; flex-direction: column;
+            pointer-events: all;
+        }
+
+        /* TRADING UI */
+        .trade-item {
+            background: white; margin: 10px; padding: 12px; border-radius: 18px;
+            display: flex; flex-direction: column; gap: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .stock-chart-mini { width: 100%; height: 60px; background: #f8fafc; border-radius: 10px; }
+
+        #toast {
+            position: absolute; bottom: 120px; left: 50%; transform: translateX(-50%);
+            background: #111827; color: white; padding: 12px 30px;
+            border-radius: 50px; font-weight: 700; display: none; z-index: 3000;
+        }
+
+        .interaction-btn {
+            position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+            background: var(--primary); color: white; padding: 12px 30px;
+            border-radius: 50px; font-weight: 800; pointer-events: all; cursor: pointer;
+            box-shadow: 0 8px 20px rgba(0,170,19,0.3); display: none; transition: 0.2s; z-index: 150;
+        }
+        .interaction-btn:hover { background: var(--primary-dark); transform: translateX(-50%) scale(1.05); }
+
+        /* WARUNG MENU STYLE */
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .menu-card { background: white; border: 1px solid #e2e8f0; border-radius: 15px; padding: 15px; text-align: center; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+        .menu-icon { font-size: 2rem; background: #f1f5f9; width: 50px; height: 50px; display: flex; justify-content: center; align-items: center; border-radius: 50%; }
+
+        .room-item:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <canvas id="gameCanvas"></canvas>
+    
+    <div id="ui-layer">
+        <div class="hud-top">
+            <!-- First Row: Profile & Money -->
+            <div class="hud-row">
+                <div class="hud-card">
+                    <div style="background: var(--gold); color: white; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 800;">
+                        <span id="ui-level">1</span>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.6rem; font-weight: 800; color: #64748b;">EXP: <span id="ui-exp">0</span>/100</div>
+                        <div class="bar-bg" style="width: 80px;"><div id="ui-exp-bar" class="bar-fill" style="width: 0%; background: var(--gold);"></div></div>
+                    </div>
+                </div>
+
+                <div class="hud-card">
+                    <div style="font-size: 1.2rem; font-weight: 800; color: var(--primary);">Rp <span id="ui-balance">0</span></div>
+                </div>
+            </div>
+
+            <!-- Second Row: Time, Rating & Energy -->
+            <div class="hud-row">
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                    <div style="display:flex; gap:10px;">
+                        <div class="hud-card" style="padding: 10px 15px;">
+                            <div style="font-weight: 800; color: #1e293b; display: flex; align-items: center; gap: 6px;">
+                                <span id="ui-clock-icon">☀️</span> <span id="ui-game-time">08:00</span>
+                            </div>
+                        </div>
+                        <div class="hud-card" style="padding: 10px 15px;">
+                            <div style="color: var(--gold); font-weight: 800; display: flex; align-items: center; gap: 4px;">
+                                <span>⭐</span> <span id="ui-rating">5.0</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Tombol Toggle Garis Penunjuk -->
+                    <button id="toggleLineBtn" style="padding: 8px 12px; background: #3b82f6; color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: 800; font-size: 0.75rem; box-shadow: 0 4px 10px rgba(0,0,0,0.1); pointer-events: all; width: fit-content;">
+                        📍 Garis Arah: ON
+                    </button>
+                </div>
+
+                <div class="hud-card" style="flex-direction: column; align-items: stretch; gap: 8px; width: 140px; padding: 10px 15px;">
+                    <!-- Stamina Player -->
+                    <div>
+                        <div style="display: flex; justify-content: space-between; font-size: 0.6rem; font-weight: 800; margin-bottom: 2px;">
+                            <span>🧍 STAMINA</span>
+                            <span id="ui-stamina-text">100%</span>
+                        </div>
+                        <div class="bar-bg" style="margin-top:0;"><div id="ui-stamina-bar" class="bar-fill" style="width: 100%; background: var(--primary);"></div></div>
+                    </div>
+                    <!-- Bensin Mobil -->
+                    <div>
+                        <div style="display: flex; justify-content: space-between; font-size: 0.6rem; font-weight: 800; margin-bottom: 2px;">
+                            <span>🚗 BENSIN</span>
+                            <span id="ui-fuel-text">100%</span>
+                        </div>
+                        <div class="bar-bg" style="margin-top:0;"><div id="ui-fuel-bar" class="bar-fill" style="width: 100%; background: #f59e0b;"></div></div>
+                    </div>
+                    <div id="ui-powerbank-badge" style="font-size: 0.8rem; display: none; position:absolute; right: -10px; top: -10px; background: white; border-radius: 50%; padding: 4px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" title="Powerbank Tersedia">🔋<span id="ui-powerbank-count" style="font-size:0.6rem; font-weight:bold; color:#ef4444; vertical-align:top;">1</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="interaction-btn" class="interaction-btn" onclick="Game.handleInteraction()">[F] INTERAKSI</div>
+
+        <!-- SIDEBAR NAV -->
+        <div class="sidebar-nav">
+            <button class="nav-item" onclick="UI.togglePhone()" title="Smartphone">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="#64748b"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"></path></svg>
+            </button>
+            <button class="nav-item" onclick="UI.showProfile()" title="Profil">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="#64748b"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path></svg>
+            </button>
+            <!-- Tombol Panduan -->
+            <button class="nav-item" onclick="UI.toggleGuide()" title="Panduan Bermain">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="#64748b"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"></path></svg>
+            </button>
+        </div>
+
+        <div onclick="UI.toggleFullscreenMap(true)" style="position: absolute; bottom: 25px; right: 25px; width: 140px; height: 140px; background: white; border-radius: 28px; padding: 6px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); cursor: pointer; pointer-events: all;">
+            <canvas id="miniMapCanvas" style="width: 100%; height: 100%; border-radius: 20px; background: #e2e8f0;"></canvas>
+            <div style="position:absolute; top:-10px; left:50%; transform:translateX(-50%); background:var(--primary); color:white; font-size:0.6rem; padding:2px 8px; border-radius:10px; font-weight:800;">Buka Map</div>
+        </div>
+
+        <div id="toast"></div>
+    </div>
+</div>
+
+<!-- FULLSCREEN KAMAR -->
+<div id="room-screen">
+    <div style="padding: 25px 30px; font-size: 1.8rem; font-weight: 800; border-bottom: 2px solid #334155; background: #1e293b; display:flex; justify-content:space-between; align-items:center;">
+        <div>🏠 KAMAR GAMING <span style="font-size:0.9rem; color:#94a3b8; font-weight:600; margin-left:10px;">Tempat istirahat & Streaming</span></div>
+        <div id="room-time" style="font-size:1.2rem; color:#fcd34d;">00:00</div>
+    </div>
+    
+    <div style="display: flex; gap: 30px; padding: 40px; height: 100%; align-items: center; justify-content: center; background: radial-gradient(circle, #334155 0%, #0f172a 100%);">
+        
+        <!-- Kasur -->
+        <div onclick="UI.sleep()" class="room-item" style="flex: 1; max-width: 300px; height: 350px; background: #1e293b; border: 2px solid #475569; border-radius: 25px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s;">
+            <div style="font-size: 6rem; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.5));">🛏️</div>
+            <h3 style="font-weight: 800; font-size: 1.5rem; margin-top: 15px; color: #f8fafc;">Tidur Malam</h3>
+            <p style="font-size: 0.85rem; color: #94a3b8; text-align: center; margin-top: 5px;">Loncat ke jam 06:00 pagi.<br>Pulihkan 100% Stamina</p>
+        </div>
+        
+        <!-- Meja PC -->
+        <div onclick="UI.openPCModal()" class="room-item" style="flex: 1; max-width: 300px; height: 350px; background: #1e293b; border: 2px solid #475569; border-radius: 25px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; position: relative; overflow:hidden;">
+            <div id="room-pc-glow" style="position:absolute; inset:0; background: radial-gradient(circle, rgba(59,130,246,0.2) 0%, transparent 70%); display:none;"></div>
+            <div style="font-size: 6rem; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.5)); z-index:2;" id="room-pc-icon">📦</div>
+            <h3 style="font-weight: 800; font-size: 1.5rem; margin-top: 15px; color: #f8fafc; z-index:2;" id="room-pc-title">Meja PC</h3>
+            <p style="font-size: 0.85rem; color: #94a3b8; text-align: center; margin-top: 5px; z-index:2;" id="room-pc-desc">Rakit PC impianmu di sini</p>
+        </div>
+
+        <!-- Keluar -->
+        <div onclick="Game.exitRoom()" class="room-item" style="flex: 1; max-width: 300px; height: 350px; background: #7f1d1d; border: 2px solid #991b1b; border-radius: 25px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s;">
+            <div style="font-size: 6rem; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.5));">🚪</div>
+            <h3 style="font-weight: 800; font-size: 1.5rem; margin-top: 15px; color: #fef2f2;">Keluar Rumah</h3>
+            <p style="font-size: 0.85rem; color: #fca5a5; text-align: center; margin-top: 5px;">Kembali ke jalanan</p>
+        </div>
+    </div>
+</div>
+
+<!-- PC MODAL (Z-INDEX TINGGI AGAR DI ATAS ROOM) -->
+<div id="pc-modal" class="modal-wrap" style="z-index: 1050; background: #f8fafc;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h2 style="font-weight: 800; font-size: 1.2rem; color: #1e293b;" id="pc-modal-title">🖥️ PC GAMING</h2>
+        <button onclick="UI.togglePCModal(false)" style="color: #ef4444; font-weight: 800; cursor: pointer; background: none; border:none;">TUTUP</button>
+    </div>
+    <div id="pc-modal-content"></div>
+</div>
+
+<!-- SHOP MODAL (WARUNG) -->
+<div id="shop-modal" class="modal-wrap" style="background: #f8fafc;">
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px dashed #cbd5e1; padding-bottom: 15px;">
+        <div>
+            <h2 style="font-weight: 800; font-size: 1.2rem; color: #f59e0b;">🍜 WARUNG MAKAN</h2>
+            <div style="font-size: 0.7rem; color: #64748b;">Silakan pesan, dibungkus masuk Tas HP.</div>
+        </div>
+        <button onclick="UI.toggleShop(false)" style="color: #ef4444; font-weight: 800; cursor: pointer; background: white; border: 1px solid #ef4444; padding: 5px 10px; border-radius: 8px;">KELUAR</button>
+    </div>
+    
+    <div class="menu-grid">
+        <!-- Air Putih -->
+        <div class="menu-card">
+            <div class="menu-icon">💧</div>
+            <div style="font-weight: 800; font-size: 0.8rem;">Air Putih</div>
+            <div style="font-size: 0.65rem; color: #64748b;">+15 Stamina</div>
+            <button onclick="UI.buyItem('food', 'air_putih', 1000)" style="width: 100%; background: #3b82f6; color: white; padding: 8px; border-radius: 8px; font-weight: 800; font-size: 0.7rem; cursor: pointer; margin-top: 5px;">Rp 1.000</button>
+        </div>
+        <!-- Nasi Goreng -->
+        <div class="menu-card">
+            <div class="menu-icon">🍛</div>
+            <div style="font-weight: 800; font-size: 0.8rem;">Nasi Goreng</div>
+            <div style="font-size: 0.65rem; color: #64748b;">+50 Stamina</div>
+            <button onclick="UI.buyItem('food', 'nasi_goreng', 5000)" style="width: 100%; background: #f97316; color: white; padding: 8px; border-radius: 8px; font-weight: 800; font-size: 0.7rem; cursor: pointer; margin-top: 5px;">Rp 5.000</button>
+        </div>
+        <!-- Nasi Bebek -->
+        <div class="menu-card">
+            <div class="menu-icon">🍗</div>
+            <div style="font-weight: 800; font-size: 0.8rem;">Nasi Bebek</div>
+            <div style="font-size: 0.65rem; color: #64748b;">+100 Stamina</div>
+            <button onclick="UI.buyItem('food', 'nasi_bebek', 15000)" style="width: 100%; background: #ef4444; color: white; padding: 8px; border-radius: 8px; font-weight: 800; font-size: 0.7rem; cursor: pointer; margin-top: 5px;">Rp 15.000</button>
+        </div>
+        <!-- Power Bank -->
+        <div class="menu-card">
+            <div class="menu-icon">🔋</div>
+            <div style="font-weight: 800; font-size: 0.8rem;">Powerbank</div>
+            <div style="font-size: 0.65rem; color: #64748b;">Auto Stamina</div>
+            <button onclick="UI.buyItem('powerbank', 'powerbank', 15000)" style="width: 100%; background: #10b981; color: white; padding: 8px; border-radius: 8px; font-weight: 800; font-size: 0.7rem; cursor: pointer; margin-top: 5px;">Rp 15.000</button>
+        </div>
+    </div>
+</div>
+
+<!-- PROFILE & SETTINGS MODAL -->
+<div id="profile-modal" class="modal-wrap">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="font-weight: 800; font-size: 1.2rem;">PROFIL & PENGATURAN</h2>
+        <button onclick="UI.toggleProfile(false)" style="color: #ef4444; font-weight: 800; cursor: pointer; background:none; border:none;">TUTUP</button>
+    </div>
+    
+    <div style="background: #f8fafc; padding: 15px; border-radius: 15px; margin-bottom: 15px; border: 1px solid #e2e8f0;">
+        <div style="font-weight: 800; margin-bottom: 8px; color: var(--primary);">Statistik Karakter</div>
+        <div id="profile-stats" style="font-size: 0.85rem; color: #475569; line-height: 1.5; font-weight: 600;">
+            Level: 1 | EXP: 0/100<br>
+            Trip Selesai: 0<br>
+            Rating: ⭐5.0
+        </div>
+    </div>
+
+    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+        <button onclick="Game.save(); UI.toast('💾 Game Tersimpan!'); UI.toggleProfile(false);" style="flex:1; padding:12px; background:var(--primary); color:white; border:none; border-radius:12px; font-weight:800; cursor:pointer;">Simpan Manual</button>
+        <button onclick="Game.resetData()" style="flex:1; padding:12px; background:#ef4444; color:white; border:none; border-radius:12px; font-weight:800; cursor:pointer;">Reset Data</button>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 12px 15px; border-radius: 12px; border: 1px solid #e2e8f0;">
+        <div style="font-weight: 800; font-size: 0.85rem; color: #475569;">Auto-Simpan (Tiap 5 Detik)</div>
+        <button id="btn-autosave" onclick="UI.toggleAutoSave()" style="padding: 6px 15px; background: #10b981; color: white; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; width: 70px;">ON</button>
+    </div>
+</div>
+
+<!-- PANDUAN LENGKAP MODAL -->
+<div id="guide-modal" class="modal-wrap" style="max-height: 85vh; padding: 0; display: flex; flex-direction: column;">
+    <div style="padding: 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; background: white; border-radius: 30px 30px 0 0; flex-shrink: 0;">
+        <h2 style="font-weight: 800; font-size: 1.2rem; color: #1e293b;">📖 PANDUAN LENGKAP</h2>
+        <button onclick="UI.toggleGuide(false)" style="color: #ef4444; font-weight: 800; cursor: pointer; background:none; border:none;">TUTUP</button>
+    </div>
+    
+    <div style="padding: 20px; overflow-y: auto; background: #f8fafc; flex: 1;">
+        <!-- Tentang Game -->
+        <div style="margin-bottom: 20px;">
+            <h3 style="font-weight: 800; color: var(--primary); font-size: 1rem; margin-bottom: 8px;">Tentang Game</h3>
+            <p style="font-size: 0.8rem; color: #475569; line-height: 1.6;">Kamu bermain sebagai driver ojol di kota fiksi bernama Cyber City — peta 12.000×12.000 unit dengan grid jalan, gedung, warung makan, SPBU, dan rumahmu sendiri. Ada siklus waktu siang–sore–malam yang mengubah pencahayaan kota secara realtime. Tujuannya: kumpulkan uang, naikkan level, bangun bisnis, dan rakit PC Gaming impian!</p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 10px;">
+                <div style="background: white; padding: 10px; border-radius: 10px; text-align: center; border: 1px solid #e2e8f0;">
+                    <div style="font-weight: 800; font-size: 1.1rem; color: #1e293b;">12k</div>
+                    <div style="font-size: 0.65rem; color: #64748b;">Ukuran Peta (unit)</div>
+                </div>
+                <div style="background: white; padding: 10px; border-radius: 10px; text-align: center; border: 1px solid #e2e8f0;">
+                    <div style="font-weight: 800; font-size: 1.1rem; color: #1e293b;">5</div>
+                    <div style="font-size: 0.65rem; color: #64748b;">Aplikasi di HP</div>
+                </div>
+                <div style="background: white; padding: 10px; border-radius: 10px; text-align: center; border: 1px solid #e2e8f0;">
+                    <div style="font-weight: 800; font-size: 1.1rem; color: #1e293b;">7</div>
+                    <div style="font-size: 0.65rem; color: #64748b;">Komponen PC</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Kontrol Dasar -->
+        <div style="margin-bottom: 20px;">
+            <h3 style="font-weight: 800; color: var(--primary); font-size: 1rem; margin-bottom: 8px;">Kontrol Dasar</h3>
+            <ul style="font-size: 0.8rem; color: #475569; line-height: 1.6; list-style: none; padding: 0;">
+                <li style="background: white; padding: 10px; border-radius: 10px; margin-bottom: 5px; border: 1px solid #e2e8f0;">
+                    <div style="font-weight: 800; color: #1e293b;">Gerak karakter / kemudi mobil</div>
+                    <div style="color: var(--primary); font-weight: 800;">W A S D  <span style="color:#94a3b8; font-weight:normal;">atau</span>  ↑↓←→</div>
+                </li>
+                <li style="background: white; padding: 10px; border-radius: 10px; margin-bottom: 5px; border: 1px solid #e2e8f0;">
+                    <div style="font-weight: 800; color: #1e293b;">Interaksi (masuk/keluar kendaraan, rumah, warung)</div>
+                    <div style="color: var(--primary); font-weight: 800;">Tombol F</div>
+                    <div style="font-size: 0.7rem; margin-top: 4px;">Tekan F di dekat kendaraan untuk masuk/keluar, dekat 🏠 Rumah untuk istirahat, atau dekat 🍲 Warung untuk beli makanan.</div>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Gameplay Loop Utama -->
+        <div style="margin-bottom: 20px;">
+            <h3 style="font-weight: 800; color: var(--primary); font-size: 1rem; margin-bottom: 8px;">Gameplay Loop Utama</h3>
+            <div style="font-size: 0.8rem; color: #475569; line-height: 1.6; display: flex; flex-direction: column; gap: 8px;">
+                <div style="display: flex; gap: 10px; background: white; padding: 10px; border-radius: 10px; border: 1px solid #e2e8f0;">
+                    <div style="background: #e0f2fe; color: #0284c7; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0;">1</div>
+                    <div><b>Ambil penumpang</b> — Cari ikon 👋 oranye di peta. Aktifkan garis biru (tombol 📍 Garis Arah) biar lebih gampang navigasi.</div>
+                </div>
+                <div style="display: flex; gap: 10px; background: white; padding: 10px; border-radius: 10px; border: 1px solid #e2e8f0;">
+                    <div style="background: #e0f2fe; color: #0284c7; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0;">2</div>
+                    <div><b>Antar ke tujuan</b> — Setelah penumpang diangkut, ikuti garis hijau menuju pin merah (tujuan). Dapat uang Rp 1.500–4.000 per trip.</div>
+                </div>
+                <div style="display: flex; gap: 10px; background: white; padding: 10px; border-radius: 10px; border: 1px solid #e2e8f0;">
+                    <div style="background: #e0f2fe; color: #0284c7; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0;">3</div>
+                    <div><b>Kelola stamina & bensin</b> — Isi bensin otomatis di ⛽ SPBU. Beli makanan di 🍲 Warung untuk restore stamina, simpan di Tas.</div>
+                </div>
+                <div style="display: flex; gap: 10px; background: white; padding: 10px; border-radius: 10px; border: 1px solid #e2e8f0;">
+                    <div style="background: #e0f2fe; color: #0284c7; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0;">4</div>
+                    <div><b>Absensi harian</b> — Buka HP → Absensi → klik HADIR tiap hari. Streak 3 hari = +Rp 20.000, streak 7 hari = Powerbank gratis!</div>
+                </div>
+                <div style="display: flex; gap: 10px; background: white; padding: 10px; border-radius: 10px; border: 1px solid #e2e8f0;">
+                    <div style="background: #e0f2fe; color: #0284c7; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0;">5</div>
+                    <div><b>Kembangkan bisnis</b> — Buka Tokopedean, isi stok, aktifkan toko. Uang masuk otomatis sambil kamu nyetir!</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Aplikasi di Smartphone -->
+        <div style="margin-bottom: 20px;">
+            <h3 style="font-weight: 800; color: var(--primary); font-size: 1rem; margin-bottom: 8px;">Aplikasi di Smartphone</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div style="background: white; padding: 10px; border-radius: 10px; border: 1px solid #e2e8f0;">
+                    <div style="font-size: 1.2rem;">📈 <span style="font-weight: 800; font-size: 0.8rem; color: #1e293b;">Trading</span></div>
+                    <div style="font-size: 0.65rem; color: #64748b; margin-top: 4px;">Beli/jual saham TECH, BANK, OIL secara real-time</div>
+                </div>
+                <div style="background: white; padding: 10px; border-radius: 10px; border: 1px solid #e2e8f0;">
+                    <div style="font-size: 1.2rem;">🔧 <span style="font-weight: 800; font-size: 0.8rem; color: #1e293b;">Bengkel</span></div>
+                    <div style="font-size: 0.65rem; color: #64748b; margin-top: 4px;">Isi bensin darurat (Rp 15k) atau derek mobil (Rp 5k)</div>
+                </div>
+                <div style="background: white; padding: 10px; border-radius: 10px; border: 1px solid #e2e8f0;">
+                    <div style="font-size: 1.2rem;">🛒 <span style="font-weight: 800; font-size: 0.8rem; color: #1e293b;">Tokopedean</span></div>
+                    <div style="font-size: 0.65rem; color: #64748b; margin-top: 4px;">Toko online, supply, karyawan, komponen PC</div>
+                </div>
+                <div style="background: white; padding: 10px; border-radius: 10px; border: 1px solid #e2e8f0;">
+                    <div style="font-size: 1.2rem;">📅 <span style="font-weight: 800; font-size: 0.8rem; color: #1e293b;">Absensi</span></div>
+                    <div style="font-size: 0.65rem; color: #64748b; margin-top: 4px;">Catat kehadiran kerja harian & lihat streak</div>
+                </div>
+                <div style="background: white; padding: 10px; border-radius: 10px; border: 1px solid #e2e8f0; grid-column: span 2;">
+                    <div style="font-size: 1.2rem;">🎒 <span style="font-weight: 800; font-size: 0.8rem; color: #1e293b;">Tas</span></div>
+                    <div style="font-size: 0.65rem; color: #64748b; margin-top: 4px;">Pakai item makanan dari inventaris kapan saja</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fitur Kamar -->
+        <div style="margin-bottom: 20px;">
+            <h3 style="font-weight: 800; color: var(--primary); font-size: 1rem; margin-bottom: 8px;">Fitur Kamar</h3>
+            <div style="background: white; padding: 15px; border-radius: 15px; border: 1px solid #e2e8f0;">
+                <div style="margin-bottom: 10px;">
+                    <div style="font-weight: 800; color: #1e293b;">🛏️ Tidur Malam</div>
+                    <div style="font-size: 0.75rem; color: #475569; margin-top: 2px;">Skip waktu ke jam 06:00. Stamina pulih 100% sekaligus. Cocok kalau bensin & stamina mau habis sekaligus.</div>
+                </div>
+                <div>
+                    <div style="font-weight: 800; color: #1e293b;">🖥️ Rakit PC Gaming</div>
+                    <div style="font-size: 0.75rem; color: #475569; margin-top: 2px;">Kumpulkan 7 komponen dari tab Komputer di Tokopedean. Setelah dirakit, bisa Streaming Game untuk dapat donasi Rp 100k–500k!</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tips Cepat Kaya -->
+        <div style="margin-bottom: 20px;">
+            <h3 style="font-weight: 800; color: var(--primary); font-size: 1rem; margin-bottom: 8px;">Tips Cepat Kaya</h3>
+            <ul style="font-size: 0.8rem; color: #475569; line-height: 1.6; padding-left: 20px; list-style-type: disc;">
+                <li style="margin-bottom: 6px;"><b>Absen HADIR setiap hari</b> tanpa skip — rating naik, penumpang spawn lebih cepat (selang 1 detik vs 12 detik kalau bolos).</li>
+                <li style="margin-bottom: 6px;"><b>Buka Tokopedean secepatnya</b> — isi stok Kelapa & Nasi Bebek, aktifkan toko, dan uang akan masuk otomatis tiap beberapa detik.</li>
+                <li style="margin-bottom: 6px;"><b>Perhatikan grafik saham</b> — beli saat harga turun, jual saat naik. Gunakan profit untuk beli komponen PC satu per satu.</li>
+                <li style="margin-bottom: 6px;"><b>Ada 1% chance dapat penumpang Sultan</b> yang kasih tips Rp 1.000.000 sekaligus! Rating langsung 5.0.</li>
+                <li style="margin-bottom: 6px;"><b>Upgrade karyawan Tokopedean</b> (Kasir & Koki) untuk mempercepat penjualan dan meningkatkan chance produk terjual per interval.</li>
+            </ul>
+        </div>
+
+        <!-- Visual Design -->
+        <div>
+            <h3 style="font-weight: 800; color: var(--primary); font-size: 1rem; margin-bottom: 8px;">Visual Design (Di Balik Layar)</h3>
+            <div style="font-size: 0.8rem; color: #475569; line-height: 1.6; display: flex; flex-direction: column; gap: 8px;">
+                <p><b>Filosofi & Gaya:</b> Game ini menggunakan pendekatan <i>Modern Indonesian Mobile UI</i> — terinspirasi dari aplikasi ojol lokal (Gojek, Grab) dipadukan dengan estetika RPG top-down ala GTA Chinatown Wars. Hasilnya: familiar tapi tetap playful.</p>
+                <div style="display:flex; gap:5px; flex-wrap:wrap; margin-bottom: 5px;">
+                    <span style="background: #e2e8f0; padding: 2px 8px; border-radius: 12px; font-size: 0.65rem; font-weight: bold;">Mobile-first</span>
+                    <span style="background: #e2e8f0; padding: 2px 8px; border-radius: 12px; font-size: 0.65rem; font-weight: bold;">Glassmorphism HUD</span>
+                    <span style="background: #e2e8f0; padding: 2px 8px; border-radius: 12px; font-size: 0.65rem; font-weight: bold;">Top-down Canvas</span>
+                    <span style="background: #e2e8f0; padding: 2px 8px; border-radius: 12px; font-size: 0.65rem; font-weight: bold;">Indonesian UI</span>
+                    <span style="background: #e2e8f0; padding: 2px 8px; border-radius: 12px; font-size: 0.65rem; font-weight: bold;">RPG Elements</span>
+                </div>
+                <ul style="padding-left: 20px; list-style-type: disc;">
+                    <li style="margin-bottom: 4px;"><b>Palet Warna Utama</b> — Hijau Gojek (#00aa13) sebagai warna brand utama, dipadukan Gold (#fbbf24) untuk EXP/level, Biru (#3b82f6) untuk navigasi, dan Orange (#f59e0b) untuk warung & elemen hangat.</li>
+                    <li style="margin-bottom: 4px;"><b>HUD Glassmorphism</b> — Panel informasi (saldo, stamina, bensin, waktu) menggunakan <code>backdrop-filter: blur(12px)</code> dengan latar semi-transparan putih. Terasa ringan dan modern di atas peta.</li>
+                    <li style="margin-bottom: 4px;"><b>Siklus Lighting</b> — Overlay warna dinamis: pagi/subuh (oranye 30%), siang (normal), sore (oranye gelap 30%), malam (biru gelap 65%). Lampu gedung dan lampu lalu lintas ikut menyala saat malam dengan <code>shadowBlur</code>.</li>
+                    <li style="margin-bottom: 4px;"><b>Top-down Karakter</b> — Semua karakter (driver & penumpang) digambar langsung di Canvas 2D dengan <code>roundRect</code>, <code>arc</code>, dan transformasi rotasi — bukan sprite/gambar. Driver pakai jaket hijau ojol + helm, penumpang pakai baju biru pegang HP.</li>
+                    <li style="margin-bottom: 4px;"><b>Smartphone UI In-game</b> — HP muncul dengan animasi slide-up dari bawah menggunakan <code>cubic-bezier(0.19, 1, 0.22, 1)</code>. Tampilan dalamnya persis seperti app Android sungguhan: status bar, grid ikon, tab navigasi per-app.</li>
+                    <li style="margin-bottom: 4px;"><b>Navigasi Visual</b> — Garis putus-putus biru mengarah ke penumpang, garis hijau ke tujuan. Pin merah bouncing animasi sinus menggunakan <code>Math.sin(Date.now())</code>. Penumpang waiting-state punya glow pulse radial.</li>
+                    <li style="margin-bottom: 4px;"><b>Kamar Mode</b> — Fullscreen terpisah dengan tema dark (#0f172a) dan gradient radial. Saat PC sudah dirakit, meja PC mendapat glow radial biru yang berpendar — memberi kesan layar menyala.</li>
+                    <li style="margin-bottom: 4px;"><b>Font</b> — Menggunakan Plus Jakarta Sans (Google Fonts) di semua elemen UI: weight 400 untuk body, 600 untuk label, 700–800 untuk heading & angka penting. Memberi kesan lokal modern dan terbaca jelas di layar kecil.</li>
+                    <li style="margin-bottom: 4px;"><b>Rendering Engine</b> — Semua dunia game digambar dengan HTML5 Canvas 2D API murni tanpa library engine. Tiga canvas berjalan paralel: <code>gameCanvas</code> (dunia utama, full viewport), <code>miniMapCanvas</code> (peta kecil pojok kanan bawah 140×140px), dan <code>fullMapCanvas</code> (peta fullscreen saat diklik). Semua disinkronkan tiap frame via <code>requestAnimationFrame</code>.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SMARTPHONE UI -->
+<div id="phone-wrapper">
+    <div class="phone-screen">
+        <div class="phone-header">
+            <span id="phone-time-top">12:00</span>
+            <div style="display:flex; gap:6px;"><span>📶</span><span>🔋</span></div>
+        </div>
+        <div id="phone-home" style="flex:1; padding: 25px;">
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+                <div onclick="UI.openApp('trading')" style="display:flex; flex-direction:column; align-items:center; gap:8px; cursor:pointer;">
+                    <div style="width:60px; height:60px; background:#10b981; border-radius:18px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(16,185,129,0.3); font-size:24px;">📈</div>
+                    <span style="font-size:0.7rem; font-weight:800;">Trading</span>
+                </div>
+                <div onclick="UI.openApp('bengkel')" style="display:flex; flex-direction:column; align-items:center; gap:8px; cursor:pointer;">
+                    <div style="width:60px; height:60px; background:#f59e0b; border-radius:18px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(245,158,11,0.3); font-size:24px;">🔧</div>
+                    <span style="font-size:0.7rem; font-weight:800;">Bengkel</span>
+                </div>
+                <div onclick="UI.openApp('tokopedean')" style="display:flex; flex-direction:column; align-items:center; gap:8px; cursor:pointer;">
+                    <div style="width:60px; height:60px; background:#f97316; border-radius:18px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(249,115,22,0.3); font-size:24px;">🛒</div>
+                    <span style="font-size:0.7rem; font-weight:800;">Tokopedean</span>
+                </div>
+                <div onclick="UI.openApp('absensi')" style="display:flex; flex-direction:column; align-items:center; gap:8px; cursor:pointer;">
+                    <div style="width:60px; height:60px; background:#3b82f6; border-radius:18px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(59,130,246,0.3); font-size:24px;">📅</div>
+                    <span style="font-size:0.7rem; font-weight:800;">Absensi</span>
+                </div>
+                <div onclick="UI.openApp('inventory')" style="display:flex; flex-direction:column; align-items:center; gap:8px; cursor:pointer;">
+                    <div style="width:60px; height:60px; background:#8b5cf6; border-radius:18px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(139,92,246,0.3); font-size:24px;">🎒</div>
+                    <span style="font-size:0.7rem; font-weight:800;">Tas Barang</span>
+                </div>
+            </div>
+        </div>
+        
+        <div id="phone-app-trading" style="display:none; flex:1; flex-direction:column; background:#f1f5f9; min-height:0;">
+            <div style="padding:20px; background:white; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
+                <span style="font-weight:800; font-size:0.9rem;">MARKET REAL-TIME</span>
+                <button onclick="UI.openApp('home')" style="color:#ef4444; font-weight:800; border:none; background:none; font-size:0.75rem; cursor:pointer;">CLOSE</button>
+            </div>
+            <div id="trading-list" style="flex:1; overflow-y:auto; padding-bottom: 20px;"></div>
+        </div>
+
+        <!-- BENGKEL APP -->
+        <div id="phone-app-bengkel" style="display:none; flex:1; flex-direction:column; background:#f1f5f9; min-height:0;">
+            <div style="padding:20px; background:white; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
+                <span style="font-weight:800; font-size:0.9rem;">BENGKEL ONLINE</span>
+                <button onclick="UI.openApp('home')" style="color:#ef4444; font-weight:800; border:none; background:none; font-size:0.75rem; cursor:pointer;">CLOSE</button>
+            </div>
+            <div style="flex:1; overflow-y:auto; padding: 20px; display:flex; flex-direction:column; gap:15px;">
+                <div style="background:white; padding:15px; border-radius:15px; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+                    <div style="font-weight:800; margin-bottom:5px;">Isi Bensin Darurat</div>
+                    <div style="font-size:0.7rem; color:#64748b; margin-bottom:10px;">Teknisi akan datang dan mengisi 100% bensin kendaraanmu di mana saja.</div>
+                    <button onclick="UI.useBengkel('refuel')" style="width:100%; padding:10px; background:var(--primary); color:white; border:none; border-radius:10px; font-weight:800; cursor:pointer;">Rp 15.000</button>
+                </div>
+                <div style="background:white; padding:15px; border-radius:15px; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+                    <div style="font-weight:800; margin-bottom:5px;">Derek ke Pusat Kota</div>
+                    <div style="font-size:0.7rem; color:#64748b; margin-bottom:10px;">Kendaraan tersangkut atau mogok? Derek ke tengah kota sekarang.</div>
+                    <button onclick="UI.useBengkel('towing')" style="width:100%; padding:10px; background:#f59e0b; color:white; border:none; border-radius:10px; font-weight:800; cursor:pointer;">Rp 5.000</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TOKOPEDEAN APP -->
+        <div id="phone-app-tokopedean" style="display:none; flex:1; flex-direction:column; background:#f1f5f9; min-height:0;">
+            <div style="padding:15px 20px; background:white; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
+                <span style="font-weight:800; font-size:0.9rem; color:#f97316;">🛒 TOKOPEDEAN</span>
+                <button onclick="UI.openApp('home')" style="color:#ef4444; font-weight:800; border:none; background:none; font-size:0.75rem; cursor:pointer;">CLOSE</button>
+            </div>
+            
+            <div style="display:flex; background:white; border-bottom:1px solid #e2e8f0; flex-shrink:0; overflow-x:auto;">
+                <button onclick="UI.switchTokoTab('toko')" id="tab-toko" style="min-width:70px; padding:12px 5px; font-weight:800; font-size:0.65rem; border-bottom:3px solid #f97316; color:#f97316; background:none; cursor:pointer;">TOKO SAYA</button>
+                <button onclick="UI.switchTokoTab('supply')" id="tab-supply" style="min-width:70px; padding:12px 5px; font-weight:800; font-size:0.65rem; border-bottom:3px solid transparent; color:#64748b; background:none; cursor:pointer;">SUPPLY</button>
+                <button onclick="UI.switchTokoTab('karyawan')" id="tab-karyawan" style="min-width:70px; padding:12px 5px; font-weight:800; font-size:0.65rem; border-bottom:3px solid transparent; color:#64748b; background:none; cursor:pointer;">KARYAWAN</button>
+                <button onclick="UI.switchTokoTab('komputer')" id="tab-komputer" style="min-width:70px; padding:12px 5px; font-weight:800; font-size:0.65rem; border-bottom:3px solid transparent; color:#64748b; background:none; cursor:pointer;">KOMPUTER</button>
+            </div>
+
+            <div id="tokopedean-content" style="flex:1; overflow-y:auto; padding: 15px;">
+                <!-- Konten tab akan di-render via JS -->
+            </div>
+        </div>
+
+        <!-- ABSENSI APP -->
+        <div id="phone-app-absensi" style="display:none; flex:1; flex-direction:column; background:#f1f5f9; min-height:0;">
+            <div style="padding:15px 20px; background:white; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
+                <span style="font-weight:800; font-size:0.9rem; color:#3b82f6;">📅 ABSENSI KERJA</span>
+                <button onclick="UI.openApp('home')" style="color:#ef4444; font-weight:800; border:none; background:none; font-size:0.75rem; cursor:pointer;">CLOSE</button>
+            </div>
+            
+            <div id="absensi-content" style="flex:1; overflow-y:auto; padding: 15px; display:flex; flex-direction:column; gap:15px;">
+                <!-- Konten absensi di-render via JS -->
+            </div>
+        </div>
+
+        <!-- INVENTORY (TAS) APP -->
+        <div id="phone-app-inventory" style="display:none; flex:1; flex-direction:column; background:#f1f5f9; min-height:0;">
+            <div style="padding:15px 20px; background:white; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
+                <span style="font-weight:800; font-size:0.9rem; color:#8b5cf6;">🎒 TAS / INVENTORY</span>
+                <button onclick="UI.openApp('home')" style="color:#ef4444; font-weight:800; border:none; background:none; font-size:0.75rem; cursor:pointer;">CLOSE</button>
+            </div>
+            <div id="inventory-content" style="flex:1; overflow-y:auto; padding: 15px; display:flex; flex-direction:column; gap:10px;">
+                <!-- Konten inventory di-render via JS -->
+            </div>
+        </div>
+
+        <div style="height: 40px; display: flex; align-items: center; justify-content: center; background: white; border-top: 1px solid #f1f5f9; flex-shrink:0;">
+            <div onclick="UI.togglePhone()" style="width: 100px; height: 5px; background: #e2e8f0; border-radius: 10px; cursor: pointer;"></div>
+        </div>
+    </div>
+</div>
+
+<!-- FULLSCREEN MAP -->
+<div id="fullscreen-map">
+    <div style="padding: 20px; background: white; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0;">
+        <span style="font-weight: 800; font-size: 1.2rem;">MAP NAVIGASI</span>
+        <button onclick="UI.toggleFullscreenMap(false)" style="width:40px; height:40px; background:#ef4444; color:white; border:none; border-radius:50%; font-weight:800; cursor:pointer;">✕</button>
+    </div>
+    <div style="flex: 1; background: #cbd5e1;">
+        <canvas id="fullMapCanvas"></canvas>
+    </div>
+</div>
+
+<script>
+/**
+ * CYBER-JEK SIMULATOR v11.0 - Time Cycle, Nightlife, and PC Gaming Update + Navigation Lines
+ */
+
+const CONFIG = {
+    MAP_SIZE: 12000,
+    BLOCK_SIZE: 1200,
+    ROAD_WIDTH: 220,
+    STORAGE_KEY: 'cyberjek_rpg_save_v11',
+    HOME: { x: 6000, y: 6150 }, // Titik masuk rumah (Di tengah kota)
+    GAS_STATIONS: [
+        { x: 1000, y: 1000 },
+        { x: 5000, y: 1000 },
+        { x: 9000, y: 1000 },
+        { x: 1000, y: 5000 },
+        { x: 5000, y: 5000 },
+        { x: 9000, y: 5000 },
+        { x: 1000, y: 9000 },
+        { x: 5000, y: 9000 },
+        { x: 9000, y: 9000 }
+    ],
+    WARUNGS: [
+        { x: 3000, y: 3400, name: 'Warung Bu Ijah' },
+        { x: 1400, y: 1400, name: 'Warung Nasi Padang' },
+        { x: 4600, y: 4600, name: 'Kedai Kopi Cyber' },
+        { x: 7400, y: 2600, name: 'Warteg Sederhana' },
+        { x: 8600, y: 7400, name: 'Cafe Senja' },
+        { x: 2600, y: 8600, name: 'Mie Ayam Madura' },
+        { x: 6200, y: 8600, name: 'Sate Taichan Mas Bro' }
+    ]
+};
+
+// Data Item Warung
+const CONSUMABLES_DB = {
+    air_putih: { name: 'Air Putih', energy: 15, icon: '💧', desc: 'Menyegarkan, memulihkan 15 Stamina' },
+    nasi_goreng: { name: 'Nasi Goreng', energy: 50, icon: '🍛', desc: 'Enak dan mengenyangkan, memulihkan 50 Stamina' },
+    nasi_bebek: { name: 'Nasi Bebek Madura', energy: 100, icon: '🍗', desc: 'Porsi kuli, memulihkan 100 Stamina penuh' }
+};
+
+// Data Komponen PC
+const PC_PARTS_DB = {
+    casing: { name: 'Casing RGB Tempered Glass', price: 600000, icon: '🗄️' },
+    motherboard: { name: 'Motherboard Z-Ultra', price: 1500000, icon: '🎛️' },
+    cpu: { name: 'CPU Core-i9X', price: 3500000, icon: '🧠' },
+    gpu: { name: 'VGA RTX 5090 Ti', price: 8000000, icon: '📼' },
+    ram: { name: 'RAM 32GB RGB', price: 1200000, icon: '📟' },
+    psu: { name: 'PSU 1000W Gold', price: 900000, icon: '🔋' },
+    monitor: { name: 'Monitor 4K 144Hz', price: 2500000, icon: '🖥️' }
+};
+
+const State = {
+    balance: 5000,
+    energy: 100, // Stamina player
+    carFuel: 100, // Bensin mobil
+    exp: 0,
+    level: 1,
+    rating: 5.0,
+    trips: 0,
+    powerbanks: 0,
+    autoSave: true,
+    gameTime: 8.0, // Waktu in-game (jam 8 pagi)
+    inRoom: false, // Apakah sedang di dalam rumah
+    showGuidanceLine: true, // Status penunjuk garis ke penumpang
+    
+    // Sistem Rakit PC
+    pcParts: { casing: 0, motherboard: 0, cpu: 0, gpu: 0, ram: 0, psu: 0, monitor: 0 },
+    pcAssembled: false,
+
+    pos: { x: 6000, y: 6100 },
+    carPos: { x: 6000, y: 6000 },
+    rot: 0,
+    pRot: 0,
+    inCar: false,
+    inventory: { TECH: 0, BANK: 0, OIL: 0 },
+    consumables: { air_putih: 0, nasi_goreng: 0, nasi_bebek: 0 }, 
+    stocks: [
+        { id: 'TECH', name: 'Nusa Tech', price: 150, history: [150], trend: 0 },
+        { id: 'BANK', name: 'Cyber Bank', price: 500, history: [500], trend: 0 },
+        { id: 'OIL', name: 'Global Oil', price: 280, history: [280], trend: 0 }
+    ],
+    store: {
+        active: false, discount: 0, lastSaleTime: 0,
+        products: {
+            kelapa: { name: 'Kelapa Segar', price: 20000, stock: 0, rawPrice: 10000, baseChance: 0.3, icon: '🥥' },
+            bebek: { name: 'Nasi Bebek', price: 25000, stock: 0, rawPrice: 15000, baseChance: 0.2, icon: '🍗' }
+        },
+        employees: {
+            kasir: { name: 'Kasir Handal', level: 0, maxLevel: 5, baseCost: 50000, speedBonus: 0.1, chanceBonus: 0.05, icon: '👨‍💼' },
+            koki: { name: 'Koki Bintang 5', level: 0, maxLevel: 5, baseCost: 75000, speedBonus: 0.2, chanceBonus: 0.1, icon: '👨‍🍳' }
+        }
+    },
+    attendance: {
+        lastAbsenceTime: 0, lastDayId: '', status: null, streakHadir: 0, history: []
+    },
+    passenger: null,
+    trafficTimer: 0,
+    buildings: [],
+    vegetation: []
+};
+
+const Game = {
+    canvas: document.getElementById('gameCanvas'),
+    ctx: null,
+    miniCanvas: document.getElementById('miniMapCanvas'),
+    mCtx: null,
+    fullCanvas: document.getElementById('fullMapCanvas'),
+    fCtx: null,
+    keys: {},
+    vel: { x: 0, y: 0 },
+
+    init() {
+        this.ctx = this.canvas.getContext('2d');
+        this.mCtx = this.miniCanvas.getContext('2d');
+        this.fCtx = this.fullCanvas.getContext('2d');
+        
+        this.generateCity();
+        this.load();
+        this.resize();
+        
+        window.addEventListener('resize', () => this.resize());
+        window.addEventListener('keydown', e => {
+            this.keys[e.key.toLowerCase()] = true;
+            if (e.key.toLowerCase() === 'f' && !State.inRoom) this.handleInteraction();
+        });
+        window.addEventListener('keyup', e => this.keys[e.key.toLowerCase()] = false);
+
+        // Tambahkan Event Listener untuk Tombol Garis Arah
+        const toggleLineBtn = document.getElementById('toggleLineBtn');
+        if (toggleLineBtn) {
+            toggleLineBtn.innerText = `📍 Garis Arah: ${State.showGuidanceLine ? 'ON' : 'OFF'}`;
+            toggleLineBtn.style.background = State.showGuidanceLine ? '#3b82f6' : '#64748b';
+            toggleLineBtn.addEventListener('click', () => {
+                State.showGuidanceLine = !State.showGuidanceLine;
+                toggleLineBtn.innerText = `📍 Garis Arah: ${State.showGuidanceLine ? 'ON' : 'OFF'}`;
+                toggleLineBtn.style.background = State.showGuidanceLine ? '#3b82f6' : '#64748b';
+                this.save();
+            });
+        }
+
+        this.spawnPassenger();
+        
+        State.stocks.forEach(s => {
+            for(let i=0; i<15; i++) {
+                const change = (Math.random() - 0.5) * 20;
+                s.history.push(Math.max(10, Math.floor(s.history[s.history.length-1] + change)));
+            }
+        });
+
+        setInterval(() => this.updateStocks(), 3000);
+        setInterval(() => { if (State.autoSave) this.save(); }, 5000);
+        
+        this.loop();
+    },
+
+    generateCity() {
+        const BLOCKS = CONFIG.MAP_SIZE / CONFIG.BLOCK_SIZE;
+        for(let i=0; i<=BLOCKS; i++) {
+            for(let j=0; j<=BLOCKS; j++) {
+                const bx = i * CONFIG.BLOCK_SIZE;
+                const by = j * CONFIG.BLOCK_SIZE;
+                
+                for(let k=0; k<2; k++) {
+                    State.buildings.push({
+                        x: bx + 300 + Math.random() * 600,
+                        y: by + 300 + Math.random() * 600,
+                        w: 140 + Math.random() * 80,
+                        h: 140 + Math.random() * 80,
+                        color: ['#ffffff', '#f1f5f9', '#e2e8f0'][Math.floor(Math.random()*3)]
+                    });
+                }
+
+                const roadOffset = 130;
+                for(let k=0; k<4; k++) {
+                    State.vegetation.push({ x: bx + 200 + k*250, y: by - roadOffset, type: 'tree' });
+                    State.vegetation.push({ x: bx + 200 + k*250, y: by + roadOffset, type: 'tree' });
+                    State.vegetation.push({ x: bx - roadOffset, y: by + 200 + k*250, type: 'tree' });
+                    State.vegetation.push({ x: bx + roadOffset, y: by + 200 + k*250, type: 'tree' });
+                }
+
+                for(let k=0; k<6; k++) {
+                    State.vegetation.push({
+                        x: bx + 200 + Math.random() * 800,
+                        y: by + 200 + Math.random() * 800,
+                        type: 'bush',
+                        size: 20 + Math.random() * 20
+                    });
+                }
+            }
+        }
+    },
+
+    handleInteraction() {
+        const distCar = Math.hypot(State.pos.x - State.carPos.x, State.pos.y - State.carPos.y);
+        const distHome = Math.hypot(State.pos.x - CONFIG.HOME.x, State.pos.y - CONFIG.HOME.y);
+        let nearWarung = false;
+        CONFIG.WARUNGS.forEach(w => {
+            if (Math.hypot(State.pos.x - w.x, State.pos.y - w.y) < 150) nearWarung = true;
+        });
+
+        if (State.inCar) {
+            State.inCar = false;
+            State.pos.x = State.carPos.x + Math.cos(State.rot + Math.PI/2) * 60;
+            State.pos.y = State.carPos.y + Math.sin(State.rot + Math.PI/2) * 60;
+            UI.toast("Keluar Kendaraan");
+        } else if (distHome < 120) {
+            this.enterRoom();
+        } else if (distCar < 100) {
+            State.inCar = true;
+            UI.toast("Masuk Kendaraan");
+        } else if (nearWarung) {
+            UI.toggleShop(true);
+        }
+    },
+
+    enterRoom() {
+        State.inRoom = true;
+        document.getElementById('room-screen').style.display = 'flex';
+        document.getElementById('interaction-btn').style.display = 'none';
+        UI.updateRoomPC();
+    },
+
+    exitRoom() {
+        State.inRoom = false;
+        document.getElementById('room-screen').style.display = 'none';
+    },
+
+    resize() {
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+        this.fullCanvas.width = window.innerWidth;
+        this.fullCanvas.height = window.innerHeight - 80;
+    },
+
+    save() {
+        const data = {
+            balance: State.balance, energy: State.energy, carFuel: State.carFuel,
+            exp: State.exp, level: State.level, rating: State.rating,
+            trips: State.trips, powerbanks: State.powerbanks, autoSave: State.autoSave,
+            gameTime: State.gameTime, pcParts: State.pcParts, pcAssembled: State.pcAssembled,
+            inventory: State.inventory, consumables: State.consumables,
+            pos: State.pos, carPos: State.carPos, rot: State.rot,
+            store: State.store, attendance: State.attendance,
+            showGuidanceLine: State.showGuidanceLine // Simpan pengaturan garis
+        };
+        localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(data));
+    },
+
+    load() {
+        const saved = localStorage.getItem(CONFIG.STORAGE_KEY);
+        if (saved) {
+            const data = JSON.parse(saved);
+            Object.assign(State, data);
+            
+            // Backward compatibility
+            if (State.carFuel === undefined) State.carFuel = 100;
+            if (State.gameTime === undefined) State.gameTime = 8.0;
+            if (State.pcParts === undefined) State.pcParts = { casing:0, motherboard:0, cpu:0, gpu:0, ram:0, psu:0, monitor:0 };
+            if (State.pcAssembled === undefined) State.pcAssembled = false;
+            if (State.autoSave === undefined) State.autoSave = true;
+            if (State.showGuidanceLine === undefined) State.showGuidanceLine = true;
+            if (!State.consumables) State.consumables = { air_putih: 0, nasi_goreng: 0, nasi_bebek: 0 };
+            if (!State.store) {
+                State.store = {
+                    active: false, discount: 0, lastSaleTime: 0,
+                    products: {
+                        kelapa: { name: 'Kelapa Segar', price: 20000, stock: 0, rawPrice: 10000, baseChance: 0.3, icon: '🥥' },
+                        bebek: { name: 'Nasi Bebek', price: 25000, stock: 0, rawPrice: 15000, baseChance: 0.2, icon: '🍗' }
+                    },
+                    employees: {
+                        kasir: { name: 'Kasir Handal', level: 0, maxLevel: 5, baseCost: 50000, speedBonus: 0.1, chanceBonus: 0.05, icon: '👨‍💼' },
+                        koki: { name: 'Koki Bintang 5', level: 0, maxLevel: 5, baseCost: 75000, speedBonus: 0.2, chanceBonus: 0.1, icon: '👨‍🍳' }
+                    }
+                };
+            }
+            if (!State.attendance) {
+                State.attendance = { lastAbsenceTime: 0, lastDayId: '', status: null, streakHadir: 0, history: [] };
+            }
+        }
+        State.inRoom = false; // Selalu mulai dari luar saat dimuat ulang
+        this.checkAttendance();
+        UI.updateHUD();
+    },
+
+    checkAttendance() {
+        const today = new Date().toDateString();
+        if (State.attendance.lastDayId && State.attendance.lastDayId !== today) {
+            if (State.attendance.status === null || State.attendance.status === '') {
+                State.rating = Math.max(1.0, State.rating - 0.3);
+                State.attendance.streakHadir = 0;
+                State.attendance.history.unshift({ date: State.attendance.lastDayId, status: 'bolos' });
+                if (State.attendance.history.length > 7) State.attendance.history.pop();
+                UI.toast("Kamu bolos kemarin... rating menurun 😬");
+            }
+            State.attendance.status = null;
+            State.attendance.lastDayId = today;
+            if (UI.phoneActive && document.getElementById('phone-app-absensi').style.display === 'flex') UI.renderAbsensi();
+            this.save();
+        } else if (!State.attendance.lastDayId) {
+            State.attendance.lastDayId = today;
+        }
+    },
+
+    submitAbsence(type) {
+        if (State.attendance.status !== null) {
+            UI.toast("Kamu sudah absen hari ini!");
+            return;
+        }
+        State.attendance.status = type;
+        State.attendance.lastAbsenceTime = Date.now();
+        State.attendance.history.unshift({ date: new Date().toLocaleDateString(), status: type });
+        if (State.attendance.history.length > 7) State.attendance.history.pop();
+
+        if (type === 'hadir') {
+            State.balance += 10000;
+            State.exp += 20;
+            if (State.exp >= 100) { State.level++; State.exp -= 100; UI.toast(`LEVEL UP! Sekarang Level ${State.level}`); }
+            State.rating = Math.min(5.0, State.rating + 0.1);
+            State.attendance.streakHadir++;
+            UI.toast("Kamu hadir hari ini, gas kerja! 🔥");
+            if (State.attendance.streakHadir % 7 === 0) { State.powerbanks += 1; UI.toast("🔥 STREAK 7 HARI! Bonus Powerbank +1!"); }
+            else if (State.attendance.streakHadir % 3 === 0) { State.balance += 20000; UI.toast("🔥 STREAK 3 HARI! Bonus Rp 20.000!"); }
+        } else if (type === 'izin') {
+            State.attendance.streakHadir = 0;
+            UI.toast("Izin diterima, istirahat dulu 😌");
+        }
+        this.save(); UI.updateHUD(); UI.renderAbsensi();
+    },
+
+    resetData() {
+        if (confirm("Apakah kamu yakin ingin mereset semua data permainan? Saldo, level, dan posisi akan kembali dari awal.")) {
+            localStorage.removeItem(CONFIG.STORAGE_KEY);
+            location.reload();
+        }
+    },
+
+    spawnPassenger() {
+        State.passenger = {
+            pos: { x: 500 + Math.random()*(CONFIG.MAP_SIZE - 1000), y: 500 + Math.random()*(CONFIG.MAP_SIZE - 1000) },
+            dest: { x: 500 + Math.random()*(CONFIG.MAP_SIZE - 1000), y: 500 + Math.random()*(CONFIG.MAP_SIZE - 1000) },
+            isPicked: false,
+            fee: 1500 + Math.floor(Math.random()*2500)
+        };
+    },
+
+    completeTrip() {
+        const earned = State.passenger.fee;
+        State.balance += earned;
+        State.trips++;
+        
+        State.exp += 25;
+        if (State.exp >= 100) {
+            State.level++;
+            State.exp -= 100;
+            UI.toast(`LEVEL UP! Sekarang Level ${State.level}`);
+        }
+
+        const isSultan = Math.random() < 0.01; 
+
+        if (isSultan) {
+            State.balance += 1000000;
+            State.rating = 5.0;
+            UI.toast(`SULTAN! Dapat ⭐100 & Tips Rp 1.000.000! 🤑`);
+        } else {
+            State.rating = Math.min(5.0, State.rating + 0.05);
+            UI.toast(`Selesai! +Rp ${earned.toLocaleString('id-ID')} & ⭐${State.rating.toFixed(1)}`);
+        }
+        
+        State.passenger = null; 
+        UI.updateHUD();
+
+        let spawnDelay = 4000;
+        if (State.attendance.status === 'hadir') spawnDelay = 1000;
+        else if (State.attendance.status === 'bolos') spawnDelay = 12000;
+
+        setTimeout(() => this.spawnPassenger(), spawnDelay);
+    },
+
+    updateStocks() {
+        State.stocks.forEach(s => {
+            const lastPrice = s.history[s.history.length - 1];
+            const change = (Math.random() - 0.48) * 30;
+            const newPrice = Math.max(10, Math.floor(lastPrice + change));
+            s.price = newPrice;
+            s.history.push(newPrice);
+            if (s.history.length > 20) s.history.shift();
+            s.trend = newPrice > lastPrice ? 1 : -1;
+        });
+        const tradingApp = document.getElementById('phone-app-trading');
+        if (UI.phoneActive && tradingApp && tradingApp.style.display === 'flex') {
+            UI.renderTrading();
+        }
+    },
+
+    processTokopedean() {
+        if (!State.store.active) return;
+
+        const now = Date.now();
+        const baseInterval = 4000;
+        const speedBonus = (State.store.employees.kasir.level * State.store.employees.kasir.speedBonus) + (State.store.employees.koki.level * State.store.employees.koki.speedBonus);
+        const actualInterval = Math.max(1000, baseInterval * (1 - speedBonus));
+
+        if (now - State.store.lastSaleTime > actualInterval) {
+            State.store.lastSaleTime = now;
+            let totalProfit = 0;
+            let soldItems = [];
+
+            const chanceBonus = (State.store.employees.kasir.level * State.store.employees.kasir.chanceBonus) + (State.store.employees.koki.level * State.store.employees.koki.chanceBonus);
+            
+            Object.keys(State.store.products).forEach(key => {
+                const p = State.store.products[key];
+                if (p.stock > 0) {
+                    const discountChanceBonus = State.store.discount * 0.5;
+                    const finalChance = p.baseChance + chanceBonus + discountChanceBonus;
+                    
+                    if (Math.random() < finalChance) {
+                        p.stock--;
+                        const profit = p.price * (1 - State.store.discount);
+                        totalProfit += profit;
+                        soldItems.push(p.name);
+                    }
+                }
+            });
+
+            if (totalProfit > 0) {
+                State.balance += totalProfit;
+                UI.toast(`🛒 ${soldItems.join(', ')} Terjual! +Rp ${totalProfit.toLocaleString('id-ID')}`);
+                UI.updateHUD();
+                if (UI.phoneActive && document.getElementById('phone-app-tokopedean').style.display === 'flex') UI.renderTokoContent();
+            }
+        }
+    },
+
+    lastCheckTime: 0,
+
+    update() {
+        // Siklus Waktu Mandiri (1 jam in-game = sekitar 16 detik real-time, jadi 24 jam = ~6 menit)
+        State.gameTime += 0.001; 
+        if (State.gameTime >= 24.0) State.gameTime = 0.0;
+
+        State.trafficTimer = (Date.now() / 4000) % 2; 
+        this.processTokopedean(); 
+
+        if (Date.now() - this.lastCheckTime > 1000) {
+            this.lastCheckTime = Date.now();
+            this.checkAttendance();
+            
+            const cdEl = document.getElementById('absensi-countdown');
+            if (cdEl && UI.phoneActive && document.getElementById('phone-app-absensi').style.display === 'flex') {
+                const now = new Date();
+                const tomorrow = new Date(now);
+                tomorrow.setHours(24, 0, 0, 0);
+                const diff = tomorrow - now;
+                const h = Math.floor((diff / (1000 * 60 * 60)) % 24).toString().padStart(2, '0');
+                const m = Math.floor((diff / 1000 / 60) % 60).toString().padStart(2, '0');
+                const s = Math.floor((diff / 1000) % 60).toString().padStart(2, '0');
+                cdEl.innerText = `${h}:${m}:${s}`;
+            }
+
+            UI.updateTimeHUD();
+        }
+
+        // Hentikan pergerakan jika sedang di kamar
+        if (State.inRoom) return;
+
+        if (State.inCar) {
+            let refueling = false;
+            CONFIG.GAS_STATIONS.forEach(gs => {
+                if (Math.hypot(State.carPos.x - gs.x, State.carPos.y - gs.y) < 120) {
+                    refueling = true;
+                    State.carFuel = Math.min(100, State.carFuel + 0.4);
+                }
+            });
+            State.isRefueling = refueling;
+
+            if (State.carFuel > 0) {
+                if (this.keys['w'] || this.keys['arrowup']) {
+                    this.vel.x += Math.cos(State.rot) * 0.7;
+                    this.vel.y += Math.sin(State.rot) * 0.7;
+                    State.carFuel = Math.max(0, State.carFuel - 0.025);
+                }
+                if (this.keys['s'] || this.keys['arrowdown']) {
+                    this.vel.x -= Math.cos(State.rot) * 0.35;
+                    this.vel.y -= Math.sin(State.rot) * 0.35;
+                    State.carFuel = Math.max(0, State.carFuel - 0.015);
+                }
+            }
+            if (this.keys['a'] || this.keys['arrowleft']) State.rot -= 0.06;
+            if (this.keys['d'] || this.keys['arrowright']) State.rot += 0.06;
+
+            State.carPos.x += this.vel.x;
+            State.carPos.y += this.vel.y;
+            this.vel.x *= 0.94;
+            this.vel.y *= 0.94;
+
+            State.pos.x = State.carPos.x;
+            State.pos.y = State.carPos.y;
+
+            if (State.passenger) {
+                const target = State.passenger.isPicked ? State.passenger.dest : State.passenger.pos;
+                if (Math.hypot(State.carPos.x - target.x, State.carPos.y - target.y) < 80) {
+                    if (!State.passenger.isPicked) {
+                        State.passenger.isPicked = true;
+                        UI.toast("Penumpang Diangkut!");
+                    } else {
+                        this.completeTrip();
+                    }
+                }
+            }
+        } else {
+            const speed = 4;
+            let mx = 0, my = 0;
+            if (this.keys['w']) my -= 1;
+            if (this.keys['s']) my += 1;
+            if (this.keys['a']) mx -= 1;
+            if (this.keys['d']) mx += 1;
+
+            if (mx !== 0 || my !== 0) {
+                const angle = Math.atan2(my, mx);
+                State.pRot = angle;
+                State.pos.x += Math.cos(angle) * speed;
+                State.pos.y += Math.sin(angle) * speed;
+                State.energy = Math.max(0, State.energy - 0.01);
+            }
+        }
+
+        if (State.energy <= 0 && State.powerbanks > 0) {
+            State.energy = 50;
+            State.powerbanks--;
+            UI.toast("🔋 Powerbank Otomatis Digunakan untuk Stamina!");
+            UI.updateHUD();
+        }
+
+        State.pos.x = Math.max(0, Math.min(CONFIG.MAP_SIZE, State.pos.x));
+        State.pos.y = Math.max(0, Math.min(CONFIG.MAP_SIZE, State.pos.y));
+        State.carPos.x = Math.max(0, Math.min(CONFIG.MAP_SIZE, State.carPos.x));
+        State.carPos.y = Math.max(0, Math.min(CONFIG.MAP_SIZE, State.carPos.y));
+
+        this.updateInteractionBtn();
+        UI.updateStatusHUD();
+    },
+
+    updateInteractionBtn() {
+        if(State.inRoom) return;
+
+        const btn = document.getElementById('interaction-btn');
+        const distCar = Math.hypot(State.pos.x - State.carPos.x, State.pos.y - State.carPos.y);
+        const distHome = Math.hypot(State.pos.x - CONFIG.HOME.x, State.pos.y - CONFIG.HOME.y);
+        
+        let nearWarung = false;
+        CONFIG.WARUNGS.forEach(w => {
+            if (Math.hypot(State.pos.x - w.x, State.pos.y - w.y) < 150) nearWarung = true;
+        });
+
+        if (State.inCar) {
+            btn.style.display = 'block';
+            btn.innerText = '[F] KELUAR';
+        } else if (distHome < 120) {
+            btn.style.display = 'block';
+            btn.innerText = '[F] MASUK RUMAH';
+        } else if (distCar < 100) {
+            btn.style.display = 'block';
+            btn.innerText = '[F] MASUK KENDARAAN';
+        } else if (nearWarung) {
+            btn.style.display = 'block';
+            btn.innerText = '[F] BUKA WARUNG';
+        } else {
+            btn.style.display = 'none';
+        }
+    },
+
+    draw() {
+        if(State.inRoom) return; // Jangan render kota jika di dalam kamar
+
+        const ctx = this.ctx;
+        ctx.fillStyle = '#e2e8f0';
+        ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        ctx.save();
+        ctx.translate(this.canvas.width/2 - State.pos.x, this.canvas.height/2 - State.pos.y);
+
+        ctx.fillStyle = '#91c483'; 
+        ctx.fillRect(0, 0, CONFIG.MAP_SIZE, CONFIG.MAP_SIZE);
+
+        ctx.fillStyle = '#475569';
+        const BLOCKS = CONFIG.MAP_SIZE / CONFIG.BLOCK_SIZE;
+        for(let i=0; i<=BLOCKS; i++) {
+            ctx.fillRect(i*1200 - 110, 0, 220, CONFIG.MAP_SIZE);
+            ctx.fillRect(0, i*1200 - 110, CONFIG.MAP_SIZE, 220);
+        }
+
+        ctx.strokeStyle = '#94a3b8';
+        ctx.lineWidth = 4;
+        ctx.setLineDash([40, 40]);
+        for(let i=0; i<=BLOCKS; i++) {
+            ctx.beginPath(); ctx.moveTo(i*1200, 0); ctx.lineTo(i*1200, CONFIG.MAP_SIZE); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(0, i*1200); ctx.lineTo(CONFIG.MAP_SIZE, i*1200); ctx.stroke();
+        }
+        ctx.setLineDash([]);
+
+        State.vegetation.filter(v => v.type === 'bush').forEach(v => {
+            ctx.fillStyle = '#7aa56d';
+            ctx.beginPath(); ctx.arc(v.x, v.y, v.size, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = '#91c483';
+            ctx.beginPath(); ctx.arc(v.x - 2, v.y - 2, v.size * 0.7, 0, Math.PI*2); ctx.fill();
+        });
+
+        // GAMBAR GARIS ARAH JIKA AKTIF
+        if (State.showGuidanceLine && State.passenger) {
+            const t = State.passenger.isPicked ? State.passenger.dest : State.passenger.pos;
+            const startX = State.inCar ? State.carPos.x : State.pos.x;
+            const startY = State.inCar ? State.carPos.y : State.pos.y;
+            
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(t.x, t.y);
+            ctx.strokeStyle = State.passenger.isPicked ? '#22c55e' : '#3b82f6';
+            ctx.lineWidth = 6;
+            ctx.setLineDash([20, 20]);
+            ctx.stroke();
+            ctx.setLineDash([]); // Reset
+        }
+
+        State.buildings.forEach(b => {
+            ctx.fillStyle = 'rgba(0,0,0,0.1)';
+            ctx.fillRect(b.x + 12, b.y + 12, b.w, b.h);
+            ctx.fillStyle = b.color;
+            ctx.fillRect(b.x, b.y, b.w, b.h);
+            ctx.strokeStyle = '#cbd5e1';
+            ctx.strokeRect(b.x, b.y, b.w, b.h);
+            
+            // Lampu jendela menyala saat malam
+            ctx.fillStyle = (State.gameTime >= 18 || State.gameTime < 6) ? '#fef08a' : '#bae6fd';
+            const winSize = 15;
+            for(let wx=0; wx<2; wx++) {
+                for(let wy=0; wy<2; wy++) {
+                    ctx.fillRect(b.x + 25 + wx*(b.w-60), b.y + 25 + wy*(b.h-60), winSize, winSize);
+                }
+            }
+        });
+
+        State.vegetation.filter(v => v.type === 'tree').forEach(v => {
+            ctx.fillStyle = '#78350f'; ctx.fillRect(v.x - 4, v.y - 4, 8, 8);
+            ctx.fillStyle = '#166534'; ctx.beginPath(); ctx.arc(v.x, v.y - 10, 18, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = '#15803d'; ctx.beginPath(); ctx.arc(v.x + 5, v.y - 15, 12, 0, Math.PI*2); ctx.fill();
+        });
+
+        for(let i=0; i<=BLOCKS; i++) {
+            for(let j=0; j<=BLOCKS; j++) {
+                this.drawTrafficLight(ctx, i*1200, j*1200);
+            }
+        }
+
+        // RUMAH PEMAIN
+        ctx.fillStyle = '#334155';
+        ctx.beginPath(); ctx.roundRect(CONFIG.HOME.x - 70, CONFIG.HOME.y - 70, 140, 140, 15); ctx.fill();
+        ctx.fillStyle = '#64748b'; ctx.fillRect(CONFIG.HOME.x - 60, CONFIG.HOME.y - 60, 120, 120);
+        ctx.fillStyle = 'white'; ctx.font = 'bold 40px Arial'; ctx.textAlign = "center";
+        ctx.fillText("🏠", CONFIG.HOME.x, CONFIG.HOME.y + 10);
+        ctx.font = 'bold 12px Plus Jakarta Sans'; ctx.fillText("RUMAH SAYA", CONFIG.HOME.x, CONFIG.HOME.y + 35);
+
+        CONFIG.GAS_STATIONS.forEach(gs => {
+            ctx.fillStyle = '#2563eb';
+            ctx.beginPath(); ctx.roundRect(gs.x - 70, gs.y - 70, 140, 140, 15); ctx.fill();
+            ctx.fillStyle = 'white'; ctx.font = 'bold 30px Arial'; ctx.textAlign = "center";
+            ctx.fillText("⛽", gs.x, gs.y + 10);
+        });
+
+        CONFIG.WARUNGS.forEach(w => {
+            ctx.fillStyle = '#f59e0b';
+            ctx.beginPath(); ctx.roundRect(w.x - 60, w.y - 60, 120, 120, 15); ctx.fill();
+            ctx.fillStyle = 'white'; ctx.font = 'bold 30px Arial'; ctx.textAlign = "center";
+            ctx.fillText("🍲", w.x, w.y + 10);
+            ctx.font = 'bold 12px Plus Jakarta Sans';
+            ctx.fillText("WARUNG", w.x, w.y + 35);
+        });
+
+        if (State.passenger) {
+            const t = State.passenger.isPicked ? State.passenger.dest : State.passenger.pos;
+            
+            if (!State.passenger.isPicked) {
+                // Animasi Glow Penumpang Menunggu
+                const pulse = Math.sin(Date.now() / 200) * 5;
+                ctx.fillStyle = 'rgba(249, 115, 22, 0.3)';
+                ctx.beginPath(); ctx.arc(t.x, t.y, 25 + pulse, 0, Math.PI*2); ctx.fill();
+                
+                // Karakter Penumpang (Top-Down)
+                ctx.save();
+                ctx.translate(t.x, t.y);
+                
+                // Bayangan
+                ctx.fillStyle = 'rgba(0,0,0,0.3)';
+                ctx.beginPath(); ctx.ellipse(0, 4, 12, 12, 0, 0, Math.PI*2); ctx.fill();
+                
+                // Baju (Biru)
+                ctx.fillStyle = '#3b82f6';
+                ctx.beginPath(); ctx.roundRect(-6, -10, 12, 20, 5); ctx.fill();
+                
+                // Lengan
+                ctx.fillStyle = '#2563eb';
+                ctx.beginPath(); ctx.roundRect(-4, -14, 10, 6, 3); ctx.fill();
+                ctx.beginPath(); ctx.roundRect(-4, 8, 10, 6, 3); ctx.fill();
+                
+                // Kepala & Rambut
+                ctx.fillStyle = '#fcd34d'; // Warna Kulit
+                ctx.beginPath(); ctx.arc(0, 0, 7, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#451a03'; // Rambut
+                ctx.beginPath(); ctx.arc(0, 0, 7.5, Math.PI/2, Math.PI*1.5); ctx.fill();
+                
+                // Tangan memegang HP
+                ctx.fillStyle = '#fcd34d';
+                ctx.beginPath(); ctx.arc(8, -8, 3, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#111827'; // HP
+                ctx.fillRect(6, -12, 5, 8);
+
+                ctx.restore();
+
+                // Ikon Penanda Lambaian Tangan
+                ctx.fillStyle = "white"; ctx.font = "bold 16px Arial"; ctx.textAlign = "center";
+                ctx.fillText("👋", t.x, t.y - 25);
+                
+            } else {
+                // Pin Lokasi Tujuan
+                const bounce = Math.sin(Date.now() / 150) * 5;
+                ctx.save();
+                ctx.translate(t.x, t.y - 15 + bounce);
+                
+                // Bayangan Pin
+                ctx.fillStyle = 'rgba(0,0,0,0.3)';
+                ctx.beginPath(); ctx.ellipse(0, 15 - bounce, 10, 5, 0, 0, Math.PI*2); ctx.fill();
+
+                // Bentuk Pin Merah (Map Pin)
+                ctx.fillStyle = '#ef4444';
+                ctx.beginPath();
+                ctx.arc(0, -15, 15, Math.PI, 0); 
+                ctx.bezierCurveTo(15, -5, 5, 5, 0, 15); 
+                ctx.bezierCurveTo(-5, 5, -15, -5, -15, -15); 
+                ctx.fill();
+                ctx.lineWidth = 3; ctx.strokeStyle = 'white'; ctx.stroke();
+                
+                // Titik Tengah Putih
+                ctx.fillStyle = 'white';
+                ctx.beginPath(); ctx.arc(0, -15, 6, 0, Math.PI*2); ctx.fill();
+                
+                ctx.restore();
+            }
+        }
+
+        this.drawCar(ctx);
+
+        if (!State.inCar) {
+            // Karakter Pemain / Driver Ojol (Top-Down)
+            ctx.save();
+            ctx.translate(State.pos.x, State.pos.y);
+            ctx.rotate(State.pRot);
+            
+            // Bayangan
+            ctx.fillStyle = 'rgba(0,0,0,0.3)';
+            ctx.beginPath(); ctx.ellipse(0, 4, 14, 14, 0, 0, Math.PI*2); ctx.fill();
+            
+            // Jaket Ojol (Hijau)
+            ctx.fillStyle = '#00aa13'; 
+            ctx.beginPath(); ctx.roundRect(-8, -12, 16, 24, 6); ctx.fill();
+            
+            // Aksen Jaket Hitam
+            ctx.fillStyle = '#1e293b';
+            ctx.fillRect(-2, -12, 10, 24); 
+            
+            // Lengan
+            ctx.fillStyle = '#008910';
+            ctx.beginPath(); ctx.roundRect(-4, -16, 12, 6, 3); ctx.fill(); // Kiri
+            ctx.beginPath(); ctx.roundRect(-4, 10, 12, 6, 3); ctx.fill(); // Kanan
+            
+            // Helm Ojol
+            ctx.fillStyle = '#00aa13'; 
+            ctx.beginPath(); ctx.arc(0, 0, 9, 0, Math.PI*2); ctx.fill();
+            ctx.lineWidth = 2; ctx.strokeStyle = '#ffffff'; ctx.stroke(); 
+            
+            // Kaca Helm
+            ctx.fillStyle = '#111827';
+            ctx.beginPath(); ctx.arc(0, 0, 9, -Math.PI/4, Math.PI/4); ctx.fill();
+
+            ctx.restore();
+        }
+
+        ctx.restore();
+
+        // LIGHTING OVERLAY (SIKLUS HARI)
+        this.drawLighting(ctx);
+
+        this.drawMap(this.mCtx, this.miniCanvas);
+        if (UI.mapActive) this.drawMap(this.fCtx, this.fullCanvas);
+    },
+
+    drawLighting(ctx) {
+        let alpha = 0;
+        let color = '#000000';
+        const t = State.gameTime;
+
+        if (t >= 18 || t < 5) { 
+            // Malam
+            alpha = 0.65; color = '#0f172a'; 
+        } else if (t >= 5 && t < 7) { 
+            // Pagi / Subuh
+            alpha = 0.3; color = '#f59e0b'; 
+        } else if (t >= 15 && t < 18) { 
+            // Sore
+            alpha = 0.3; color = '#f97316'; 
+        }
+
+        if (alpha > 0) {
+            ctx.fillStyle = color;
+            ctx.globalAlpha = alpha;
+            ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+            ctx.globalAlpha = 1.0; // Reset
+        }
+    },
+
+    drawTrafficLight(ctx, x, y) {
+        const isNSGreen = State.trafficTimer < 1;
+        const offset = 135;
+
+        const positions = [
+            {lx: x-offset, ly: y-offset, orient: 'ns'},
+            {lx: x+offset, ly: y-offset, orient: 'ew'},
+            {lx: x+offset, ly: y+offset, orient: 'ns'},
+            {lx: x-offset, ly: y+offset, orient: 'ew'}
+        ];
+
+        positions.forEach(p => {
+            ctx.fillStyle = '#1e293b';
+            ctx.beginPath(); ctx.roundRect(p.lx-15, p.ly-15, 30, 30, 8); ctx.fill();
+            const active = (p.orient === 'ns' && isNSGreen) || (p.orient === 'ew' && !isNSGreen);
+            ctx.fillStyle = active ? '#22c55e' : '#ef4444';
+            ctx.beginPath(); ctx.arc(p.lx, p.ly, 9, 0, Math.PI*2); ctx.fill();
+            
+            // Lampu lalu lintas glow saat malam
+            if (State.gameTime >= 18 || State.gameTime < 6) {
+                ctx.shadowBlur = 15; ctx.shadowColor = active ? '#22c55e' : '#ef4444';
+                ctx.stroke(); ctx.shadowBlur = 0;
+            }
+        });
+    },
+
+    drawCar(ctx) {
+        ctx.save();
+        ctx.translate(State.carPos.x, State.carPos.y);
+        ctx.rotate(State.rot);
+        ctx.fillStyle = 'rgba(0,0,0,0.25)';
+        ctx.beginPath(); ctx.roundRect(-28, -16, 60, 32, 8); ctx.fill();
+        ctx.fillStyle = '#008910';
+        ctx.beginPath(); ctx.roundRect(-24, -14, 48, 28, 6); ctx.fill();
+        ctx.fillStyle = '#00aa13';
+        ctx.beginPath(); ctx.roundRect(-22, -12, 44, 24, 5); ctx.fill();
+        ctx.fillStyle = '#1e293b';
+        ctx.beginPath(); ctx.roundRect(8, -9, 8, 18, 2); ctx.fill(); 
+        ctx.beginPath(); ctx.roundRect(-18, -9, 6, 18, 2); ctx.fill(); 
+        
+        // Lampu Mobil (Headlights)
+        ctx.fillStyle = '#fef08a';
+        ctx.beginPath(); ctx.ellipse(20, -8, 4, 3, 0, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(20, 8, 4, 3, 0, 0, Math.PI*2); ctx.fill();
+
+        // Sorot Lampu saat malam
+        if (State.gameTime >= 18 || State.gameTime < 6) {
+            const grad = ctx.createLinearGradient(20, 0, 150, 0);
+            grad.addColorStop(0, 'rgba(254, 240, 138, 0.4)');
+            grad.addColorStop(1, 'rgba(254, 240, 138, 0)');
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.moveTo(20, -10); ctx.lineTo(150, -40); ctx.lineTo(150, 40); ctx.lineTo(20, 10);
+            ctx.fill();
+        }
+
+        if (State.isRefueling) {
+            ctx.rotate(-State.rot);
+            ctx.fillStyle = '#1e40af';
+            ctx.font = 'bold 12px Plus Jakarta Sans';
+            ctx.textAlign = "center";
+            ctx.fillText("MENGISI BENSIN...", 0, -45);
+        }
+        ctx.restore();
+    },
+
+    drawMap(ctx, canvas) {
+        ctx.fillStyle = '#f8fafc';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        const scale = Math.min(canvas.width, canvas.height) / CONFIG.MAP_SIZE;
+        ctx.fillStyle = '#cbd5e1';
+        const BLOCKS = CONFIG.MAP_SIZE / CONFIG.BLOCK_SIZE;
+        for(let i=0; i<=BLOCKS; i++) {
+            ctx.fillRect(i*1200*scale-1, 0, 2, canvas.height);
+            ctx.fillRect(0, i*1200*scale-1, canvas.width, 2);
+        }
+        
+        // Marker Rumah
+        ctx.fillStyle = '#334155'; ctx.fillRect(CONFIG.HOME.x*scale-4, CONFIG.HOME.y*scale-4, 8, 8);
+
+        CONFIG.GAS_STATIONS.forEach(gs => {
+            ctx.fillStyle = '#2563eb';
+            ctx.fillRect(gs.x*scale-3, gs.y*scale-3, 6, 6);
+        });
+        CONFIG.WARUNGS.forEach(w => {
+            ctx.fillStyle = '#f59e0b';
+            ctx.fillRect(w.x*scale-3, w.y*scale-3, 6, 6);
+        });
+        if (State.passenger) {
+            ctx.fillStyle = '#f97316';
+            const t = State.passenger.isPicked ? State.passenger.dest : State.passenger.pos;
+            ctx.beginPath(); ctx.arc(t.x*scale, t.y*scale, 4, 0, Math.PI*2); ctx.fill();
+        }
+        ctx.fillStyle = '#00aa13';
+        ctx.beginPath(); ctx.arc(State.carPos.x*scale, State.carPos.y*scale, 5, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = 'black';
+        ctx.beginPath(); ctx.arc(State.pos.x*scale, State.pos.y*scale, 2, 0, Math.PI*2); ctx.fill();
+    },
+
+    loop() {
+        this.update();
+        this.draw();
+        requestAnimationFrame(() => this.loop());
+    }
+};
+
+const UI = {
+    phoneActive: false,
+    mapActive: false,
+    currentTokoTab: 'toko',
+
+    togglePhone() {
+        this.phoneActive = !this.phoneActive;
+        document.getElementById('phone-wrapper').classList.toggle('active', this.phoneActive);
+        this.openApp('home');
+    },
+
+    updateTimeHUD() {
+        const h = Math.floor(State.gameTime).toString().padStart(2, '0');
+        const m = Math.floor((State.gameTime % 1) * 60).toString().padStart(2, '0');
+        const timeStr = `${h}:${m}`;
+        
+        document.getElementById('ui-game-time').innerText = timeStr;
+        document.getElementById('phone-time-top').innerText = timeStr;
+        
+        const roomTime = document.getElementById('room-time');
+        if(roomTime) roomTime.innerText = `⏰ ${timeStr}`;
+
+        let icon = '☀️';
+        if (State.gameTime >= 18 || State.gameTime < 5) icon = '🌙';
+        else if (State.gameTime >= 15) icon = '⛅';
+        document.getElementById('ui-clock-icon').innerText = icon;
+    },
+
+    sleep() {
+        State.gameTime = 6.0; // Bangun jam 6 pagi
+        State.energy = 100;
+        this.toast("Zzz... Bangun pagi, Stamina Penuh!");
+        this.updateTimeHUD();
+        this.updateStatusHUD();
+        Game.save();
+    },
+
+    updateRoomPC() {
+        const icon = document.getElementById('room-pc-icon');
+        const title = document.getElementById('room-pc-title');
+        const desc = document.getElementById('room-pc-desc');
+        const glow = document.getElementById('room-pc-glow');
+
+        if (State.pcAssembled) {
+            icon.innerText = '🖥️';
+            title.innerText = 'PC Gaming Nyala';
+            desc.innerText = 'Siap untuk Streaming / Main Game';
+            glow.style.display = 'block';
+        } else {
+            icon.innerText = '📦';
+            title.innerText = 'Meja Rakit PC';
+            desc.innerText = 'Beli komponen di Tokopedean';
+            glow.style.display = 'none';
+        }
+    },
+
+    togglePCModal(show) {
+        const modal = document.getElementById('pc-modal');
+        if (show) {
+            modal.classList.add('active');
+            this.renderPCModal();
+        } else {
+            modal.classList.remove('active');
+        }
+    },
+
+    openPCModal() {
+        this.togglePCModal(true);
+    },
+
+    renderPCModal() {
+        const content = document.getElementById('pc-modal-content');
+        
+        if (State.pcAssembled) {
+            document.getElementById('pc-modal-title').innerText = "🖥️ PC GAMING AKTIF";
+            content.innerHTML = `
+                <div style="text-align:center; padding:20px;">
+                    <div style="font-size:4rem; margin-bottom:15px; filter: drop-shadow(0 0 15px rgba(59,130,246,0.8));">🖥️</div>
+                    <div style="font-weight:800; font-size:1.1rem; margin-bottom:5px;">Cyber-Rig X-Treme</div>
+                    <div style="font-size:0.75rem; color:#64748b; margin-bottom:20px;">Spesifikasi Rata Kanan. Main game tanpa nge-lag!</div>
+                    
+                    <button onclick="UI.streamGame()" style="width:100%; padding:15px; background:var(--primary); color:white; border:none; border-radius:12px; font-weight:800; font-size:1rem; cursor:pointer; box-shadow:0 4px 15px rgba(0,170,19,0.3);">
+                        🎥 Mulai Streaming Game (Butuh 2 Jam)
+                    </button>
+                    <div style="font-size:0.65rem; color:#ef4444; margin-top:10px;">Mengurangi 20 Stamina. Potensi donasi viewer!</div>
+                </div>
+            `;
+        } else {
+            document.getElementById('pc-modal-title').innerText = "📦 RAKIT PC";
+            
+            let allReady = true;
+            let partsHtml = '';
+            
+            Object.keys(PC_PARTS_DB).forEach(key => {
+                const part = PC_PARTS_DB[key];
+                const owned = State.pcParts[key] > 0;
+                if (!owned) allReady = false;
+                
+                partsHtml += `
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #e2e8f0;">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <span style="font-size:1.5rem;">${part.icon}</span>
+                            <span style="font-weight:800; font-size:0.8rem; color:${owned ? '#111827' : '#94a3b8'};">${part.name}</span>
+                        </div>
+                        <span style="font-weight:900; font-size:0.8rem; color:${owned ? '#10b981' : '#ef4444'};">${owned ? 'ADA ✅' : 'KOSONG ❌'}</span>
+                    </div>
+                `;
+            });
+
+            content.innerHTML = `
+                <div style="background:white; border-radius:15px; border:1px solid #e2e8f0; margin-bottom:15px;">
+                    ${partsHtml}
+                </div>
+                <button onclick="UI.assemblePC()" ${allReady ? '' : 'disabled'} style="width:100%; padding:15px; background:${allReady ? '#3b82f6' : '#e2e8f0'}; color:${allReady ? 'white' : '#94a3b8'}; border:none; border-radius:12px; font-weight:800; font-size:1rem; cursor:${allReady ? 'pointer' : 'not-allowed'};">
+                    ${allReady ? '🛠️ RAKIT SEKARANG' : 'KUMPULKAN PART DULU'}
+                </button>
+            `;
+        }
+    },
+
+    assemblePC() {
+        State.pcAssembled = true;
+        // Kurangi parts
+        Object.keys(State.pcParts).forEach(k => State.pcParts[k]--);
+        this.toast("🎉 PC GAMING BERHASIL DIRAKIT!");
+        this.updateRoomPC();
+        this.renderPCModal();
+        Game.save();
+    },
+
+    streamGame() {
+        if (State.energy >= 20) {
+            State.energy -= 20;
+            State.gameTime += 2.0; // Lewati 2 jam in-game
+            
+            // Donasi acak
+            const donasi = 100000 + Math.floor(Math.random() * 400000); 
+            State.balance += donasi;
+            
+            this.toast(`🎥 Streaming Selesai! Dapat Saweran Rp ${donasi.toLocaleString('id-ID')}!`);
+            this.updateStatusHUD();
+            this.updateTimeHUD();
+            this.updateHUD();
+            Game.save();
+        } else {
+            this.toast("Stamina tidak cukup! Tidur atau makan dulu.");
+        }
+    },
+
+    toggleShop(force) {
+        const modal = document.getElementById('shop-modal');
+        document.getElementById('profile-modal').classList.remove('active'); 
+        document.getElementById('guide-modal').classList.remove('active');
+        if (force === true) modal.classList.add('active');
+        else if (force === false) modal.classList.remove('active');
+        else modal.classList.toggle('active');
+    },
+
+    toggleProfile(force) {
+        const modal = document.getElementById('profile-modal');
+        document.getElementById('shop-modal').classList.remove('active'); 
+        document.getElementById('guide-modal').classList.remove('active');
+        
+        if (force === true || (force === undefined && !modal.classList.contains('active'))) {
+            document.getElementById('profile-stats').innerHTML = `
+                Level: ${State.level} | EXP: ${State.exp}/100<br>
+                Trip Selesai: ${State.trips}<br>
+                Rating: ⭐${State.rating.toFixed(1)}
+            `;
+            this.updateAutoSaveBtn();
+            modal.classList.add('active');
+        } else {
+            modal.classList.remove('active');
+        }
+    },
+
+    toggleGuide(force) {
+        const modal = document.getElementById('guide-modal');
+        document.getElementById('shop-modal').classList.remove('active');
+        document.getElementById('profile-modal').classList.remove('active');
+
+        if (force === true || (force === undefined && !modal.classList.contains('active'))) {
+            modal.classList.add('active');
+        } else {
+            modal.classList.remove('active');
+        }
+    },
+
+    toggleAutoSave() {
+        State.autoSave = !State.autoSave;
+        this.updateAutoSaveBtn();
+        Game.save();
+        this.toast(State.autoSave ? "Auto-Simpan DIAKTIFKAN" : "Auto-Simpan DIMATIKAN");
+    },
+
+    updateAutoSaveBtn() {
+        const btn = document.getElementById('btn-autosave');
+        if (btn) {
+            btn.innerText = State.autoSave ? 'ON' : 'OFF';
+            btn.style.background = State.autoSave ? '#10b981' : '#ef4444';
+        }
+    },
+
+    buyItem(category, id, price) {
+        if (State.balance >= price) {
+            State.balance -= price;
+            if (category === 'food') {
+                State.consumables[id]++;
+                this.toast(`${CONSUMABLES_DB[id].name} dimasukkan ke Tas!`);
+            } else if (category === 'powerbank') {
+                State.powerbanks++;
+                this.toast("Powerbank tersimpan di tas.");
+            }
+            this.updateHUD();
+        } else {
+            this.toast("Uang tidak cukup!");
+        }
+    },
+
+    useItem(id) {
+        if (State.consumables[id] > 0) {
+            const item = CONSUMABLES_DB[id];
+            State.consumables[id]--;
+            State.energy = Math.min(100, State.energy + item.energy);
+            this.toast(`Mengonsumsi ${item.name}. +${item.energy} Stamina`);
+            this.updateHUD();
+            this.updateStatusHUD();
+            this.renderInventory();
+        }
+    },
+
+    toggleFullscreenMap(show) {
+        this.mapActive = show;
+        document.getElementById('fullscreen-map').style.display = show ? 'flex' : 'none';
+        if (show) Game.resize();
+    },
+
+    openApp(appName) {
+        document.getElementById('phone-home').style.display = appName === 'home' ? 'block' : 'none';
+        document.getElementById('phone-app-trading').style.display = appName === 'trading' ? 'flex' : 'none';
+        document.getElementById('phone-app-bengkel').style.display = appName === 'bengkel' ? 'flex' : 'none';
+        document.getElementById('phone-app-tokopedean').style.display = appName === 'tokopedean' ? 'flex' : 'none';
+        document.getElementById('phone-app-absensi').style.display = appName === 'absensi' ? 'flex' : 'none';
+        document.getElementById('phone-app-inventory').style.display = appName === 'inventory' ? 'flex' : 'none';
+        
+        if (appName === 'trading') this.renderTrading();
+        if (appName === 'tokopedean') this.renderTokoContent();
+        if (appName === 'absensi') this.renderAbsensi();
+        if (appName === 'inventory') this.renderInventory();
+    },
+
+    renderInventory() {
+        const content = document.getElementById('inventory-content');
+        if (!content) return;
+        
+        let html = '';
+        let totalItems = 0;
+
+        Object.keys(CONSUMABLES_DB).forEach(id => {
+            const count = State.consumables[id];
+            if (count > 0) {
+                totalItems++;
+                const item = CONSUMABLES_DB[id];
+                html += `
+                    <div style="background:white; padding:15px; border-radius:15px; box-shadow:0 2px 8px rgba(0,0,0,0.04); display:flex; align-items:center; justify-content:space-between;">
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <div style="font-size:24px; background:#f1f5f9; width:45px; height:45px; display:flex; justify-content:center; align-items:center; border-radius:12px;">${item.icon}</div>
+                            <div>
+                                <div style="font-weight:800; font-size:0.85rem;">${item.name} <span style="color:var(--primary);">x${count}</span></div>
+                                <div style="font-size:0.65rem; color:#64748b;">${item.desc}</div>
+                            </div>
+                        </div>
+                        <button onclick="UI.useItem('${id}')" style="background:var(--primary); color:white; border:none; padding:8px 12px; border-radius:10px; font-weight:800; font-size:0.75rem; cursor:pointer;">PAKAI</button>
+                    </div>
+                `;
+            }
+        });
+
+        if (totalItems === 0) {
+            html = `<div style="text-align:center; padding: 40px 20px; color:#94a3b8; font-size:0.85rem; font-weight:800;">Tas kamu kosong. Beli makanan di warung dulu!</div>`;
+        }
+
+        content.innerHTML = html;
+    },
+
+    renderAbsensi() {
+        const content = document.getElementById('absensi-content');
+        if (!content) return;
+
+        let statusText = "BELUM ABSEN";
+        let statusColor = "#f59e0b"; 
+        if (State.attendance.status === 'hadir') { statusText = "HADIR"; statusColor = "#10b981"; }
+        if (State.attendance.status === 'izin') { statusText = "IZIN"; statusColor = "#3b82f6"; }
+        if (State.attendance.status === 'bolos') { statusText = "BOLOS"; statusColor = "#ef4444"; }
+
+        let btnsDisabled = State.attendance.status !== null;
+
+        let historyHtml = State.attendance.history.map(h => `
+            <div style="display:flex; justify-content:space-between; font-size:0.7rem; border-bottom:1px solid #e2e8f0; padding:8px 0;">
+                <span style="color:#64748b;">${h.date}</span>
+                <span style="font-weight:900; text-transform:uppercase; color:${h.status === 'hadir'?'#10b981':h.status==='izin'?'#3b82f6':'#ef4444'}">${h.status}</span>
+            </div>
+        `).join('');
+
+        content.innerHTML = `
+            <div style="background:white; padding:20px; border-radius:15px; box-shadow:0 2px 8px rgba(0,0,0,0.04); text-align:center;">
+                <div style="font-size:0.75rem; color:#64748b; font-weight:800; margin-bottom:5px;">STATUS HARI INI</div>
+                <div style="font-size:1.5rem; font-weight:800; color:${statusColor}; margin-bottom:10px;">${statusText}</div>
+                <div style="font-size:0.7rem; color:#64748b; font-weight:800;">Reset dalam: <span id="absensi-countdown" style="font-weight:900; color:#ef4444;">--:--:--</span></div>
+            </div>
+
+            <div style="display:flex; gap:10px;">
+                <button onclick="Game.submitAbsence('hadir')" ${btnsDisabled ? 'disabled' : ''} style="flex:1; padding:12px; background:${btnsDisabled?'#e2e8f0':'#10b981'}; color:${btnsDisabled?'#94a3b8':'white'}; border:none; border-radius:12px; font-weight:800; cursor:${btnsDisabled?'not-allowed':'pointer'}; transition:0.3s;">HADIR</button>
+                <button onclick="Game.submitAbsence('izin')" ${btnsDisabled ? 'disabled' : ''} style="flex:1; padding:12px; background:${btnsDisabled?'#e2e8f0':'#3b82f6'}; color:${btnsDisabled?'#94a3b8':'white'}; border:none; border-radius:12px; font-weight:800; cursor:${btnsDisabled?'not-allowed':'pointer'}; transition:0.3s;">IZIN</button>
+            </div>
+
+            <div style="background:white; padding:15px; border-radius:15px; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+                <div style="font-size:0.85rem; font-weight:800; margin-bottom:5px; display:flex; justify-content:space-between;">
+                    <span>🔥 Streak Hadir</span>
+                    <span style="color:#f97316; font-size:1rem;">${State.attendance.streakHadir} Hari</span>
+                </div>
+                <div style="font-size:0.65rem; color:#64748b; line-height:1.4;">Dapatkan bonus <span style="color:#10b981;font-weight:800;">Rp 20.000</span> (setiap 3 hari) dan <span style="color:#3b82f6;font-weight:800;">+1 Powerbank</span> (setiap 7 hari).</div>
+            </div>
+
+            <div style="background:white; padding:15px; border-radius:15px; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+                <div style="font-size:0.8rem; font-weight:800; margin-bottom:10px; color:#1e293b;">Riwayat (7 Hari)</div>
+                ${historyHtml || '<div style="font-size:0.75rem; color:#94a3b8; text-align:center; padding: 10px 0;">Belum ada riwayat absen.</div>'}
+            </div>
+        `;
+    },
+
+    switchTokoTab(tabName) {
+        this.currentTokoTab = tabName;
+        const tabs = ['toko', 'supply', 'karyawan', 'komputer'];
+        tabs.forEach(t => {
+            const btn = document.getElementById(`tab-${t}`);
+            if (t === tabName) {
+                btn.style.borderBottom = '3px solid #f97316';
+                btn.style.color = '#f97316';
+            } else {
+                btn.style.borderBottom = '3px solid transparent';
+                btn.style.color = '#64748b';
+            }
+        });
+        this.renderTokoContent();
+    },
+
+    toggleStore() {
+        State.store.active = !State.store.active;
+        if (State.store.active) State.store.lastSaleTime = Date.now();
+        this.renderTokoContent();
+    },
+
+    setDiscount(val) {
+        State.store.discount = val;
+        this.renderTokoContent();
+    },
+
+    buySupply(id, qty) {
+        const prod = State.store.products[id];
+        const cost = prod.rawPrice * qty;
+        if (State.balance >= cost) {
+            State.balance -= cost;
+            prod.stock += qty;
+            this.toast(`Berhasil beli ${qty}x ${prod.name}`);
+            this.updateHUD();
+            this.renderTokoContent();
+        } else {
+            this.toast("Uang tidak cukup!");
+        }
+    },
+
+    buyPCPart(id) {
+        const part = PC_PARTS_DB[id];
+        if (State.balance >= part.price) {
+            if(State.pcParts[id] > 0 || State.pcAssembled) {
+                this.toast(`Kamu sudah memiliki ${part.name}!`);
+                return;
+            }
+            State.balance -= part.price;
+            State.pcParts[id]++;
+            this.toast(`Berhasil beli ${part.name}! Cek di meja PC Kamarmu.`);
+            this.updateHUD();
+            this.renderTokoContent();
+        } else {
+            this.toast("Uang tidak cukup untuk beli komponen ini!");
+        }
+    },
+
+    upgradeEmployee(id) {
+        const emp = State.store.employees[id];
+        if (emp.level >= emp.maxLevel) return;
+        
+        const cost = emp.baseCost * (emp.level + 1);
+        if (State.balance >= cost) {
+            State.balance -= cost;
+            emp.level++;
+            this.toast(`Level ${emp.name} Naik! (Lv.${emp.level})`);
+            this.updateHUD();
+            this.renderTokoContent();
+        } else {
+            this.toast("Uang tidak cukup untuk upgrade!");
+        }
+    },
+
+    renderTokoContent() {
+        const content = document.getElementById('tokopedean-content');
+        if (!content) return;
+        content.innerHTML = '';
+
+        if (this.currentTokoTab === 'toko') {
+            let html = `
+                <div style="display:flex; justify-content:space-between; align-items:center; background:white; padding:15px; border-radius:15px; margin-bottom:15px; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+                    <div>
+                        <div style="font-weight:800; font-size:0.9rem;">Status Toko</div>
+                        <div style="font-size:0.65rem; color:${State.store.active ? '#10b981' : '#ef4444'}; font-weight:800;">
+                            ${State.store.active ? '🟢 AKTIF & BERJUALAN' : '🔴 TUTUP'}
+                        </div>
+                    </div>
+                    <button onclick="UI.toggleStore()" style="background:${State.store.active ? '#ef4444' : '#10b981'}; color:white; border:none; padding:8px 15px; border-radius:10px; font-weight:800; cursor:pointer;">
+                        ${State.store.active ? 'MATIKAN' : 'BUKA TOKO'}
+                    </button>
+                </div>
+                <div style="margin-bottom:15px;">
+                    <div style="font-size:0.7rem; font-weight:800; color:#64748b; margin-bottom:8px;">STRATEGI DISKON</div>
+                    <div style="display:flex; gap:8px;">
+                        ${[0, 0.1, 0.2, 0.3].map(d => `
+                            <button onclick="UI.setDiscount(${d})" style="flex:1; padding:8px; border-radius:8px; font-weight:800; font-size:0.7rem; cursor:pointer; border:2px solid ${State.store.discount === d ? '#f97316' : '#e2e8f0'}; background:${State.store.discount === d ? '#fff7ed' : 'white'}; color:${State.store.discount === d ? '#f97316' : '#64748b'};">
+                                ${d === 0 ? 'Normal' : (d * 100) + '%'}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+                <div style="font-size:0.7rem; font-weight:800; color:#64748b; margin-bottom:8px;">PRODUK DI ETALASE</div>
+            `;
+            Object.keys(State.store.products).forEach(key => {
+                const p = State.store.products[key];
+                const netPrice = p.price * (1 - State.store.discount);
+                html += `
+                    <div style="background:white; padding:15px; border-radius:15px; margin-bottom:10px; box-shadow:0 2px 8px rgba(0,0,0,0.04); display:flex; align-items:center; justify-content:space-between;">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <div style="font-size:24px;">${p.icon}</div>
+                            <div>
+                                <div style="font-weight:800; font-size:0.85rem;">${p.name}</div>
+                                <div style="font-size:0.7rem; font-weight:800; color:${State.store.discount > 0 ? '#ef4444' : '#10b981'};">Rp ${netPrice.toLocaleString('id-ID')}</div>
+                            </div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="font-size:0.65rem; color:#64748b; font-weight:800;">STOK</div>
+                            <div style="font-size:1rem; font-weight:800; color:${p.stock > 0 ? '#111827' : '#ef4444'};">${p.stock}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            content.innerHTML = html;
+
+        } else if (this.currentTokoTab === 'supply') {
+            let html = `<div style="font-size:0.7rem; font-weight:800; color:#64748b; margin-bottom:10px;">BELI BAHAN MENTAH (MODAL)</div>`;
+            Object.keys(State.store.products).forEach(key => {
+                const p = State.store.products[key];
+                html += `
+                    <div style="background:white; padding:15px; border-radius:15px; margin-bottom:10px; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                            <div>
+                                <div style="font-weight:800; font-size:0.85rem;">Supply ${p.name}</div>
+                                <div style="font-size:0.7rem; color:#64748b;">Modal: Rp ${p.rawPrice.toLocaleString('id-ID')}/pcs</div>
+                            </div>
+                            <div style="font-size:24px;">📦</div>
+                        </div>
+                        <div style="display:flex; gap:8px;">
+                            <button onclick="UI.buySupply('${key}', 1)" style="flex:1; padding:8px; background:#f1f5f9; color:#0f172a; border:none; border-radius:8px; font-weight:800; font-size:0.7rem; cursor:pointer;">Beli 1x</button>
+                            <button onclick="UI.buySupply('${key}', 5)" style="flex:1; padding:8px; background:var(--primary); color:white; border:none; border-radius:8px; font-weight:800; font-size:0.7rem; cursor:pointer;">Beli 5x</button>
+                        </div>
+                    </div>
+                `;
+            });
+            content.innerHTML = html;
+
+        } else if (this.currentTokoTab === 'karyawan') {
+            let html = `<div style="font-size:0.7rem; font-weight:800; color:#64748b; margin-bottom:10px;">TIM TOKOPEDEAN SAYA</div>`;
+            Object.keys(State.store.employees).forEach(key => {
+                const emp = State.store.employees[key];
+                const cost = emp.baseCost * (emp.level + 1);
+                const isMax = emp.level >= emp.maxLevel;
+                html += `
+                    <div style="background:white; padding:15px; border-radius:15px; margin-bottom:10px; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+                            <div style="display:flex; gap:10px;">
+                                <div style="font-size:24px; background:#f1f5f9; width:45px; height:45px; display:flex; justify-content:center; align-items:center; border-radius:12px;">${emp.icon}</div>
+                                <div>
+                                    <div style="font-weight:800; font-size:0.85rem;">${emp.name}</div>
+                                    <div style="font-size:0.7rem; font-weight:800; color:var(--gold);">Level: ${emp.level} / ${emp.maxLevel}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="UI.upgradeEmployee('${key}')" ${isMax ? 'disabled' : ''} style="width:100%; padding:10px; background:${isMax ? '#e2e8f0' : '#3b82f6'}; color:${isMax ? '#94a3b8' : 'white'}; border:none; border-radius:10px; font-weight:800; font-size:0.75rem; cursor:${isMax ? 'not-allowed' : 'pointer'};">
+                            ${isMax ? 'MAX LEVEL' : `UPGRADE (Rp ${cost.toLocaleString('id-ID')})`}
+                        </button>
+                    </div>
+                `;
+            });
+            content.innerHTML = html;
+        } else if (this.currentTokoTab === 'komputer') {
+            let html = `<div style="font-size:0.7rem; font-weight:800; color:#64748b; margin-bottom:10px;">CYBER-MALL: KOMPONEN PC</div>`;
+            
+            Object.keys(PC_PARTS_DB).forEach(key => {
+                const part = PC_PARTS_DB[key];
+                const owned = State.pcParts[key] > 0 || State.pcAssembled;
+                html += `
+                    <div style="background:white; padding:15px; border-radius:15px; margin-bottom:10px; box-shadow:0 2px 8px rgba(0,0,0,0.04); display:flex; justify-content:space-between; align-items:center;">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <div style="font-size:24px; background:#f1f5f9; width:45px; height:45px; display:flex; justify-content:center; align-items:center; border-radius:12px;">${part.icon}</div>
+                            <div>
+                                <div style="font-weight:800; font-size:0.85rem; color:${owned ? '#94a3b8' : '#1e293b'}">${part.name}</div>
+                                <div style="font-size:0.7rem; font-weight:800; color:var(--primary);">Rp ${part.price.toLocaleString('id-ID')}</div>
+                            </div>
+                        </div>
+                        <button onclick="UI.buyPCPart('${key}')" ${owned ? 'disabled' : ''} style="background:${owned ? '#e2e8f0' : 'var(--primary)'}; color:${owned ? '#94a3b8' : 'white'}; border:none; padding:8px 12px; border-radius:8px; font-weight:800; font-size:0.7rem; cursor:${owned ? 'not-allowed' : 'pointer'};">
+                            ${owned ? 'DIBELI' : 'BELI'}
+                        </button>
+                    </div>
+                `;
+            });
+            content.innerHTML = html;
+        }
+    },
+
+    useBengkel(service) {
+        if (service === 'refuel') {
+            if (State.balance >= 15000) {
+                State.balance -= 15000;
+                State.carFuel = 100;
+                this.toast("Teknisi tiba! Bensin mobil penuh.");
+                this.updateHUD();
+                this.updateStatusHUD();
+            } else {
+                this.toast("Saldo tidak cukup!");
+            }
+        } else if (service === 'towing') {
+            if (State.balance >= 5000) {
+                State.balance -= 5000;
+                State.carPos.x = 3000;
+                State.carPos.y = 3000;
+                if (State.inCar) {
+                    State.pos.x = 3000;
+                    State.pos.y = 3000;
+                }
+                this.toast("Diderek ke Pusat Kota.");
+                this.updateHUD();
+            } else {
+                this.toast("Saldo tidak cukup!");
+            }
+        }
+    },
+
+    renderTrading() {
+        const list = document.getElementById('trading-list');
+        if (!list) return;
+        list.innerHTML = '';
+        State.stocks.forEach((s) => {
+            const div = document.createElement('div');
+            div.className = 'trade-item';
+            const chartId = `chart-${s.id}`;
+            div.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div><div style="font-weight:800; font-size:0.85rem;">${s.name}</div><div style="font-size:0.6rem; color:#64748b;">Stok: ${State.inventory[s.id]}</div></div>
+                    <div style="text-align:right;"><div style="font-weight:800; color:${s.trend > 0 ? '#10b981' : '#ef4444'}">Rp ${s.price}</div></div>
+                </div>
+                <canvas id="${chartId}" class="stock-chart-mini"></canvas>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+                    <button onclick="UI.trade('${s.id}', 'buy')" style="padding:8px; background:var(--primary); color:white; border:none; border-radius:10px; font-size:0.65rem; font-weight:800; cursor:pointer;">BELI</button>
+                    <button onclick="UI.trade('${s.id}', 'sell')" style="padding:8px; background:#ef4444; color:white; border:none; border-radius:10px; font-size:0.65rem; font-weight:800; cursor:pointer;">JUAL</button>
+                </div>
+            `;
+            list.appendChild(div);
+            this.drawChart(chartId, s.history, s.trend > 0 ? '#10b981' : '#ef4444');
+        });
+    },
+
+    drawChart(id, history, color) {
+        const c = document.getElementById(id); if (!c) return;
+        const ctx = c.getContext('2d');
+        const w = c.width = c.offsetWidth * 2;
+        const h = c.height = c.offsetHeight * 2;
+        ctx.clearRect(0,0,w,h);
+        ctx.strokeStyle = color; ctx.lineWidth = 4;
+        const min = Math.min(...history) * 0.95, max = Math.max(...history) * 1.05, range = max - min;
+        ctx.beginPath();
+        history.forEach((val, i) => {
+            const x = (i / (history.length - 1)) * w;
+            const y = h - ((val - min) / range) * h;
+            if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+    },
+
+    trade(id, type) {
+        const s = State.stocks.find(x => x.id === id);
+        if (type === 'buy' && State.balance >= s.price) {
+            State.balance -= s.price; State.inventory[id]++;
+            this.toast(`Beli ${id} Berhasil!`);
+        } else if (type === 'sell' && State.inventory[id] > 0) {
+            State.balance += s.price; State.inventory[id]--;
+            this.toast(`Jual ${id} Berhasil!`);
+        } else if (type === 'buy') this.toast("Saldo Kurang!");
+        this.updateHUD(); this.renderTrading();
+    },
+
+    updateHUD() {
+        document.getElementById('ui-balance').innerText = State.balance.toLocaleString('id-ID');
+        document.getElementById('ui-level').innerText = State.level;
+        document.getElementById('ui-exp').innerText = State.exp;
+        document.getElementById('ui-exp-bar').style.width = State.exp + '%';
+        document.getElementById('ui-rating').innerText = State.rating.toFixed(1);
+        
+        const pbBadge = document.getElementById('ui-powerbank-badge');
+        const pbCount = document.getElementById('ui-powerbank-count');
+        if (State.powerbanks > 0) {
+            pbBadge.style.display = 'block';
+            pbCount.innerText = State.powerbanks;
+        } else {
+            pbBadge.style.display = 'none';
+        }
+    },
+
+    updateStatusHUD() {
+        document.getElementById('ui-stamina-bar').style.width = State.energy + '%';
+        document.getElementById('ui-stamina-text').innerText = Math.floor(State.energy) + '%';
+        document.getElementById('ui-stamina-bar').style.background = State.energy < 25 ? '#ef4444' : 'var(--primary)';
+        
+        document.getElementById('ui-fuel-bar').style.width = State.carFuel + '%';
+        document.getElementById('ui-fuel-text').innerText = Math.floor(State.carFuel) + '%';
+        document.getElementById('ui-fuel-bar').style.background = State.carFuel < 25 ? '#ef4444' : '#f59e0b';
+    },
+
+    showProfile() { this.toggleProfile(); },
+    toast(m) {
+        const t = document.getElementById('toast');
+        t.innerText = m; t.style.display = 'block';
+        setTimeout(() => t.style.display = 'none', 2500);
+    }
+};
+
+window.onload = () => Game.init();
+</script>
+</body>
+</html>
