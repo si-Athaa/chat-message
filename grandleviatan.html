@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Study Entertaiment-Portal</title>
+    <title>Study Entertainment - Portal</title>
+    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/si-Athaa/chat-message/refs/heads/main/entertaimentes.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -64,7 +65,7 @@
                 <input type="text" id="player-name" placeholder="Ketik namamu..." class="w-full h-14 bg-slate-800 border-2 border-slate-700 focus:border-indigo-500 text-white rounded-xl px-4 font-bold outline-none transition-colors" maxlength="15">
             </div>
             
-            <button onclick="initMultiplayer()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-black py-4 rounded-xl transition-all shadow-[0_10px_20px_rgba(79,70,229,0.4)] hover:shadow-[0_10px_30px_rgba(79,70,229,0.6)] active:scale-95 text-lg tracking-wider">
+            <button onclick="window.initMultiplayer()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-black py-4 rounded-xl transition-all shadow-[0_10px_20px_rgba(79,70,229,0.4)] hover:shadow-[0_10px_30px_rgba(79,70,229,0.6)] active:scale-95 text-lg tracking-wider">
                 MASUK KOTA
             </button>
         </div>
@@ -111,37 +112,37 @@
                         <i data-lucide="mail"></i>
                         <span class="absolute -bottom-8 bg-rose-600 text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-white z-50">Kirim Feedback</span>
                     </a>
-                    <button class="app-btn group relative" onclick="openGame('https://codepen.io/Athanaya-Sakhy-Abdillah/embed/019d94b8-1f58-7b19-b3ed-591561e0ab96?default-tab=result&theme-id=dark', 'Web Search')">
+                    <button class="app-btn group relative" onclick="window.openGame('https://codepen.io/Athanaya-Sakhy-Abdillah/embed/019d94b8-1f58-7b19-b3ed-591561e0ab96?default-tab=result&theme-id=dark', 'Web Search')">
                         <i data-lucide="globe"></i>
                         <span class="absolute -bottom-8 bg-slate-800 text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-white z-50">Web Search</span>
                     </button>
-                    <button class="app-btn group relative" onclick="openGame('https://stoat.chat', 'Stoat Web Chat')">
+                    <button class="app-btn group relative" onclick="window.openGame('https://stoat.chat', 'Stoat Web Chat')">
                         <i data-lucide="message-square-text"></i>
                         <span class="absolute -bottom-8 bg-slate-800 text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-white z-50">Stoat Chat</span>
                     </button>
                     
                     <div class="w-px h-8 bg-slate-600 my-auto mx-1"></div>
                     
-                    <button class="app-btn group relative bg-indigo-600 border-indigo-400 hover:bg-indigo-500" onclick="toggleMainMenu()" id="btn-main-menu">
+                    <button class="app-btn group relative bg-indigo-600 border-indigo-400 hover:bg-indigo-500" onclick="window.toggleMainMenu()" id="btn-main-menu">
                         <i data-lucide="menu" id="menu-icon"></i>
                         <span class="absolute -bottom-8 bg-slate-800 text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-white z-50">Menu Lainnya</span>
                     </button>
                 </div>
 
                 <div id="main-dropdown-menu" class="flex flex-col gap-2 glass-panel p-2 rounded-xl opacity-0 pointer-events-none transform -translate-y-4 transition-all duration-300 absolute top-[100%] right-0 mt-2 z-50">
-                    <button class="app-btn group relative" onclick="toggleMap(); toggleMainMenu();">
+                    <button class="app-btn group relative" onclick="window.toggleMap(); window.toggleMainMenu();">
                         <i data-lucide="map"></i>
                         <span class="absolute right-[55px] top-1/2 -translate-y-1/2 bg-slate-800 text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-white z-50">Map Kota</span>
                     </button>
-                    <button class="app-btn group relative" onclick="toggleSettings(); toggleMainMenu();">
+                    <button class="app-btn group relative" onclick="window.toggleSettings(); window.toggleMainMenu();">
                         <i data-lucide="settings"></i>
                         <span class="absolute right-[55px] top-1/2 -translate-y-1/2 bg-slate-800 text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-white z-50">Settings Cuaca</span>
                     </button>
-                    <button class="app-btn group relative" onclick="toggleWardrobe(); toggleMainMenu();">
+                    <button class="app-btn group relative" onclick="window.toggleWardrobe(); window.toggleMainMenu();">
                         <i data-lucide="shirt"></i>
                         <span class="absolute right-[55px] top-1/2 -translate-y-1/2 bg-slate-800 text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-white z-50">Kustomisasi</span>
                     </button>
-                    <button class="app-btn group relative" onclick="toggleFlashlight()" id="btn-flashlight">
+                    <button class="app-btn group relative" onclick="window.toggleFlashlight()" id="btn-flashlight">
                         <i data-lucide="flashlight"></i>
                         <span class="absolute right-[55px] top-1/2 -translate-y-1/2 bg-slate-800 text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-white z-50">Senter (F)</span>
                     </button>
@@ -167,32 +168,34 @@
         <div class="glass-panel p-6 rounded-3xl border border-slate-700/50 shadow-2xl relative w-full max-w-sm flex flex-col gap-6 pointer-events-auto">
             <div class="flex justify-between items-center border-b border-slate-700/50 pb-3">
                 <h2 class="text-white font-black text-xl flex items-center gap-2"><i data-lucide="shirt" class="text-indigo-400"></i> Kustomisasi Avatar</h2>
-                <button onclick="toggleWardrobe()" class="text-slate-400 hover:text-white transition-colors"><i data-lucide="x"></i></button>
+                <button onclick="window.toggleWardrobe()" class="text-slate-400 hover:text-white transition-colors"><i data-lucide="x"></i></button>
             </div>
+            
             <div class="grid grid-cols-2 gap-4">
                 <div class="flex flex-col gap-2">
                     <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Warna Baju</label>
-                    <input type="color" id="color-shirt" class="w-full h-12 bg-slate-800 rounded-lg cursor-pointer shadow-inner" oninput="updatePlayerColor('shirt', this.value)">
+                    <input type="color" id="color-shirt" class="w-full h-12 bg-slate-800 rounded-lg cursor-pointer shadow-inner" oninput="window.updatePlayerColor('shirt', this.value)">
                 </div>
                 <div class="flex flex-col gap-2">
                     <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Warna Celana</label>
-                    <input type="color" id="color-pants" class="w-full h-12 bg-slate-800 rounded-lg cursor-pointer shadow-inner" oninput="updatePlayerColor('pants', this.value)">
+                    <input type="color" id="color-pants" class="w-full h-12 bg-slate-800 rounded-lg cursor-pointer shadow-inner" oninput="window.updatePlayerColor('pants', this.value)">
                 </div>
                 <div class="flex flex-col gap-2">
                     <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Warna Kulit</label>
-                    <input type="color" id="color-skin" class="w-full h-12 bg-slate-800 rounded-lg cursor-pointer shadow-inner" oninput="updatePlayerColor('skin', this.value)">
+                    <input type="color" id="color-skin" class="w-full h-12 bg-slate-800 rounded-lg cursor-pointer shadow-inner" oninput="window.updatePlayerColor('skin', this.value)">
                 </div>
                 <div class="flex flex-col gap-2">
                     <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Warna Topi</label>
-                    <input type="color" id="color-hat" class="w-full h-12 bg-slate-800 rounded-lg cursor-pointer shadow-inner" oninput="updatePlayerColor('hat', this.value)">
+                    <input type="color" id="color-hat" class="w-full h-12 bg-slate-800 rounded-lg cursor-pointer shadow-inner" oninput="window.updatePlayerColor('hat', this.value)">
                 </div>
             </div>
-            <button onclick="toggleWardrobe()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl transition-all shadow-lg">Selesai & Simpan</button>
+            <button onclick="window.toggleWardrobe()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl transition-all shadow-lg">Selesai & Simpan</button>
         </div>
     </div>
 
     <!-- 🌟 MODAL TOKO INTERIOR (MIXUE RAMEN) 🌟 -->
     <div id="shop-modal" class="fixed inset-0 z-[100] bg-black hidden opacity-0 flex-col transition-opacity duration-300">
+        
         <div class="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-black/80 to-transparent flex items-start justify-between px-4 pt-4 md:px-8 md:pt-6 z-50 pointer-events-none">
             <div class="flex items-center gap-3 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 shadow-lg pointer-events-auto">
                 <div class="w-3 h-3 rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.8)]"></div>
@@ -201,7 +204,7 @@
                     <i data-lucide="coins" class="w-4 h-4"></i> <span id="interior-points">0</span>
                 </div>
             </div>
-            <button onclick="closeShop()" class="group relative px-6 py-2 md:px-8 md:py-2.5 overflow-hidden rounded-full bg-rose-600 border border-rose-500 text-white font-black text-sm md:text-base transition-all pointer-events-auto shadow-[0_0_20px_rgba(225,29,72,0.4)] hover:scale-105 active:scale-95 hover:shadow-[0_0_30px_rgba(225,29,72,0.6)]">
+            <button onclick="window.closeShop()" class="group relative px-6 py-2 md:px-8 md:py-2.5 overflow-hidden rounded-full bg-rose-600 border border-rose-500 text-white font-black text-sm md:text-base transition-all pointer-events-auto shadow-[0_0_20px_rgba(225,29,72,0.4)] hover:scale-105 active:scale-95 hover:shadow-[0_0_30px_rgba(225,29,72,0.6)]">
                 <span class="relative z-10 drop-shadow-md">LEAVE</span>
                 <div class="absolute inset-0 h-full w-0 bg-red-700 transition-all duration-300 ease-out group-hover:w-full z-0"></div>
             </button>
@@ -335,7 +338,7 @@
                     </div>
 
                     <div id="btn-sit-container" class="absolute -bottom-16 left-1/2 -translate-x-1/2 z-40">
-                        <button onclick="sitDown()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-black px-6 py-3 rounded-full shadow-[0_10px_20px_rgba(79,70,229,0.5)] border-b-4 border-indigo-800 active:translate-y-1 active:border-b-0 transition-all whitespace-nowrap tracking-wide">
+                        <button onclick="window.sitDown()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-black px-6 py-3 rounded-full shadow-[0_10px_20px_rgba(79,70,229,0.5)] border-b-4 border-indigo-800 active:translate-y-1 active:border-b-0 transition-all whitespace-nowrap tracking-wide">
                             DUDUK SINI
                         </button>
                     </div>
@@ -351,7 +354,7 @@
         <div class="glass-panel p-6 rounded-3xl border border-slate-700/50 shadow-2xl relative w-full max-w-md flex flex-col gap-6 pointer-events-auto">
             <div class="flex justify-between items-center border-b border-slate-700/50 pb-3">
                 <h2 class="text-white font-black text-xl flex items-center gap-2"><i data-lucide="settings" class="text-indigo-400"></i> Settings Lingkungan</h2>
-                <button onclick="toggleSettings()" class="text-slate-400 hover:text-white transition-colors"><i data-lucide="x"></i></button>
+                <button onclick="window.toggleSettings()" class="text-slate-400 hover:text-white transition-colors"><i data-lucide="x"></i></button>
             </div>
             <div>
                 <p class="text-sm font-bold text-slate-400 mb-3 uppercase tracking-wider">Sistem Waktu</p>
@@ -407,24 +410,20 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-    import { getDatabase, ref, push, set, onValue, onDisconnect, remove, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+    import { getDatabase, ref, push, set, onValue, onDisconnect, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
     // ====== FIREBASE KONFIGURASI ======
-    /* ISI DENGAN DATA DARI FIREBASE PROJECT-MU
-       Cara mendapatkannya:
-       1. Buka console.firebase.google.com -> Buat Project Baru.
-       2. Masuk ke Realtime Database -> Create Database -> Start in Test Mode.
-       3. Masuk ke Project Settings (Ikon Gear) -> Tambahkan Web App (Ikon </>)
-       4. Copy tulisan di dalam `const firebaseConfig = { ... }` ke bawah ini:
-    */
+    // Paste data config milikmu di bawah ini:
     const firebaseConfig = {
-    apiKey: "AIzaSyDT2WKhneGqSh0R9lCFUQuPuvkIvjRsZZ4",
-    authDomain: "grand-study-portal.firebaseapp.com",
-    projectId: "grand-study-portal",
-    storageBucket: "grand-study-portal.firebasestorage.app",
-    messagingSenderId: "528331488442",
-    appId: "1:528331488442:web:4a548e73781e53e9e29683"
-  };
+        apiKey: "AIzaSyDHwRWR9aP00Kj4uKQUD2aXymca0SuoDfc",
+        authDomain: "server-50ccc.firebaseapp.com",
+        databaseURL: "https://server-50ccc-default-rtdb.asia-southeast1.firebasedatabase.app/",
+        projectId: "server-50ccc",
+        storageBucket: "server-50ccc.firebasestorage.app",
+        messagingSenderId: "210801120477",
+        appId: "1:210801120477:web:48cad3a56e87b4c804f734",
+        measurementId: "G-XG0CX1CV79"
+    };
 
     window.lucide.createIcons();
 
@@ -472,9 +471,9 @@
     let myPlayerRef = null;
     let myPlayerId = null;
     let lastSent = 0;
-    const SEND_INTERVAL_MS = 150; 
+    const SEND_INTERVAL_MS = 100; 
 
-    // Tampilkan Modal Login Pertama Kali
+    // Tampilkan isi nama jika sudah pernah tersimpan
     if(Player.name) {
         document.getElementById('player-name').value = Player.name;
     }
@@ -493,20 +492,17 @@
         setTimeout(() => document.getElementById('login-modal').classList.add('hidden'), 500);
 
         try {
-            // Jika Config Firebase kosong, biarkan offline.
-            if (!firebaseConfig.databaseURL) {
-                console.warn("Firebase belum disetting. Bermain mode OFFLINE.");
-                return;
-            }
-
             const app = initializeApp(firebaseConfig);
             const db = getDatabase(app);
-            const playersRef = ref(db, 'players');
+            const playersRef = ref(db, 'gwc_players');
 
             myPlayerRef = push(playersRef);
             myPlayerId = myPlayerRef.key;
+            
+            // Hapus data pemain dari server jika koneksi terputus
             onDisconnect(myPlayerRef).remove();
 
+            // Dengarkan perubahan data dari semua pemain
             onValue(playersRef, (snap) => {
                 NetworkPlayers = snap.val() || {};
             });
@@ -781,7 +777,7 @@
                         <div class="w-12 h-12">${svgIcon}</div>
                         <div><p class="font-black text-slate-800 text-base leading-tight">${item.name}</p><p class="text-xs font-bold text-slate-500 leading-tight">${item.desc}</p></div>
                     </div>
-                    <button onclick="buyItem('${item.id}')" class="bg-red-500 hover:bg-red-600 text-white font-black py-2 px-4 rounded-lg flex items-center gap-1 transition-transform active:scale-95 shadow-md">
+                    <button onclick="window.buyItem('${item.id}')" class="bg-red-500 hover:bg-red-600 text-white font-black py-2 px-4 rounded-lg flex items-center gap-1 transition-transform active:scale-95 shadow-md">
                         ${item.price} <i data-lucide="coins" class="w-4 h-4"></i>
                     </button>
                 </div>
@@ -906,8 +902,8 @@
             Env.autoTimer += 0.05;
             if(Env.autoTimer > 25) { 
                 Env.autoTimer = 0; const times = ['pagi', 'siang', 'sore', 'malam'];
-                setTime(times[(times.indexOf(Env.time) + 1) % 4]);
-                if(Math.random() < 0.2) toggleRain(); else if (Env.isRaining && Math.random() < 0.5) toggleRain();
+                window.setTime(times[(times.indexOf(Env.time) + 1) % 4]);
+                if(Math.random() < 0.2) window.toggleRain(); else if (Env.isRaining && Math.random() < 0.5) window.toggleRain();
             }
         }
 
@@ -1088,7 +1084,8 @@
             ctx.fillStyle = 'rgba(0,0,0,0.5)';
             ctx.font = 'bold 11px Outfit';
             ctx.textAlign = 'center';
-            ctx.roundRect(-30, -32, 60, 14, 4);
+            let textWidth = ctx.measureText(playerName).width;
+            ctx.roundRect(-textWidth/2 - 5, -32, textWidth + 10, 14, 4);
             ctx.fill();
             ctx.fillStyle = 'white';
             ctx.fillText(playerName, 0, -22);
@@ -1465,7 +1462,7 @@
     function hexToRgb(hex) { let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex); return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '255,255,255'; }
     
     function gameLoop() { 
-        if(document.getElementById('game-modal').classList.contains('hidden') && document.getElementById('settings-modal').classList.contains('hidden') && document.getElementById('shop-modal').classList.contains('hidden') && document.getElementById('wardrobe-modal').classList.contains('hidden')) update(); 
+        if(document.getElementById('game-modal').classList.contains('hidden') && document.getElementById('settings-modal').classList.contains('hidden') && document.getElementById('shop-modal').classList.contains('hidden') && document.getElementById('wardrobe-modal').classList.contains('hidden') && document.getElementById('login-modal').classList.contains('hidden')) update(); 
         draw(); 
         if(mapOpen && !Player.isRiding) drawMap(); 
         requestAnimationFrame(gameLoop); 
