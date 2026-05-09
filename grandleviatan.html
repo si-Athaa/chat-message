@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Study Entertainment - Portal</title>
+    <title>Study Entertaiment- Portal</title>
     <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/si-Athaa/chat-message/refs/heads/main/entertaimentes.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -13,7 +13,7 @@
         body, html { margin: 0; padding: 0; width: 100vw; height: 100vh; background-color: #0f172a; font-family: 'Outfit', sans-serif; overflow: hidden; user-select: none; touch-action: none; }
         #game-canvas { display: block; width: 100%; height: 100%; }
 
-        #game-modal, #map-modal, #settings-modal, #shop-modal, #wardrobe-modal, #login-modal { transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1); backdrop-filter: blur(10px); }
+        #game-modal, #map-modal, #settings-modal, #shop-modal, #wardrobe-modal, #login-modal, #inventory-modal { transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1); backdrop-filter: blur(10px); }
 
         .joystick-base { position: absolute; bottom: 50px; left: 50px; width: 130px; height: 130px; background: rgba(255, 255, 255, 0.05); border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: inset 0 0 20px rgba(0,0,0,0.2), 0 10px 30px rgba(0,0,0,0.3); pointer-events: auto; z-index: 10; backdrop-filter: blur(5px); }
         .joystick-stick { position: absolute; top: 50%; left: 50%; width: 50px; height: 50px; background: linear-gradient(135deg, #f8fafc, #cbd5e1); border-radius: 50%; transform: translate(-50%, -50%); box-shadow: 0 8px 15px rgba(0,0,0,0.4), inset 0 -3px 5px rgba(0,0,0,0.1); }
@@ -42,6 +42,9 @@
         @keyframes floatItem { 0% { transform: translateY(0px); } 50% { transform: translateY(-8px); } 100% { transform: translateY(0px); } }
         .animate-float-item { animation: floatItem 2s ease-in-out infinite; }
 
+        @keyframes emotePop { 0% { transform: scale(0) translateY(10px); opacity:0; } 50% { transform: scale(1.2) translateY(-5px); opacity:1; } 100% { transform: scale(1) translateY(0); opacity:1; } }
+        .emote-anim { animation: emotePop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+
         input[type="color"] { -webkit-appearance: none; border: none; }
         input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
         input[type="color"]::-webkit-color-swatch { border: 2px solid rgba(255,255,255,0.2); border-radius: 8px; }
@@ -49,22 +52,18 @@
 </head>
 <body>
 
-    <!-- 🌟 MODAL LOGIN (SET NAMA & MASUK) 🌟 -->
+    <!-- 🌟 MODAL LOGIN 🌟 -->
     <div id="login-modal" class="fixed inset-0 z-[200] bg-slate-900 flex items-center justify-center p-4">
-        <!-- Aesthetic BG -->
         <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(#3b82f6 2px, transparent 2px); background-size: 30px 30px;"></div>
-        
         <div class="glass-panel p-8 rounded-3xl border border-indigo-500/30 shadow-2xl relative w-full max-w-sm flex flex-col gap-6 text-center z-10 bg-slate-900/80">
             <div>
                 <h1 class="font-black text-4xl tracking-tight text-white mb-2"><span class="text-indigo-400">GWC</span> Online</h1>
                 <p class="text-slate-400 text-sm">Selamat datang di Grand Web City. Kota simulasi estetis untuk bertemu dengan warga lain!</p>
             </div>
-            
             <div class="flex flex-col gap-2 text-left">
                 <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest pl-2">Nama Warga / Pemain</label>
                 <input type="text" id="player-name" placeholder="Ketik namamu..." class="w-full h-14 bg-slate-800 border-2 border-slate-700 focus:border-indigo-500 text-white rounded-xl px-4 font-bold outline-none transition-colors" maxlength="15">
             </div>
-            
             <button onclick="window.initMultiplayer()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-black py-4 rounded-xl transition-all shadow-[0_10px_20px_rgba(79,70,229,0.4)] hover:shadow-[0_10px_30px_rgba(79,70,229,0.6)] active:scale-95 text-lg tracking-wider">
                 MASUK KOTA
             </button>
@@ -107,11 +106,21 @@
             </div>
             
             <div class="relative pointer-events-auto flex flex-col items-end gap-2" id="ui-apps">
-                <div class="flex gap-2 glass-panel p-2 rounded-xl">
+                <div class="flex gap-2 glass-panel p-2 rounded-xl items-center relative">
+                    
+                    <!-- Emote Box (Hidden by default) -->
+                    <div id="emote-box" class="absolute -top-14 left-0 right-0 mx-auto w-max bg-slate-800 border border-slate-600 rounded-xl p-1 flex gap-1 shadow-lg opacity-0 pointer-events-none transition-all duration-200 translate-y-2">
+                        <button onclick="window.sendEmote('❤️')" class="hover:bg-slate-700 rounded p-1 text-xl hover:scale-125 transition-transform">❤️</button>
+                        <button onclick="window.sendEmote('😂')" class="hover:bg-slate-700 rounded p-1 text-xl hover:scale-125 transition-transform">😂</button>
+                        <button onclick="window.sendEmote('😡')" class="hover:bg-slate-700 rounded p-1 text-xl hover:scale-125 transition-transform">😡</button>
+                    </div>
+
+                    <!-- Main App Buttons -->
                     <a href="https://mail.google.com/mail/?view=cm&fs=1&to=athanaya.sakhy1@fiwa.sch.id&su=Feedback%20LeviatanHub%20Premium&body=Halo%20Athaa,%20saya%20ingin%20memberikan%20feedback%20mengenai%20LeviatanHub:" target="_blank" class="app-btn group relative !border-rose-500 !text-rose-400 hover:!bg-rose-500 hover:!text-white">
                         <i data-lucide="mail"></i>
                         <span class="absolute -bottom-8 bg-rose-600 text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-white z-50">Kirim Feedback</span>
                     </a>
+                    
                     <button class="app-btn group relative" onclick="window.openGame('https://codepen.io/Athanaya-Sakhy-Abdillah/embed/019d94b8-1f58-7b19-b3ed-591561e0ab96?default-tab=result&theme-id=dark', 'Web Search')">
                         <i data-lucide="globe"></i>
                         <span class="absolute -bottom-8 bg-slate-800 text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-white z-50">Web Search</span>
@@ -120,12 +129,23 @@
                         <i data-lucide="message-square-text"></i>
                         <span class="absolute -bottom-8 bg-slate-800 text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-white z-50">Stoat Chat</span>
                     </button>
-                    
+
+                    <button id="btn-firework" class="app-btn group relative !bg-orange-500 !border-orange-400 hover:!bg-orange-400 hidden" onclick="window.shootFirework()">
+                        <i data-lucide="sparkles" class="text-white"></i>
+                        <span class="absolute -bottom-8 bg-orange-600 text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-white z-50">Petasan!</span>
+                    </button>
+                    <button class="app-btn group relative" onclick="window.toggleEmoteBox()">
+                        <i data-lucide="smile"></i>
+                        <span class="absolute -bottom-8 bg-slate-800 text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-white z-50">Emote</span>
+                    </button>
+                    <button class="app-btn group relative !bg-emerald-600 !border-emerald-500 hover:!bg-emerald-500" onclick="window.toggleInventory()">
+                        <i data-lucide="backpack"></i>
+                        <span class="absolute -bottom-8 bg-emerald-700 text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-white z-50">Inventory</span>
+                    </button>
                     <div class="w-px h-8 bg-slate-600 my-auto mx-1"></div>
-                    
                     <button class="app-btn group relative bg-indigo-600 border-indigo-400 hover:bg-indigo-500" onclick="window.toggleMainMenu()" id="btn-main-menu">
                         <i data-lucide="menu" id="menu-icon"></i>
-                        <span class="absolute -bottom-8 bg-slate-800 text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-white z-50">Menu Lainnya</span>
+                        <span class="absolute -bottom-8 bg-slate-800 text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-white z-50">Menu</span>
                     </button>
                 </div>
 
@@ -154,13 +174,26 @@
     <!-- Toast Notifications -->
     <div id="toast-container" class="fixed top-24 left-1/2 transform -translate-x-1/2 z-[70] flex flex-col gap-2 pointer-events-none"></div>
 
-    <!-- Mobile Controls -->
     <div id="joystick" class="joystick-base hidden md:hidden"><div id="stick" class="joystick-stick"></div></div>
 
     <button id="btn-enter" class="action-btn hidden-action">ENTER</button>
     <div id="enter-text" class="absolute bottom-[160px] right-[50px] text-white font-bold text-sm glass-panel px-5 py-3 rounded-xl pointer-events-none transition-all duration-300 opacity-0 translate-y-4 z-10 flex items-center gap-3">
         <div class="bg-rose-500 w-6 h-6 rounded flex items-center justify-center text-xs border border-rose-400 shadow-[0_0_10px_rgba(244,63,94,0.5)]">E</div>
         <span id="enter-label">Interaksi</span>
+    </div>
+
+    <!-- 🌟 MODAL INVENTORY 🌟 -->
+    <div id="inventory-modal" class="fixed inset-0 z-[60] bg-slate-950/80 hidden opacity-0 flex items-center justify-center p-4 transition-opacity duration-300">
+        <div class="glass-panel p-6 rounded-3xl border border-emerald-700/50 shadow-2xl relative w-full max-w-md flex flex-col gap-4 pointer-events-auto">
+            <div class="flex justify-between items-center border-b border-slate-700/50 pb-3">
+                <h2 class="text-white font-black text-xl flex items-center gap-2"><i data-lucide="backpack" class="text-emerald-400"></i> Tas Inventory</h2>
+                <button onclick="window.toggleInventory()" class="text-slate-400 hover:text-white transition-colors"><i data-lucide="x"></i></button>
+            </div>
+            <div class="grid grid-cols-3 gap-3 overflow-y-auto max-h-[50vh] custom-scroll p-2" id="inventory-container">
+                <!-- Items Injected via JS -->
+            </div>
+            <p class="text-xs text-slate-400 text-center mt-2">Klik item untuk menggunakannya atau meletakkannya di meja.</p>
+        </div>
     </div>
 
     <!-- 🌟 MODAL KUSTOMISASI AVATAR 🌟 -->
@@ -170,7 +203,6 @@
                 <h2 class="text-white font-black text-xl flex items-center gap-2"><i data-lucide="shirt" class="text-indigo-400"></i> Kustomisasi Avatar</h2>
                 <button onclick="window.toggleWardrobe()" class="text-slate-400 hover:text-white transition-colors"><i data-lucide="x"></i></button>
             </div>
-            
             <div class="grid grid-cols-2 gap-4">
                 <div class="flex flex-col gap-2">
                     <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Warna Baju</label>
@@ -193,9 +225,47 @@
         </div>
     </div>
 
+    <!-- 🌟 MODAL SETTINGS CUACA 🌟 -->
+    <div id="settings-modal" class="fixed inset-0 z-[60] bg-slate-950/80 hidden opacity-0 flex items-center justify-center p-4 transition-opacity duration-300">
+        <div class="glass-panel p-6 rounded-3xl border border-slate-700/50 shadow-2xl relative w-full max-w-md flex flex-col gap-6 pointer-events-auto">
+            <div class="flex justify-between items-center border-b border-slate-700/50 pb-3">
+                <h2 class="text-white font-black text-xl flex items-center gap-2"><i data-lucide="settings" class="text-indigo-400"></i> Settings Lingkungan</h2>
+                <button onclick="window.toggleSettings()" class="text-slate-400 hover:text-white transition-colors"><i data-lucide="x"></i></button>
+            </div>
+            <div>
+                <p class="text-sm font-bold text-slate-400 mb-3 uppercase tracking-wider">Sistem Waktu</p>
+                <div class="grid grid-cols-4 gap-2 mb-3">
+                    <button id="btn-pagi" onclick="window.setTime('pagi')" class="time-btn bg-slate-800 border border-slate-600 text-white rounded-xl py-2 flex flex-col items-center gap-1 transition-all"><i data-lucide="sunrise" size="18"></i><span class="text-[10px] font-bold">Pagi</span></button>
+                    <button id="btn-siang" onclick="window.setTime('siang')" class="time-btn bg-slate-800 border border-slate-600 text-white rounded-xl py-2 flex flex-col items-center gap-1 transition-all"><i data-lucide="sun" size="18"></i><span class="text-[10px] font-bold">Siang</span></button>
+                    <button id="btn-sore" onclick="window.setTime('sore')" class="time-btn bg-slate-800 border border-slate-600 text-white rounded-xl py-2 flex flex-col items-center gap-1 transition-all"><i data-lucide="sunset" size="18"></i><span class="text-[10px] font-bold">Sore</span></button>
+                    <button id="btn-malam" onclick="window.setTime('malam')" class="time-btn bg-slate-800 border border-slate-600 text-white rounded-xl py-2 flex flex-col items-center gap-1 transition-all"><i data-lucide="moon" size="18"></i><span class="text-[10px] font-bold">Malam</span></button>
+                </div>
+                <button id="btn-auto" onclick="window.toggleAutoTime()" class="auto-btn w-full bg-slate-800 border border-slate-600 text-white rounded-xl py-2 font-bold text-sm flex justify-center items-center gap-2 transition-all mb-2"><i data-lucide="clock" size="16"></i> Waktu Otomatis (Auto)</button>
+            </div>
+            <div>
+                <p class="text-sm font-bold text-slate-400 mb-3 uppercase tracking-wider">Efek & Cuaca</p>
+                <button id="btn-citylights" onclick="window.toggleCityLights()" class="city-btn w-full bg-slate-800 border border-slate-600 text-white rounded-xl py-3 font-bold flex justify-center items-center gap-2 transition-all mb-2"><i data-lucide="lightbulb" size="20"></i> Lampu Kota (City Lights)</button>
+                <button id="btn-rain" onclick="window.toggleRain()" class="rain-btn w-full bg-slate-800 border border-slate-600 text-white rounded-xl py-3 font-bold flex justify-center items-center gap-2 transition-all"><i data-lucide="cloud-rain" size="20"></i> Turunkan Hujan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🌟 PETA MODAL 🌟 -->
+    <div id="map-modal" class="fixed inset-0 z-[60] bg-slate-950/80 hidden opacity-0 flex items-center justify-center p-4 transition-opacity duration-300">
+        <div class="glass-panel p-4 md:p-6 rounded-3xl border border-slate-700/50 shadow-2xl relative w-full max-w-2xl flex flex-col gap-4 pointer-events-auto">
+            <div class="flex justify-between items-center border-b border-slate-700/50 pb-3">
+                <h2 class="text-white font-black text-xl flex items-center gap-2"><i data-lucide="map" class="text-indigo-400"></i> City Map</h2>
+                <button onclick="window.toggleMap()" class="text-slate-400 hover:text-white transition-colors"><i data-lucide="x"></i></button>
+            </div>
+            <div class="relative w-full aspect-square bg-[#0f172a] rounded-xl overflow-hidden border border-slate-700 shadow-inner">
+                <canvas id="minimap-canvas" width="800" height="800" class="w-full h-full block"></canvas>
+            </div>
+            <p class="text-center text-slate-400 text-xs md:text-sm">Titik merah adalah posisimu. Tekan <kbd class="bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700 text-slate-300 mx-1 font-mono">M</kbd> untuk menutup.</p>
+        </div>
+    </div>
+
     <!-- 🌟 MODAL TOKO INTERIOR (MIXUE RAMEN) 🌟 -->
     <div id="shop-modal" class="fixed inset-0 z-[100] bg-black hidden opacity-0 flex-col transition-opacity duration-300">
-        
         <div class="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-black/80 to-transparent flex items-start justify-between px-4 pt-4 md:px-8 md:pt-6 z-50 pointer-events-none">
             <div class="flex items-center gap-3 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 shadow-lg pointer-events-auto">
                 <div class="w-3 h-3 rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.8)]"></div>
@@ -349,46 +419,7 @@
         </div>
     </div>
 
-    <!-- Modal Settings -->
-    <div id="settings-modal" class="fixed inset-0 z-[60] bg-slate-950/80 hidden opacity-0 flex items-center justify-center p-4 transition-opacity duration-300">
-        <div class="glass-panel p-6 rounded-3xl border border-slate-700/50 shadow-2xl relative w-full max-w-md flex flex-col gap-6 pointer-events-auto">
-            <div class="flex justify-between items-center border-b border-slate-700/50 pb-3">
-                <h2 class="text-white font-black text-xl flex items-center gap-2"><i data-lucide="settings" class="text-indigo-400"></i> Settings Lingkungan</h2>
-                <button onclick="window.toggleSettings()" class="text-slate-400 hover:text-white transition-colors"><i data-lucide="x"></i></button>
-            </div>
-            <div>
-                <p class="text-sm font-bold text-slate-400 mb-3 uppercase tracking-wider">Sistem Waktu</p>
-                <div class="grid grid-cols-4 gap-2 mb-3">
-                    <button id="btn-pagi" onclick="window.setTime('pagi')" class="time-btn bg-slate-800 border border-slate-600 text-white rounded-xl py-2 flex flex-col items-center gap-1 transition-all"><i data-lucide="sunrise" size="18"></i><span class="text-[10px] font-bold">Pagi</span></button>
-                    <button id="btn-siang" onclick="window.setTime('siang')" class="time-btn bg-slate-800 border border-slate-600 text-white rounded-xl py-2 flex flex-col items-center gap-1 transition-all"><i data-lucide="sun" size="18"></i><span class="text-[10px] font-bold">Siang</span></button>
-                    <button id="btn-sore" onclick="window.setTime('sore')" class="time-btn bg-slate-800 border border-slate-600 text-white rounded-xl py-2 flex flex-col items-center gap-1 transition-all"><i data-lucide="sunset" size="18"></i><span class="text-[10px] font-bold">Sore</span></button>
-                    <button id="btn-malam" onclick="window.setTime('malam')" class="time-btn bg-slate-800 border border-slate-600 text-white rounded-xl py-2 flex flex-col items-center gap-1 transition-all"><i data-lucide="moon" size="18"></i><span class="text-[10px] font-bold">Malam</span></button>
-                </div>
-                <button id="btn-auto" onclick="window.toggleAutoTime()" class="auto-btn w-full bg-slate-800 border border-slate-600 text-white rounded-xl py-2 font-bold text-sm flex justify-center items-center gap-2 transition-all mb-2"><i data-lucide="clock" size="16"></i> Waktu Otomatis (Auto)</button>
-            </div>
-            <div>
-                <p class="text-sm font-bold text-slate-400 mb-3 uppercase tracking-wider">Efek & Cuaca</p>
-                <button id="btn-citylights" onclick="window.toggleCityLights()" class="city-btn w-full bg-slate-800 border border-slate-600 text-white rounded-xl py-3 font-bold flex justify-center items-center gap-2 transition-all mb-2"><i data-lucide="lightbulb" size="20"></i> Lampu Kota (City Lights)</button>
-                <button id="btn-rain" onclick="window.toggleRain()" class="rain-btn w-full bg-slate-800 border border-slate-600 text-white rounded-xl py-3 font-bold flex justify-center items-center gap-2 transition-all"><i data-lucide="cloud-rain" size="20"></i> Turunkan Hujan</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Peta Modal -->
-    <div id="map-modal" class="fixed inset-0 z-[60] bg-slate-950/80 hidden opacity-0 flex items-center justify-center p-4 transition-opacity duration-300">
-        <div class="glass-panel p-4 md:p-6 rounded-3xl border border-slate-700/50 shadow-2xl relative w-full max-w-2xl flex flex-col gap-4 pointer-events-auto">
-            <div class="flex justify-between items-center border-b border-slate-700/50 pb-3">
-                <h2 class="text-white font-black text-xl flex items-center gap-2"><i data-lucide="map" class="text-indigo-400"></i> City Map</h2>
-                <button onclick="window.toggleMap()" class="text-slate-400 hover:text-white transition-colors"><i data-lucide="x"></i></button>
-            </div>
-            <div class="relative w-full aspect-square bg-[#0f172a] rounded-xl overflow-hidden border border-slate-700 shadow-inner">
-                <canvas id="minimap-canvas" width="800" height="800" class="w-full h-full block"></canvas>
-            </div>
-            <p class="text-center text-slate-400 text-xs md:text-sm">Titik merah adalah posisimu. Tekan <kbd class="bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700 text-slate-300 mx-1 font-mono">M</kbd> untuk menutup.</p>
-        </div>
-    </div>
-
-    <!-- Modal Iframe (Games) - Fullscreen No Frame -->
+    <!-- Modal Iframe (Games) -->
     <div id="game-modal" class="fixed inset-0 z-[100] bg-black hidden opacity-0 flex-col transition-opacity duration-300">
         <div class="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-black/80 to-transparent flex items-start justify-between px-4 pt-4 md:px-8 md:pt-6 z-20 pointer-events-none">
             <div class="flex items-center gap-3 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 shadow-lg pointer-events-auto">
@@ -410,10 +441,8 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-    import { getDatabase, ref, push, set, onValue, onDisconnect, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+    import { getDatabase, ref, push, set, onValue, onDisconnect } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-    // ====== FIREBASE KONFIGURASI ======
-    // Paste data config milikmu di bawah ini:
     const firebaseConfig = {
         apiKey: "AIzaSyDHwRWR9aP00Kj4uKQUD2aXymca0SuoDfc",
         authDomain: "server-50ccc.firebaseapp.com",
@@ -429,7 +458,6 @@
 
     const canvas = document.getElementById('game-canvas');
     const ctx = canvas.getContext('2d');
-    
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.addEventListener('resize', resize); resize();
 
@@ -440,86 +468,77 @@
         sand: '#fef08a', sandDark: '#fde047', shadow: 'rgba(15, 23, 42, 0.25)'
     };
 
-    // --- INIT DATA & VARIABLES ---
-    let savedData = JSON.parse(localStorage.getItem('gwc_city_data')) || { 
-        x: 2000, y: 2000, 
-        points: 0,
-        name: '',
-        env: { time: 'siang', isRaining: false, autoTime: false, cityLights: true }
-    };
-    
-    if (!savedData.colors) savedData.colors = { shirt: '#171717', pants: '#171717', skin: '#fcd34d', hat: '#27272a' };
-    if (!savedData.env) savedData.env = { time: 'siang', isRaining: false, autoTime: false, cityLights: true };
+    let savedData = JSON.parse(localStorage.getItem('gwc_city_data')) || {};
+    if (!savedData.uid) savedData.uid = 'player_' + Math.floor(Math.random() * 1000000000);
+    if (savedData.x === undefined) {
+        savedData.x = 2000; savedData.y = 2000; savedData.points = 0; savedData.name = '';
+        savedData.env = { time: 'siang', isRaining: false, autoTime: false, cityLights: true };
+        savedData.colors = { shirt: '#171717', pants: '#171717', skin: '#fcd34d', hat: '#27272a' };
+        savedData.inventory = [];
+    }
     
     const Env = { time: savedData.env.time, isRaining: savedData.env.isRaining, autoTime: savedData.env.autoTime, autoTimer: 0, cityLights: savedData.env.cityLights, targetDarkness: 0, darkness: 0 };
-    const Game = { camera: { x: savedData.x, y: savedData.y, zoom: 1, angle: 0, targetZoom: 1, targetAngle: 0 }, mapWidth: 4000, mapHeight: 4000, activeZone: null, time: 0 };
+    // LUAS MAP 5000 x 5000
+    const Game = { camera: { x: savedData.x, y: savedData.y, zoom: 1, angle: 0 }, mapWidth: 5000, mapHeight: 5000, activeZone: null, time: 0 };
 
     const Player = {
+        uid: savedData.uid,
         x: savedData.x, y: savedData.y, speed: 5.5, radius: 14, vx: 0, vy: 0, angle: 0, walkCycle: 0,
         isRiding: null, flashlightOn: false,
         points: savedData.points || 0,
         name: savedData.name || '',
         buff: null, buffTimer: 0,
-        colors: savedData.colors
+        colors: savedData.colors,
+        inventory: savedData.inventory || [],
+        emote: null, emoteTimer: 0,
+        fireworkTrigger: 0,
+        placedFood: null
     };
 
     let gameStartTime = 0; 
-
-    // --- MULTIPLAYER VARIABLES ---
     let isMultiplayerActive = false;
     let NetworkPlayers = {};
+    let NetworkFireworks = {}; 
     let myPlayerRef = null;
-    let myPlayerId = null;
+    let myPlayerId = Player.uid; 
     let lastSent = 0;
     const SEND_INTERVAL_MS = 100; 
 
-    // Tampilkan isi nama jika sudah pernah tersimpan
-    if(Player.name) {
-        document.getElementById('player-name').value = Player.name;
-    }
+    if(Player.name) document.getElementById('player-name').value = Player.name;
 
     window.initMultiplayer = function() {
         const nameInput = document.getElementById('player-name').value.trim();
-        if (!nameInput) {
-            window.showToast("Masukkan nama terlebih dahulu!", "error");
-            return;
-        }
-        Player.name = nameInput;
-        savedData.name = nameInput;
-        window.saveGameData();
-
+        if (!nameInput) { window.showToast("Masukkan nama terlebih dahulu!", "error"); return; }
+        Player.name = nameInput; savedData.name = nameInput; window.saveGameData();
         document.getElementById('login-modal').classList.add('opacity-0', 'pointer-events-none');
         setTimeout(() => document.getElementById('login-modal').classList.add('hidden'), 500);
 
         try {
             const app = initializeApp(firebaseConfig);
             const db = getDatabase(app);
-            const playersRef = ref(db, 'gwc_players');
-
-            myPlayerRef = push(playersRef);
-            myPlayerId = myPlayerRef.key;
-            
-            // Hapus data pemain dari server jika koneksi terputus
+            myPlayerRef = ref(db, 'gwc_players/' + myPlayerId); 
             onDisconnect(myPlayerRef).remove();
-
-            // Dengarkan perubahan data dari semua pemain
-            onValue(playersRef, (snap) => {
-                NetworkPlayers = snap.val() || {};
+            
+            // ANTI-GHOST: Ganti serverTimestamp dengan Date.now() untuk lastActive lokal
+            set(myPlayerRef, {
+                x: Math.round(Player.x), y: Math.round(Player.y),
+                angle: Player.angle, walkCycle: Player.walkCycle,
+                name: Player.name, colors: Player.colors,
+                emote: Player.emote, firework: Player.fireworkTrigger, placedFood: Player.placedFood,
+                lastActive: Date.now()
             });
 
+            onValue(ref(db, 'gwc_players'), (snap) => { NetworkPlayers = snap.val() || {}; });
             isMultiplayerActive = true;
             document.getElementById('multiplayer-status').innerText = 'ONLINE';
             document.getElementById('multiplayer-status').className = 'ml-2 px-2 py-0.5 rounded text-[9px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/50';
             window.showToast("Berhasil terhubung ke GWC Online!", "success");
-        } catch (error) {
-            console.error("Gagal konek Firebase:", error);
-            window.showToast("Mode Offline. Koneksi server gagal.", "error");
-        }
+        } catch (error) { window.showToast("Mode Offline. Koneksi server gagal.", "error"); }
     };
 
     window.saveGameData = function() {
         localStorage.setItem('gwc_city_data', JSON.stringify({
-            x: Player.x, y: Player.y, points: Player.points, colors: Player.colors, name: Player.name,
+            uid: Player.uid, x: Player.x, y: Player.y, points: Player.points, colors: Player.colors, name: Player.name, inventory: Player.inventory,
             env: { time: Env.time, isRaining: Env.isRaining, autoTime: Env.autoTime, cityLights: Env.cityLights }
         }));
     };
@@ -539,35 +558,40 @@
         { id: 'gojek', type: 'building', name: "Gocar", x: 950, y: 1150, w: 200, h: 170, color: '#1e293b', roof: '#064e3b', accent: '#10b981', url: 'https://codepen.io/Athanaya-Sakhy-Abdillah/embed/019d9eb9-cfca-776b-b52f-9b6ef241dc07?default-tab=result&theme-id=dark', door: {x: 1050, y: 1320, w: 60, h: 20} },
         { id: 'dev', type: 'building', name: "Studio Youtuber", x: 1450, y: 600, w: 220, h: 200, color: '#1e293b', roof: '#2e1065', accent: '#8b5cf6', url: 'https://codepen.io/Akira-lol/embed/019d9e88-0365-77ca-a6ec-a3d595436bce?default-tab=result&theme-id=dark', door: {x: 1550, y: 800, w: 60, h: 20} },
         { id: 'mixue', type: 'shop', name: "Mixue Ramen", x: 1800, y: 600, w: 200, h: 220, color: '#ef4444', roof: '#f8fafc', accent: '#fca5a5', door: {x: 1870, y: 820, w: 60, h: 20} },
-        { id: 'fishing', type: 'zone', name: "Deep Blue", x: 0, y: 3200, w: 4000, h: 800, color: Palette.sand, url: 'https://codepen.io/Ibad-Fadhl-Rayyan/embed/019da0dd-bb13-70af-b9e1-203ada2227df?default-tab=result&theme-id=dark', interactRadius: 250 },
+        
+        { id: 'picnic_table', type: 'picnic', name: "Taman Riverside", x: 300, y: 1700, w: 300, h: 200, interactRadius: 150 },
+        { id: 'fishing', type: 'zone', name: "Deep Blue", x: 0, y: 4200, w: 5000, h: 800, color: Palette.sand, url: 'https://codepen.io/Ibad-Fadhl-Rayyan/embed/019da0dd-bb13-70af-b9e1-203ada2227df?default-tab=result&theme-id=dark', interactRadius: 250 },
         { id: 'sawit', type: 'zone', name: "Agro Sector", x: 100, y: 1600, w: 900, h: 1200, color: '#4d7c0f', url: 'https://codepen.io/Athanaya-Sakhy-Abdillah/embed/019d9ef5-0a6e-7125-9f85-a54bed0a5087?default-tab=result&theme-id=dark', interactRadius: 250 },
+        
         { id: 'sentul_racer', type: 'zone', name: "Circuit Pro", x: 2900, y: 400, w: 900, h: 600, color: '#334155', url: 'https://codepen.io/Athanaya-Sakhy-Abdillah/embed/019d9fa4-d603-74a3-b66d-9caf312bb078?default-tab=result&theme-id=dark', interactRadius: 250 },
         { id: 'sentul_drift', type: 'zone', name: "Skyline Drift", x: 2900, y: 1200, w: 900, h: 600, color: '#1e293b', url: 'https://codepen.io/Athanaya-Sakhy-Abdillah/embed/019dae4a-6fae-7d5a-9781-c7a836307368?default-tab=result&theme-id=dark', interactRadius: 250 },
-        { id: 'themepark', type: 'zone_decorative', name: "Wonder Park", x: 500, y: 500, w: 600, h: 500 },
+        
+        { id: 'themepark', type: 'zone', name: "Wonder Park Playground", x: 500, y: 500, w: 600, h: 500, url: 'https://codepen.io/Athanaya-Sakhy-Abdillah/embed/019e07d7-4ab6-734a-9b78-b345eb11b09b?default-tab=result&theme-id=dark' },
         { id: 'ride_ferris', type: 'ride', name: "Naik Bianglala", x: 650, y: 720, interactRadius: 40 },
         { id: 'ride_coaster', type: 'ride', name: "Naik Roller Coaster", x: 900, y: 900, interactRadius: 50 },
         { id: 'centralpark', type: 'zone_decorative', name: "Central Park", x: 1600, y: 1600, w: 800, h: 500 }
     ];
 
     const Roads = [
-        { x: -100, y: 1420, w: 4200, h: 140 }, { x: -100, y: 2200, w: 4200, h: 140 },
-        { x: 1240, y: -100, w: 140, h: 3250 }, { x: 2600, y: -100, w: 140, h: 3250 },
+        { x: -100, y: 1420, w: 5200, h: 140 }, { x: -100, y: 2200, w: 5200, h: 140 },
+        { x: 1240, y: -100, w: 140, h: 4250 }, { x: 2600, y: -100, w: 140, h: 4250 },
         { x: 1380, y: 820, w: 1220, h: 100 }, { x: 1380, y: 1320, w: 1220, h: 100 } 
     ];
 
     const Decorations = []; const GrassTufts = []; const BeachDecor = []; const Streetlights = []; 
     const Birds = []; const Fireflies = []; const RainDrops = []; const ShootingStars = []; 
     const PlayerParticles = []; const CollectibleCoins = []; const TrafficCars = [];
+    const FireworksArray = [];
 
     function generateEnvironment() {
         for(let i=0; i<800; i++) GrassTufts.push({ x: Math.random()*Game.mapWidth, y: Math.random()*Game.mapHeight });
         for(let i=0; i<100; i++) {
-            let px = Math.random()*Game.mapWidth; let py = 3220 + Math.random()*250;
+            let px = Math.random()*Game.mapWidth; let py = 4220 + Math.random()*250;
             if(Math.random() > 0.6) BeachDecor.push({ type: 'rock', x: px, y: py, size: 3 + Math.random()*8 });
             else if (Math.random() > 0.4) BeachDecor.push({ type: 'starfish', x: px, y: py, rot: Math.random()*Math.PI*2 });
             else BeachDecor.push({ type: 'shell', x: px, y: py, rot: Math.random()*Math.PI*2 });
         }
-        for(let i=0; i<40; i++) Birds.push({ x: Math.random()*Game.mapWidth, y: 3100 + Math.random()*800, vx: 1.5 + Math.random()*1.5, vy: -0.5 + Math.random(), flapOffset: Math.random()*Math.PI*2, flapSpeed: 0.15 + Math.random()*0.1 });
+        for(let i=0; i<40; i++) Birds.push({ x: Math.random()*Game.mapWidth, y: 4100 + Math.random()*800, vx: 1.5 + Math.random()*1.5, vy: -0.5 + Math.random(), flapOffset: Math.random()*Math.PI*2, flapSpeed: 0.15 + Math.random()*0.1 });
         for(let i=0; i<250; i++) Fireflies.push({ x: Math.random()*Game.mapWidth, y: Math.random()*Game.mapHeight, s: Math.random()*2.5+1, vx: (Math.random()-0.5)*1.5, vy: (Math.random()-0.5)*1.5 });
         for(let i=0; i<600; i++) RainDrops.push({ x: Math.random()*canvas.width*2, y: Math.random()*canvas.height, l: Math.random()*15+15, v: Math.random()*10+15 });
 
@@ -575,11 +599,12 @@
             let px = Math.random() * Game.mapWidth, py = Math.random() * Game.mapHeight, ok = true;
             Roads.forEach(r => { if(px>r.x-40 && px<r.x+r.w+40 && py>r.y-40 && py<r.y+r.h+40) ok=false; });
             MapObjects.forEach(m => { 
-                if((m.type==='building' || m.type==='zone_decorative' || m.type==='shop') && px>m.x-50 && px<m.x+m.w+50 && py>m.y-50 && py<m.y+m.h+50) ok=false; 
-                if(m.id==='fishing' && py > 3100) ok=false;
+                if((m.type==='building' || m.type==='zone_decorative' || m.type==='shop' || m.type==='picnic') && px>m.x-50 && px<m.x+m.w+50 && py>m.y-50 && py<m.y+m.h+50) ok=false; 
+                if(m.id==='fishing' && py > 4100) ok=false;
                 if(m.id==='sawit' && px>m.x && px<m.x+m.w && py>m.y && py<m.y+m.h) ok=false; 
             });
-            if(ok) Decorations.push({ type: 'tree', variant: Math.random() > 0.7 ? 'sakura' : 'normal', x: px, y: py, size: 25 + Math.random()*20, offset: Math.random()*Math.PI*2 });
+            let isSakura = Math.random() > 0.7 || (px > 100 && px < 800 && py > 1500 && py < 2500);
+            if(ok) Decorations.push({ type: 'tree', variant: isSakura ? 'sakura' : 'normal', x: px, y: py, size: 25 + Math.random()*20, offset: Math.random()*Math.PI*2 });
         }
 
         for(let i=0; i<50; i++) CollectibleCoins.push({ x: Math.random() * Game.mapWidth, y: Math.random() * (Game.mapHeight - 800), active: true, timer: 0, bob: Math.random()*Math.PI*2 });
@@ -590,7 +615,6 @@
             if(!isHoriz) laneOffset = isForward ? road.w/4 : road.w*3/4;
             TrafficCars.push({ x: isHoriz ? Math.random()*Game.mapWidth : road.x + laneOffset, y: isHoriz ? road.y + laneOffset : Math.random()*Game.mapHeight, vx: isHoriz ? (isForward ? 4 : -4) : 0, vy: isHoriz ? 0 : (isForward ? 4 : -4), c: ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#ffffff', '#1e293b'][Math.floor(Math.random()*6)] });
         }
-
         Roads.forEach(r => {
             if(r.w > r.h) { for(let lx = r.x + 100; lx < r.x + r.w - 50; lx += 300) { Streetlights.push({ x: lx, y: r.y - 10, angle: Math.PI/2 }); Streetlights.push({ x: lx + 150, y: r.y + r.h + 10, angle: -Math.PI/2 }); } } 
             else { for(let ly = r.y + 100; ly < r.y + r.h - 50; ly += 300) { Streetlights.push({ x: r.x - 10, y: ly, angle: 0 }); Streetlights.push({ x: r.x + r.w + 10, y: ly + 150, angle: Math.PI }); } }
@@ -613,29 +637,11 @@
         window.saveGameData(); 
     };
 
-    function initWardrobe() {
-        document.getElementById('color-shirt').value = Player.colors.shirt;
-        document.getElementById('color-pants').value = Player.colors.pants;
-        document.getElementById('color-skin').value = Player.colors.skin;
-        document.getElementById('color-hat').value = Player.colors.hat;
-        
-        window.updatePlayerColor('shirt', Player.colors.shirt);
-        window.updatePlayerColor('hat', Player.colors.hat);
-        window.updatePlayerColor('skin', Player.colors.skin);
-    }
-
-    let wardrobeOpen = false;
-    window.toggleWardrobe = function() {
-        const modal = document.getElementById('wardrobe-modal');
-        if (wardrobeOpen) { modal.classList.add('opacity-0'); setTimeout(() => modal.classList.add('hidden'), 300); wardrobeOpen = false; } 
-        else { modal.classList.remove('hidden'); setTimeout(() => modal.classList.remove('opacity-0'), 10); wardrobeOpen = true; initWardrobe(); }
-    }
-
     window.showToast = function(msg, type="info") {
         const container = document.getElementById('toast-container'); const toast = document.createElement('div');
         let bgClass = type === 'success' ? 'bg-emerald-500' : (type === 'error' ? 'bg-red-500' : 'bg-amber-500');
         toast.className = `px-6 py-3 rounded-xl text-white font-bold shadow-xl border border-white/20 transform transition-all duration-300 translate-y-[-20px] opacity-0 flex items-center gap-2 ${bgClass}`;
-        let icon = type === 'success' ? '<i data-lucide="check-circle" class="w-5 h-5"></i>' : (type === 'error' ? '<i data-lucide="alert-circle" class="w-5 h-5"></i>' : '<i data-lucide="coins" class="w-5 h-5"></i>');
+        let icon = type === 'success' ? '<i data-lucide="check-circle" class="w-5 h-5"></i>' : (type === 'error' ? '<i data-lucide="alert-circle" class="w-5 h-5"></i>' : '<i data-lucide="info" class="w-5 h-5"></i>');
         toast.innerHTML = `${icon} <span>${msg}</span>`;
         container.appendChild(toast); window.lucide.createIcons({ root: toast });
         setTimeout(() => toast.classList.remove('translate-y-[-20px]', 'opacity-0'), 10);
@@ -661,6 +667,9 @@
         else if (Env.time === 'siang') { header.className = "glass-panel text-white px-6 py-3 rounded-2xl inline-block border-l-4 border-l-indigo-500 shadow-[0_0_20px_rgba(99,102,241,0.2)]"; titleColor.className = "text-indigo-400"; subtitle.innerText = "Grand Web City"; Env.targetDarkness = 0; } 
         else if (Env.time === 'sore') { header.className = "glass-panel text-white px-6 py-3 rounded-2xl inline-block border-l-4 border-l-rose-500 shadow-[0_0_20px_rgba(244,63,94,0.3)]"; titleColor.className = "text-rose-400"; subtitle.innerText = "Sunset GWC"; Env.targetDarkness = 0.6; } 
         else if (Env.time === 'malam') { header.className = "glass-panel text-white px-6 py-3 rounded-2xl inline-block border-l-4 border-l-purple-500 shadow-[0_0_20px_rgba(168,85,247,0.4)]"; titleColor.className = "text-purple-400"; subtitle.innerText = "Night GWC"; Env.targetDarkness = 0.9; }
+        
+        if(Env.time === 'malam') document.getElementById('btn-firework').classList.remove('hidden');
+        else document.getElementById('btn-firework').classList.add('hidden');
         
         updateShopWindow();
     }
@@ -699,25 +708,97 @@
         else { modal.classList.remove('hidden'); setTimeout(() => modal.classList.remove('opacity-0'), 10); mapOpen = true; }
     }
 
+    let emoteOpen = false; 
+    window.toggleEmoteBox = function() { 
+        const m = document.getElementById('emote-box'); 
+        if(emoteOpen) { m.classList.add('opacity-0', 'pointer-events-none', 'translate-y-2'); emoteOpen = false; } 
+        else { m.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-2'); emoteOpen = true; } 
+    }
+    
+    // --- EMOTE SYSTEM ---
+    window.sendEmote = function(emo) {
+        Player.emote = emo; Player.emoteTimer = 100; // ~5 seconds
+        window.toggleEmoteBox();
+        forceSyncPlayer();
+    }
+
+    // --- FIREWORKS SYSTEM ---
+    window.shootFirework = function() {
+        if(Env.time !== 'malam') return;
+        Player.fireworkTrigger = Date.now();
+        spawnFirework(Player.x, Player.y);
+        forceSyncPlayer();
+    }
+
+    function spawnFirework(x, y) {
+        FireworksArray.push({ x: x, y: y, ty: y - 250 - Math.random()*100, vy: -7 - Math.random()*3, life: 1, color: ['#f43f5e', '#3b82f6', '#10b981', '#facc15', '#a855f7'][Math.floor(Math.random()*5)] });
+    }
+
+    // --- INVENTORY SYSTEM ---
+    window.toggleInventory = function() {
+        const m = document.getElementById('inventory-modal');
+        if (!m.classList.contains('hidden')) { m.classList.add('opacity-0'); setTimeout(() => m.classList.add('hidden'), 300); } 
+        else { m.classList.remove('hidden'); setTimeout(() => m.classList.remove('opacity-0'), 10); renderInventoryItems(); }
+    }
+
+    function renderInventoryItems() {
+        const c = document.getElementById('inventory-container'); c.innerHTML = '';
+        if(Player.inventory.length === 0) { c.innerHTML = '<p class="text-slate-500 text-sm col-span-3 text-center py-4">Tas kosong. Beli makanan di Mixue Ramen!</p>'; return; }
+        
+        Player.inventory.forEach((itemId, idx) => {
+            let item = ShopItems.find(i => i.id === itemId);
+            if(item) {
+                c.innerHTML += `
+                    <div onclick="window.useInventoryItem(${idx})" class="bg-slate-800 border border-slate-600 rounded-xl p-3 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-700 hover:border-emerald-500 transition-all shadow-md group">
+                        <div class="w-10 h-10 mb-2 group-hover:scale-110 transition-transform">${item.icon}</div>
+                        <p class="text-[10px] font-bold text-white text-center leading-tight">${item.name}</p>
+                    </div>
+                `;
+            }
+        });
+    }
+
+    window.useInventoryItem = function(index) {
+        let itemId = Player.inventory[index];
+        let item = ShopItems.find(i => i.id === itemId);
+        
+        if (Player.isRiding === 'picnic_table') {
+            Player.placedFood = item.icon;
+            window.showToast("Makanan diletakkan di meja piknik!", "success");
+            forceSyncPlayer();
+        } else {
+            Player.buff = item.id; Player.buffTimer = item.duration;
+            window.showToast(`Memakan ${item.name}!`, "success");
+        }
+        
+        Player.inventory.splice(index, 1);
+        window.saveGameData();
+        renderInventoryItems();
+        if(Player.inventory.length === 0) window.toggleInventory();
+    }
+
+    function initWardrobe() {
+        document.getElementById('color-shirt').value = Player.colors.shirt;
+        document.getElementById('color-pants').value = Player.colors.pants;
+        document.getElementById('color-skin').value = Player.colors.skin;
+        document.getElementById('color-hat').value = Player.colors.hat;
+    }
+
+    window.toggleWardrobe = function() { 
+        const m = document.getElementById('wardrobe-modal'); 
+        if (!m.classList.contains('hidden')) { m.classList.add('opacity-0'); setTimeout(() => m.classList.add('hidden'), 300); } 
+        else { m.classList.remove('hidden'); setTimeout(() => m.classList.remove('opacity-0'), 10); initWardrobe(); } 
+    }
+
+    updateSettingsUI(); updateHUD(); 
+
     const keys = { w: false, a: false, s: false, d: false };
     window.addEventListener('keydown', e => { const k = e.key.toLowerCase(); if(keys.hasOwnProperty(k)) keys[k] = true; if(e.key === 'e' || e.key === 'E') checkInteraction(); if(e.key === 'm' || e.key === 'M') { window.toggleMap(); if(menuOpen) window.toggleMainMenu(); } if(e.key === 'f' || e.key === 'F') window.toggleFlashlight(); });
     window.addEventListener('keyup', e => { const k = e.key.toLowerCase(); if(keys.hasOwnProperty(k)) keys[k] = false; });
 
     const joystickBase = document.getElementById('joystick'); const stick = document.getElementById('stick');
     let isDragging = false; let jx = 0, jy = 0; if('ontouchstart' in window) joystickBase.classList.remove('hidden');
-
-    function handleTouch(e, type) {
-        if(e.target === joystickBase || e.target === stick) {
-            if(type !== 'end') e.preventDefault(); isDragging = type !== 'end';
-            if(isDragging) {
-                const rect = joystickBase.getBoundingClientRect(); const touch = e.touches ? e.touches[0] : e;
-                let dx = touch.clientX - (rect.left + rect.width/2); let dy = touch.clientY - (rect.top + rect.height/2);
-                const dist = Math.min(rect.width/2 - 25, Math.hypot(dx, dy)); const angle = Math.atan2(dy, dx);
-                const sx = dist * Math.cos(angle), sy = dist * Math.sin(angle);
-                stick.style.transform = `translate(calc(-50% + ${sx}px), calc(-50% + ${sy}px))`; jx = (sx / (rect.width/2)) * 1.5; jy = (sy / (rect.height/2)) * 1.5;
-            } else { stick.style.transform = `translate(-50%, -50%)`; jx = 0; jy = 0; }
-        }
-    }
+    function handleTouch(e, type) { if(e.target === joystickBase || e.target === stick) { if(type !== 'end') e.preventDefault(); isDragging = type !== 'end'; if(isDragging) { const rect = joystickBase.getBoundingClientRect(); const touch = e.touches ? e.touches[0] : e; let dx = touch.clientX - (rect.left + rect.width/2); let dy = touch.clientY - (rect.top + rect.height/2); const dist = Math.min(rect.width/2 - 25, Math.hypot(dx, dy)); const angle = Math.atan2(dy, dx); const sx = dist * Math.cos(angle), sy = dist * Math.sin(angle); stick.style.transform = `translate(calc(-50% + ${sx}px), calc(-50% + ${sy}px))`; jx = (sx / (rect.width/2)) * 1.5; jy = (sy / (rect.height/2)) * 1.5; } else { stick.style.transform = `translate(-50%, -50%)`; jx = 0; jy = 0; } } }
     ['touchstart','mousedown'].forEach(ev => joystickBase.addEventListener(ev, e => handleTouch(e, 'start'), {passive:false}));
     ['touchmove','mousemove'].forEach(ev => window.addEventListener(ev, e => { if(isDragging) handleTouch(e, 'move'); }, {passive:false}));
     ['touchend','mouseup'].forEach(ev => window.addEventListener(ev, e => handleTouch(e, 'end')));
@@ -727,21 +808,26 @@
     btnEnter.addEventListener('click', checkInteraction);
 
     function checkInteraction() {
-        if (Player.isRiding) { Player.isRiding = null; Player.y += 50; return; }
+        if (Player.isRiding) { 
+            Player.isRiding = null; Player.y += 50; 
+            if(Player.placedFood) { Player.placedFood = null; forceSyncPlayer(); }
+            return; 
+        }
         if (Game.activeZone) {
             if (Game.activeZone.type === 'shop') window.openShopModal();
+            else if (Game.activeZone.type === 'picnic') {
+                Player.isRiding = Game.activeZone.id;
+            }
             else if (Game.activeZone.type === 'ride') Player.isRiding = Game.activeZone.id;
             else if (Game.activeZone.url) window.openGame(Game.activeZone.url, Game.activeZone.name); 
         }
     }
 
-    // --- GAME IFRAME MODAL ---
     window.openGame = function(url, title) {
         document.getElementById('iframe-loader').style.display = 'flex'; const modal = document.getElementById('game-modal');
         document.getElementById('modal-title').innerText = title; document.getElementById('game-frame').src = url;
         modal.classList.remove('hidden'); setTimeout(() => modal.classList.remove('opacity-0'), 10);
-        gameStartTime = Date.now(); 
-        window.saveGameData();
+        gameStartTime = Date.now(); window.saveGameData();
     }
     window.closeGame = function() {
         const modal = document.getElementById('game-modal'); modal.classList.add('opacity-0');
@@ -750,75 +836,43 @@
             let durationSec = (Date.now() - gameStartTime) / 1000;
             if (durationSec > 5) { 
                 let pointsEarned = Math.floor(durationSec * 2); if (pointsEarned > 500) pointsEarned = 500; 
-                Player.points += pointsEarned; updateHUD(); window.showToast(`Seru banget! Kamu dapat +${pointsEarned} GWC Poin`, "success");
+                Player.points += pointsEarned; updateHUD(); window.showToast(`Kamu dapat +${pointsEarned} GWC Poin`, "success");
                 window.saveGameData(); 
             }
             gameStartTime = 0;
         }
     }
 
-    // --- SHOP MODAL ---
-    function updateShopWindow() {
-        const sky = document.getElementById('window-sky'); if(!sky) return;
-        sky.innerHTML = '';
-        if (Env.time === 'pagi') { sky.className = 'w-full h-full relative transition-colors duration-1000 bg-sky-200'; sky.innerHTML = '<div class="absolute bottom-10 left-10 w-24 h-24 bg-yellow-100 rounded-full blur-lg"></div>'; } 
-        else if (Env.time === 'siang') { sky.className = 'w-full h-full relative transition-colors duration-1000 bg-blue-400'; sky.innerHTML = '<div class="absolute top-10 left-20 w-32 h-32 bg-yellow-300 rounded-full shadow-[0_0_50px_rgba(253,224,71,1)]"></div>'; } 
-        else if (Env.time === 'sore') { sky.className = 'w-full h-full relative transition-colors duration-1000 bg-gradient-to-t from-orange-500 to-purple-700'; sky.innerHTML = '<div class="absolute bottom-0 left-1/2 w-40 h-40 bg-yellow-400 rounded-full shadow-[0_0_80px_rgba(251,191,36,1)] translate-y-1/2 -translate-x-1/2"></div>'; } 
-        else if (Env.time === 'malam') { sky.className = 'w-full h-full relative transition-colors duration-1000 bg-slate-900'; sky.innerHTML = '<div class="absolute top-10 right-20 w-20 h-20 bg-slate-100 rounded-full shadow-[0_0_30px_rgba(255,255,255,0.5)]"></div>'; for(let i=0; i<30; i++) sky.innerHTML += `<div class="absolute bg-white rounded-full" style="width:2px; height:2px; top:${Math.random()*100}%; left:${Math.random()*100}%; opacity:${Math.random()}"></div>`; }
-    }
-
-    function renderShopItems() {
-        const container = document.getElementById('shop-items-container'); container.innerHTML = '';
-        ShopItems.forEach(item => {
-            const svgIcon = item.icon;
-            container.innerHTML += `
-                <div class="flex justify-between items-center bg-slate-50 p-2 rounded-xl border-2 border-slate-200 hover:border-red-400 transition-colors shadow-sm">
-                    <div class="flex items-center gap-3">
-                        <div class="w-12 h-12">${svgIcon}</div>
-                        <div><p class="font-black text-slate-800 text-base leading-tight">${item.name}</p><p class="text-xs font-bold text-slate-500 leading-tight">${item.desc}</p></div>
-                    </div>
-                    <button onclick="window.buyItem('${item.id}')" class="bg-red-500 hover:bg-red-600 text-white font-black py-2 px-4 rounded-lg flex items-center gap-1 transition-transform active:scale-95 shadow-md">
-                        ${item.price} <i data-lucide="coins" class="w-4 h-4"></i>
-                    </button>
-                </div>
-            `;
-        });
-        window.lucide.createIcons();
-    }
+    function updateShopWindow() {}
+    function renderShopItems() {}
     
     window.openShopModal = function() {
         document.getElementById('interior-points').innerText = Player.points;
-        updateShopWindow(); renderShopItems();
+        const c = document.getElementById('shop-items-container'); c.innerHTML = '';
+        ShopItems.forEach(item => {
+            c.innerHTML += `
+                <div class="flex justify-between items-center bg-slate-50 p-2 rounded-xl border-2 border-slate-200 hover:border-red-400 transition-colors shadow-sm">
+                    <div class="flex items-center gap-3"><div class="w-12 h-12">${item.icon}</div><div><p class="font-black text-slate-800 text-base leading-tight">${item.name}</p><p class="text-xs font-bold text-slate-500 leading-tight">${item.desc}</p></div></div>
+                    <button onclick="window.buyItem('${item.id}')" class="bg-red-500 hover:bg-red-600 text-white font-black py-2 px-4 rounded-lg flex items-center gap-1 transition-transform active:scale-95 shadow-md">${item.price} <i data-lucide="coins" class="w-4 h-4"></i></button>
+                </div>`;
+        });
+        window.lucide.createIcons();
         const modal = document.getElementById('shop-modal'); modal.classList.remove('hidden'); setTimeout(() => modal.classList.remove('opacity-0'), 10);
     }
     window.closeShop = function() {
         const modal = document.getElementById('shop-modal'); modal.classList.add('opacity-0');
-        setTimeout(() => { 
-            modal.classList.add('hidden'); 
-            document.getElementById('btn-sit-container').style.display = 'block';
-            document.getElementById('player-chair').dataset.sitting = 'false';
-            document.getElementById('player-avatar').classList.add('opacity-0', 'scale-50'); document.getElementById('player-avatar').classList.remove('opacity-100', 'scale-100');
-            document.getElementById('player-food').classList.add('opacity-0'); document.getElementById('player-food').innerHTML = '';
-        }, 300);
-    }
-    
-    window.sitDown = function() {
-        document.getElementById('btn-sit-container').style.display = 'none'; document.getElementById('player-chair').dataset.sitting = 'true';
-        const avatar = document.getElementById('player-avatar'); avatar.classList.remove('opacity-0', 'scale-50'); avatar.classList.add('opacity-100', 'scale-100');
-        window.showToast("Kamu duduk di meja. Silahkan pesan sesuatu!", "info");
+        setTimeout(() => { modal.classList.add('hidden'); }, 300);
     }
 
     window.buyItem = function(id) {
         let item = ShopItems.find(i => i.id === id);
         if (Player.points >= item.price) {
-            Player.points -= item.price; Player.buff = item.id; Player.buffTimer = item.duration;
-            updateHUD(); document.getElementById('interior-points').innerText = Player.points; window.showToast(`Berhasil membeli ${item.name}!`, "success");
-            
-            if(document.getElementById('player-chair').dataset.sitting === 'true') {
-                const foodEl = document.getElementById('player-food'); foodEl.innerHTML = item.icon; foodEl.classList.remove('opacity-0'); foodEl.classList.add('animate-float-item'); 
-            }
+            Player.points -= item.price;
+            Player.inventory.push(id); 
+            updateHUD(); document.getElementById('interior-points').innerText = Player.points; 
+            window.showToast(`${item.name} dimasukkan ke Inventory!`, "success");
             window.saveGameData(); 
-        } else { window.showToast("GWC Poin tidak cukup! Main game lagi yuk.", "error"); }
+        } else { window.showToast("GWC Poin tidak cukup!", "error"); }
     }
 
     function drawMap() {
@@ -826,13 +880,18 @@
         const mCtx = mCanvas.getContext('2d'); const scale = mCanvas.width / Game.mapWidth;
         mCtx.clearRect(0, 0, mCanvas.width, mCanvas.height);
         mCtx.fillStyle = Palette.grassMain; mCtx.fillRect(0, 0, mCanvas.width, mCanvas.height);
-        mCtx.fillStyle = Palette.waterDeep; mCtx.fillRect(0, 3280 * scale, mCanvas.width, (Game.mapHeight - 3280) * scale);
-        mCtx.fillStyle = Palette.sand; mCtx.fillRect(0, 3150 * scale, mCanvas.width, 130 * scale);
+        mCtx.fillStyle = Palette.waterDeep; mCtx.fillRect(0, 4280 * scale, mCanvas.width, (Game.mapHeight - 4280) * scale);
+        mCtx.fillStyle = Palette.sand; mCtx.fillRect(0, 4150 * scale, mCanvas.width, 130 * scale);
+        
+        mCtx.strokeStyle = '#3b82f6'; mCtx.lineWidth = 120 * scale; mCtx.lineCap = 'round';
+        mCtx.beginPath(); mCtx.moveTo(500*scale, -100*scale); mCtx.quadraticCurveTo(100*scale, 1000*scale, 400*scale, 2000*scale); mCtx.quadraticCurveTo(700*scale, 3000*scale, 300*scale, 5100*scale); mCtx.stroke();
+
         mCtx.fillStyle = Palette.roadMain; Roads.forEach(r => { mCtx.fillRect(r.x * scale, r.y * scale, r.w * scale, r.h * scale); });
         MapObjects.forEach(obj => {
             if(obj.type === 'ride') return; 
             mCtx.fillStyle = obj.color || '#334155';
             if (obj.id === 'sentul_racer' || obj.id === 'sentul_drift') { mCtx.beginPath(); mCtx.roundRect(obj.x*scale, obj.y*scale, obj.w*scale, obj.h*scale, 20); mCtx.fill(); } 
+            else if (obj.type === 'picnic') { mCtx.fillStyle = '#a3e635'; mCtx.beginPath(); mCtx.roundRect(obj.x*scale, obj.y*scale, obj.w*scale, obj.h*scale, 5); mCtx.fill(); }
             else if (obj.id === 'themepark') { mCtx.fillStyle = '#fef08a'; mCtx.beginPath(); mCtx.roundRect(obj.x*scale, obj.y*scale, obj.w*scale, obj.h*scale, 5); mCtx.fill(); } 
             else if (obj.id === 'centralpark') { mCtx.fillStyle = '#e2e8f0'; mCtx.beginPath(); mCtx.roundRect(obj.x*scale, obj.y*scale, obj.w*scale, obj.h*scale, 5); mCtx.fill(); }
             else { mCtx.fillRect(obj.x * scale, obj.y * scale, obj.w * scale, obj.h * scale); }
@@ -840,35 +899,46 @@
             mCtx.strokeStyle = 'black'; mCtx.lineWidth = 3; mCtx.strokeText(obj.name, (obj.x + obj.w/2) * scale, (obj.y + obj.h/2) * scale); mCtx.fillText(obj.name, (obj.x + obj.w/2) * scale, (obj.y + obj.h/2) * scale);
         });
         
-        // Render network players on map
-        for (const pid in NetworkPlayers) {
-            let p = NetworkPlayers[pid];
-            if(p && p.x) {
-                mCtx.fillStyle = '#38bdf8'; mCtx.beginPath(); mCtx.arc(p.x * scale, p.y * scale, 5, 0, Math.PI*2); mCtx.fill();
-            }
+        // Render network players on map (ANTI-GHOST: check lastActive)
+        for (const pid in NetworkPlayers) { 
+            let p = NetworkPlayers[pid]; 
+            if(p && p.x && p.lastActive && (Date.now() - p.lastActive < 10000)) { 
+                mCtx.fillStyle = '#38bdf8'; mCtx.beginPath(); mCtx.arc(p.x * scale, p.y * scale, 5, 0, Math.PI*2); mCtx.fill(); 
+            } 
         }
 
-        let pulse = Math.abs(Math.sin(Date.now() / 200)) * 6;
-        mCtx.fillStyle = '#ef4444'; mCtx.beginPath(); mCtx.arc(Player.x * scale, Player.y * scale, 8 + pulse, 0, Math.PI * 2); mCtx.fill();
+        let pulse = Math.abs(Math.sin(Date.now() / 200)) * 6; mCtx.fillStyle = '#ef4444'; mCtx.beginPath(); mCtx.arc(Player.x * scale, Player.y * scale, 8 + pulse, 0, Math.PI * 2); mCtx.fill();
         mCtx.strokeStyle = 'white'; mCtx.lineWidth = 3; mCtx.stroke();
+    }
+
+    function forceSyncPlayer() {
+        if(isMultiplayerActive && myPlayerRef) {
+            set(myPlayerRef, { x: Math.round(Player.x), y: Math.round(Player.y), angle: Player.angle, walkCycle: Player.walkCycle, name: Player.name, colors: Player.colors, emote: Player.emote, firework: Player.fireworkTrigger, placedFood: Player.placedFood, lastActive: Date.now() }).catch(e => console.warn(e));
+        }
     }
 
     function update() {
         Game.time += 0.05;
         Env.darkness += (Env.targetDarkness - Env.darkness) * 0.02; 
 
-        // Update Network Sync
+        if(Player.emoteTimer > 0) { Player.emoteTimer -= 1; if(Player.emoteTimer <= 0) { Player.emote = null; forceSyncPlayer(); } }
+
         const now = Date.now();
         if (isMultiplayerActive && myPlayerRef && !Player.isRiding) {
             const isMoving = keys.w || keys.a || keys.s || keys.d || isDragging;
             if (isMoving && (now - lastSent > SEND_INTERVAL_MS)) {
-                lastSent = now;
-                set(myPlayerRef, {
-                    x: Math.round(Player.x), y: Math.round(Player.y),
-                    angle: Player.angle, walkCycle: Player.walkCycle,
-                    name: Player.name, colors: Player.colors,
-                    lastSeen: serverTimestamp()
-                }).catch(e => console.warn(e));
+                lastSent = now; forceSyncPlayer();
+            } else if (!isMoving && (now - lastSent > 3000)) {
+                // Heartbeat agar tidak jadi ghost (setiap 3 detik jika diam)
+                lastSent = now; forceSyncPlayer();
+            }
+        }
+
+        for (const pid in NetworkPlayers) {
+            let p = NetworkPlayers[pid];
+            if (p && p.firework && p.firework !== NetworkFireworks[pid] && p.lastActive && (Date.now() - p.lastActive < 10000)) {
+                NetworkFireworks[pid] = p.firework;
+                spawnFirework(p.x, p.y);
             }
         }
 
@@ -876,13 +946,9 @@
             if(c.active) {
                 c.bob += 0.1;
                 if(Math.hypot(Player.x - c.x, Player.y - c.y) < Player.radius + 20) {
-                    c.active = false; c.timer = 1200; 
-                    Player.points += 5; updateHUD(); PlayerParticles.push({x: c.x, y: c.y, s: 1, c: '#facc15', life: 1, text: '+5 Poin'});
-                    window.saveGameData();
+                    c.active = false; c.timer = 1200; Player.points += 5; updateHUD(); PlayerParticles.push({x: c.x, y: c.y, s: 1, c: '#facc15', life: 1, text: '+5 Poin'}); window.saveGameData();
                 }
-            } else {
-                c.timer--; if(c.timer <= 0) { c.active = true; c.x = Math.random()*Game.mapWidth; c.y = Math.random()*(Game.mapHeight-800); }
-            }
+            } else { c.timer--; if(c.timer <= 0) { c.active = true; c.x = Math.random()*Game.mapWidth; c.y = Math.random()*(Game.mapHeight-800); } }
         });
 
         if (Player.buffTimer > 0) {
@@ -893,51 +959,31 @@
                 if(Math.random() < 0.3) PlayerParticles.push({x: Player.x + (Math.random()-0.5)*10, y: Player.y + 10, s: 4, c: '#f59e0b', life: 1});
             }
         }
-        for(let i=PlayerParticles.length-1; i>=0; i--) {
-            let p = PlayerParticles[i]; p.y -= 1; p.s -= 0.2; p.life -= 0.05;
-            if(p.life <= 0 || (p.s <= 0 && !p.text)) PlayerParticles.splice(i, 1);
-        }
+        for(let i=PlayerParticles.length-1; i>=0; i--) { let p = PlayerParticles[i]; p.y -= 1; p.s -= 0.2; p.life -= 0.05; if(p.life <= 0 || (p.s <= 0 && !p.text)) PlayerParticles.splice(i, 1); }
 
-        if(Env.autoTime) {
-            Env.autoTimer += 0.05;
-            if(Env.autoTimer > 25) { 
-                Env.autoTimer = 0; const times = ['pagi', 'siang', 'sore', 'malam'];
-                window.setTime(times[(times.indexOf(Env.time) + 1) % 4]);
-                if(Math.random() < 0.2) window.toggleRain(); else if (Env.isRaining && Math.random() < 0.5) window.toggleRain();
+        for(let i=FireworksArray.length-1; i>=0; i--) {
+            let f = FireworksArray[i]; f.y += f.vy;
+            if(f.y <= f.ty) {
+                for(let j=0; j<30; j++) {
+                    let a = Math.random() * Math.PI * 2; let v = Math.random() * 5 + 2;
+                    PlayerParticles.push({x: f.x, y: f.y, vx: Math.cos(a)*v, vy: Math.sin(a)*v, s: 4, c: f.color, life: 1, isExplosion: true});
+                }
+                FireworksArray.splice(i, 1);
             }
         }
+        PlayerParticles.forEach(p => { if(p.isExplosion) { p.x += p.vx; p.y += p.vy; p.vy += 0.1; } });
 
-        if(Env.time === 'malam' || Env.time === 'sore') {
-            Fireflies.forEach(f => { f.x += f.vx; f.y += f.vy + Math.sin(Game.time)*0.5; if(f.x < 0) f.x = Game.mapWidth; if(f.x > Game.mapWidth) f.x = 0; if(f.y < 0) f.y = Game.mapHeight; if(f.y > Game.mapHeight) f.y = 0; });
-        }
-        if(Env.isRaining) {
-            RainDrops.forEach(r => { r.x -= r.v * 0.5; r.y += r.v; if(r.y > canvas.height + 100) { r.y = -100; r.x = Math.random() * canvas.width * 2; } });
-        }
-
+        if(Env.autoTime) { Env.autoTimer += 0.05; if(Env.autoTimer > 25) { Env.autoTimer = 0; const times = ['pagi', 'siang', 'sore', 'malam']; window.setTime(times[(times.indexOf(Env.time) + 1) % 4]); if(Math.random() < 0.2) window.toggleRain(); else if (Env.isRaining && Math.random() < 0.5) window.toggleRain(); } }
+        if(Env.time === 'malam' || Env.time === 'sore') { Fireflies.forEach(f => { f.x += f.vx; f.y += f.vy + Math.sin(Game.time)*0.5; if(f.x < 0) f.x = Game.mapWidth; if(f.x > Game.mapWidth) f.x = 0; if(f.y < 0) f.y = Game.mapHeight; if(f.y > Game.mapHeight) f.y = 0; }); }
+        if(Env.isRaining) { RainDrops.forEach(r => { r.x -= r.v * 0.5; r.y += r.v; if(r.y > canvas.height + 100) { r.y = -100; r.x = Math.random() * canvas.width * 2; } }); }
         if(Env.time === 'malam' && Math.random() < 0.01) ShootingStars.push({x: Math.random()*canvas.width, y: -50, vx: 15+Math.random()*10, vy: 10+Math.random()*5, life: 1.0});
         for(let i = ShootingStars.length-1; i>=0; i--) { ShootingStars[i].x -= ShootingStars[i].vx; ShootingStars[i].y += ShootingStars[i].vy; ShootingStars[i].life -= 0.02; if(ShootingStars[i].life <= 0) ShootingStars.splice(i, 1); }
 
-        TrafficCars.forEach(car => {
-            car.x += car.vx; car.y += car.vy;
-            if(car.x > Game.mapWidth + 100) car.x = -100; if(car.x < -100) car.x = Game.mapWidth + 100;
-            if(car.y > 3150) car.y = -100; if(car.y < -100) car.y = 3150; 
-        });
+        TrafficCars.forEach(car => { car.x += car.vx; car.y += car.vy; if(car.x > Game.mapWidth + 100) car.x = -100; if(car.x < -100) car.x = Game.mapWidth + 100; if(car.y > 4150) car.y = -100; if(car.y < -100) car.y = 4150; });
 
         if (!Player.isRiding) {
-            Birds.forEach(b => { b.x += b.vx; b.y += b.vy; b.flapOffset += b.flapSpeed; if (b.x > Game.mapWidth + 50) b.x = -50; if (b.x < -50) b.x = Game.mapWidth + 50; if (b.y < 3100) b.y = Game.mapHeight + 50; if (b.y > Game.mapHeight + 50) b.y = 3100; });
-            
-            NPCs.forEach(npc => {
-                if(npc.speed) {
-                    if (npc.axis === 'x') {
-                        npc.x += Math.cos(npc.angle) * npc.speed;
-                        if (npc.x > npc.bounds.max) { npc.angle = Math.PI; npc.x = npc.bounds.max; } else if (npc.x < npc.bounds.min) { npc.angle = 0; npc.x = npc.bounds.min; }
-                    } else {
-                        npc.y += Math.sin(npc.angle) * npc.speed;
-                        if (npc.y > npc.bounds.max) { npc.angle = -Math.PI/2; npc.y = npc.bounds.max; } else if (npc.y < npc.bounds.min) { npc.angle = Math.PI/2; npc.y = npc.bounds.min; }
-                    }
-                    npc.walkCycle += npc.speed * 0.15;
-                }
-            });
+            Birds.forEach(b => { b.x += b.vx; b.y += b.vy; b.flapOffset += b.flapSpeed; if (b.x > Game.mapWidth + 50) b.x = -50; if (b.x < -50) b.x = Game.mapWidth + 50; if (b.y < 4100) b.y = Game.mapHeight + 50; if (b.y > Game.mapHeight + 50) b.y = 4100; });
+            NPCs.forEach(npc => { if(npc.speed) { if (npc.axis === 'x') { npc.x += Math.cos(npc.angle) * npc.speed; if (npc.x > npc.bounds.max) { npc.angle = Math.PI; npc.x = npc.bounds.max; } else if (npc.x < npc.bounds.min) { npc.angle = 0; npc.x = npc.bounds.min; } } else { npc.y += Math.sin(npc.angle) * npc.speed; if (npc.y > npc.bounds.max) { npc.angle = -Math.PI/2; npc.y = npc.bounds.max; } else if (npc.y < npc.bounds.min) { npc.angle = Math.PI/2; npc.y = npc.bounds.min; } } npc.walkCycle += npc.speed * 0.15; } });
 
             let vx = 0; let vy = 0;
             if(keys.w) vy -= 1; if(keys.s) vy += 1; if(keys.a) vx -= 1; if(keys.d) vx += 1;
@@ -945,7 +991,7 @@
             if (vx === 0 && vy === 0) { vx = jx; vy = jy; }
 
             Player.vx = vx; Player.vy = vy;
-            let speedMult = 1; if (Player.y > 3200) speedMult = 0.6; 
+            let speedMult = 1; if (Player.y > 4200) speedMult = 0.6; 
             if (Player.buff === 'icecream') speedMult *= 1.5; if (Player.buff === 'ramen') speedMult *= 2.0;
 
             let nextX = Player.x + vx * Player.speed * speedMult; let nextY = Player.y + vy * Player.speed * speedMult;
@@ -976,21 +1022,30 @@
             for (let obj of MapObjects) {
                 if ((obj.type === 'building' || obj.type === 'shop') && obj.door) { 
                     if (Math.hypot(Player.x - (obj.door.x + obj.door.w/2), Player.y - (obj.door.y + obj.door.h/2)) < 70) foundZone = obj; 
-                } else if (obj.type === 'zone' || obj.type === 'ride') {
-                    if(obj.id === 'sawit') { if(Player.x > obj.x && Player.x < obj.x+obj.w && Player.y > obj.y && Player.y < obj.y+obj.h) foundZone = obj; } 
+                } else if (obj.type === 'zone' || obj.type === 'ride' || obj.type === 'picnic') {
+                    if(obj.id === 'sawit' || obj.id === 'themepark' || obj.type === 'picnic') { if(Player.x > obj.x && Player.x < obj.x+obj.w && Player.y > obj.y && Player.y < obj.y+obj.h) foundZone = obj; } 
                     else { if (Math.hypot(Player.x - (obj.x + (obj.w||0)/2), Player.y - (obj.y + (obj.h||0)/2)) < obj.interactRadius) foundZone = obj; }
                 }
             }
         }
 
         if (Player.isRiding) {
-            btnEnter.classList.remove('hidden-action'); txtEnter.classList.remove('opacity-0', 'translate-y-4');
-            labelEnter.innerText = "TURUN WAHANA"; uiLoc.innerText = Player.isRiding === 'ride_ferris' ? 'Menaiki Bianglala' : 'Menaiki Coaster'; uiLoc.className = "font-bold text-sm text-amber-400";
+            if(Player.isRiding === 'picnic_table') {
+                btnEnter.classList.remove('hidden-action'); txtEnter.classList.remove('opacity-0', 'translate-y-4');
+                labelEnter.innerText = "BERDIRI"; uiLoc.innerText = "Santai di Taman"; uiLoc.className = "font-bold text-sm text-lime-400";
+                
+                let pt = MapObjects.find(o => o.id === 'picnic_table');
+                Player.x = pt.x + pt.w/2; Player.y = pt.y + pt.h/2 + 40; Player.angle = -Math.PI/2;
+            } else {
+                btnEnter.classList.remove('hidden-action'); txtEnter.classList.remove('opacity-0', 'translate-y-4');
+                labelEnter.innerText = "TURUN WAHANA"; uiLoc.innerText = Player.isRiding === 'ride_ferris' ? 'Menaiki Bianglala' : 'Menaiki Coaster'; uiLoc.className = "font-bold text-sm text-amber-400";
+            }
         } else if (foundZone !== Game.activeZone) {
             Game.activeZone = foundZone;
-            if (foundZone && (foundZone.url || foundZone.type === 'ride' || foundZone.type === 'shop')) {
+            if (foundZone && (foundZone.url || foundZone.type === 'ride' || foundZone.type === 'shop' || foundZone.type === 'picnic')) {
                 btnEnter.classList.remove('hidden-action'); txtEnter.classList.remove('opacity-0', 'translate-y-4');
-                labelEnter.innerText = foundZone.type === 'ride' ? `${foundZone.name}` : `Akses: ${foundZone.name}`;
+                if (foundZone.type === 'picnic') labelEnter.innerText = `DUDUK SINI`;
+                else labelEnter.innerText = foundZone.type === 'ride' ? `${foundZone.name}` : `Akses: ${foundZone.name}`;
                 uiLoc.innerText = foundZone.name; uiLoc.className = "font-bold text-sm text-emerald-400";
             } else {
                 btnEnter.classList.add('hidden-action'); txtEnter.classList.add('opacity-0', 'translate-y-4');
@@ -1013,16 +1068,14 @@
         if (Env.time === 'sore') {
             let glow = ctx.createRadialGradient(w/2, sunY, 10, w/2, sunY, 300);
             glow.addColorStop(0, 'rgba(253, 224, 71, 1)'); glow.addColorStop(1, 'rgba(253, 224, 71, 0)');
-            ctx.fillStyle = glow; ctx.fillRect(0, 0, w, h);
-            ctx.fillStyle = '#fffbeb'; ctx.beginPath(); ctx.arc(w/2, sunY, 60, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = glow; ctx.fillRect(0, 0, w, h); ctx.fillStyle = '#fffbeb'; ctx.beginPath(); ctx.arc(w/2, sunY, 60, 0, Math.PI*2); ctx.fill();
         } else if (Env.time === 'malam') {
             ctx.fillStyle = '#f8fafc'; ctx.beginPath(); ctx.arc(w*0.8, h*0.2, 40, 0, Math.PI*2); ctx.fill();
             ctx.fillStyle = '#fff'; for(let i=0; i<50; i++) { ctx.beginPath(); ctx.arc((i*97)%w, (i*53)%(h*0.5), (i%3)*0.5, 0, Math.PI*2); ctx.fill(); }
         } else {
             let glow = ctx.createRadialGradient(w/2, sunY-100, 10, w/2, sunY-100, 300);
             glow.addColorStop(0, 'rgba(255, 255, 255, 0.8)'); glow.addColorStop(1, 'rgba(255, 255, 255, 0)');
-            ctx.fillStyle = glow; ctx.fillRect(0, 0, w, h);
-            ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(w/2, sunY-100, 50, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = glow; ctx.fillRect(0, 0, w, h); ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(w/2, sunY-100, 50, 0, Math.PI*2); ctx.fill();
         }
 
         if (Env.time === 'malam') { ShootingStars.forEach(s => { ctx.strokeStyle = `rgba(255,255,255,${s.life})`; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(s.x + s.vx*3, s.y - s.vy*3); ctx.stroke(); }); }
@@ -1030,9 +1083,7 @@
         if (Player.isRiding === 'ride_ferris') {
             let angle = Game.time * 0.5; let heightNorm = (Math.sin(angle) + 1) / 2; let horizonY = h * 0.5 + (heightNorm * 250); 
             let groundGrad = ctx.createLinearGradient(0, horizonY, 0, h);
-            if (Env.time === 'malam') { groundGrad.addColorStop(0, '#020617'); groundGrad.addColorStop(1, '#000'); }
-            else if (Env.time === 'sore') { groundGrad.addColorStop(0, '#1e1b4b'); groundGrad.addColorStop(1, '#020617'); }
-            else { groundGrad.addColorStop(0, '#0ea5e9'); groundGrad.addColorStop(1, '#3b82f6'); } 
+            if (Env.time === 'malam') { groundGrad.addColorStop(0, '#020617'); groundGrad.addColorStop(1, '#000'); } else if (Env.time === 'sore') { groundGrad.addColorStop(0, '#1e1b4b'); groundGrad.addColorStop(1, '#020617'); } else { groundGrad.addColorStop(0, '#0ea5e9'); groundGrad.addColorStop(1, '#3b82f6'); } 
             ctx.fillStyle = groundGrad; ctx.fillRect(0, horizonY, w, h - horizonY);
 
             if(Env.time === 'sore' || Env.time === 'pagi' || Env.time === 'siang') { ctx.fillStyle = 'rgba(255, 255, 255, 0.3)'; ctx.beginPath(); ctx.moveTo(w/2 - 30, horizonY); ctx.lineTo(w/2 + 30, horizonY); ctx.lineTo(w/2 + 100, h); ctx.lineTo(w/2 - 100, h); ctx.fill(); }
@@ -1054,7 +1105,6 @@
                 let curveX = Math.sin(t + z*0.12) * 800; let curveY = Math.cos(t*2 + z*0.1) * 400; let scale = 400 / z; 
                 let pX = w/2 + (curveX * scale / 400); let pY = horizonY + (200 + curveY) * scale / 100; points.push({x: pX, y: pY, scale: scale});
             }
-
             if(points.length > 0) {
                 ctx.strokeStyle = '#475569'; ctx.lineWidth = 6;
                 for(let i=points.length-1; i>=0; i--) { ctx.beginPath(); ctx.moveTo(points[i].x - points[i].scale * 2.5, points[i].y); ctx.lineTo(points[i].x + points[i].scale * 2.5, points[i].y); ctx.stroke(); }
@@ -1062,7 +1112,6 @@
                 ctx.beginPath(); for(let i=points.length-1; i>=0; i--) { let px = points[i].x - points[i].scale * 2.5; if(i===points.length-1) ctx.moveTo(px, points[i].y); else ctx.lineTo(px, points[i].y); } ctx.stroke();
                 ctx.beginPath(); for(let i=points.length-1; i>=0; i--) { let px = points[i].x + points[i].scale * 2.5; if(i===points.length-1) ctx.moveTo(px, points[i].y); else ctx.lineTo(px, points[i].y); } ctx.stroke();
             }
-
             ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 2;
             for(let i=0; i<40; i++) { let a = Math.random() * Math.PI * 2; let dist = 150 + Math.random() * 300; let len = 50 + Math.random() * 200; ctx.beginPath(); ctx.moveTo(w/2 + Math.cos(a)*dist, h/2 + Math.sin(a)*dist); ctx.lineTo(w/2 + Math.cos(a)*(dist+len), h/2 + Math.sin(a)*(dist+len)); ctx.stroke(); }
             ctx.fillStyle = '#ef4444'; ctx.beginPath(); ctx.roundRect(w/2 - 150, h - 150, 300, 200, 20); ctx.fill(); ctx.fillStyle = '#1e293b'; ctx.fillRect(w/2 - 130, h - 130, 260, 50); ctx.restore();
@@ -1076,29 +1125,25 @@
 
     function drawGrid(ctx, w, h, size, color) { ctx.strokeStyle = color; ctx.lineWidth = 1; ctx.beginPath(); for(let x=0; x<=w; x+=size) { ctx.moveTo(x, 0); ctx.lineTo(x, h); } for(let y=0; y<=h; y+=size) { ctx.moveTo(0, y); ctx.lineTo(w, y); } ctx.stroke(); }
 
-    function drawCharacter(ctx, x, y, angle, radius, walkCycle, bodyColor='#0a0a0a', pantsColor='#171717', headgear='backward_cap', scale=1, skinColor='#fcd34d', hatColor='#27272a', playerName="") {
+    function drawCharacter(ctx, x, y, angle, radius, walkCycle, bodyColor='#0a0a0a', pantsColor='#171717', headgear='backward_cap', scale=1, skinColor='#fcd34d', hatColor='#27272a', playerName="", emote=null) {
         ctx.save(); ctx.translate(x, y); 
         
         if(playerName) {
-            ctx.save();
-            ctx.fillStyle = 'rgba(0,0,0,0.5)';
-            ctx.font = 'bold 11px Outfit';
-            ctx.textAlign = 'center';
-            let textWidth = ctx.measureText(playerName).width;
-            ctx.roundRect(-textWidth/2 - 5, -32, textWidth + 10, 14, 4);
-            ctx.fill();
-            ctx.fillStyle = 'white';
-            ctx.fillText(playerName, 0, -22);
-            ctx.restore();
+            ctx.save(); ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.font = 'bold 11px Outfit'; ctx.textAlign = 'center';
+            let textWidth = ctx.measureText(playerName).width; ctx.roundRect(-textWidth/2 - 5, -32, textWidth + 10, 14, 4); ctx.fill();
+            ctx.fillStyle = 'white'; ctx.fillText(playerName, 0, -22); ctx.restore();
+        }
+
+        if(emote) {
+            ctx.save(); ctx.font = '30px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+            ctx.fillText(emote, 0, -40 + Math.sin(Game.time*10)*3); ctx.restore();
         }
 
         ctx.rotate(angle); ctx.scale(scale, scale);
-        
         ctx.fillStyle = Palette.shadow; ctx.beginPath(); ctx.ellipse(-5, 5, radius*1.2, radius*0.8, 0, 0, Math.PI*2); ctx.fill();
         
         let swingX = Math.sin(walkCycle) * 6;
         ctx.fillStyle = pantsColor; ctx.beginPath(); ctx.roundRect(swingX - 4, -10, 10, 8, 2); ctx.fill(); ctx.beginPath(); ctx.roundRect(-swingX - 4, 2, 10, 8, 2); ctx.fill(); 
-        
         ctx.fillStyle = '#f8fafc'; ctx.fillRect(swingX + 4, -10, 4, 8); ctx.fillRect(-swingX + 4, 2, 4, 8);
         
         ctx.fillStyle = bodyColor; ctx.beginPath(); ctx.roundRect(-radius*0.7, -radius*0.85, radius*1.4, radius*1.7, 5); ctx.fill();
@@ -1119,9 +1164,25 @@
         ctx.restore();
     }
 
+    // Fungsi Render Makanan SVG langsung di Kanvas
+    function renderFoodOnCanvas(ctx, foodStr, x, y, scale=0.4) {
+        ctx.save(); ctx.translate(x, y); ctx.scale(scale, scale);
+        if(foodStr.includes('d97706')) { // Es Krim
+            ctx.fillStyle='#d97706'; ctx.beginPath(); ctx.moveTo(-15,0); ctx.lineTo(0,45); ctx.lineTo(15,0); ctx.fill();
+            ctx.fillStyle='#f8fafc'; ctx.beginPath(); ctx.arc(0,0,18,0,Math.PI*2); ctx.fill();
+        } else if (foodStr.includes('fef08a')) { // Lemonade
+            ctx.fillStyle='#fef08a'; ctx.fillRect(-15,-20,30,40); ctx.fillStyle='#f8fafc'; ctx.fillRect(-20,-20,40,6);
+            ctx.strokeStyle='#10b981'; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(5,-40); ctx.lineTo(-5,15); ctx.stroke();
+        } else if (foodStr.includes('ef4444')) { // Ramen
+            ctx.fillStyle='#ef4444'; ctx.beginPath(); ctx.arc(0,0,30,0,Math.PI); ctx.fill(); ctx.fillStyle='#fef08a'; ctx.fillRect(-30,-5,60,5);
+            ctx.strokeStyle='#b45309'; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(-35,-10); ctx.lineTo(35,-30); ctx.stroke();
+        }
+        ctx.restore();
+    }
+
     function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        if (Player.isRiding) { drawFirstPersonView(ctx, canvas.width, canvas.height); return; }
+        if (Player.isRiding && Player.isRiding !== 'picnic_table') { drawFirstPersonView(ctx, canvas.width, canvas.height); return; }
 
         ctx.save(); ctx.translate(-Game.camera.x, -Game.camera.y);
         ctx.fillStyle = Palette.grassMain; ctx.fillRect(0, 0, Game.mapWidth, Game.mapHeight);
@@ -1135,29 +1196,34 @@
         ctx.fillStyle = Palette.grassDark; GrassTufts.forEach(g => { ctx.fillRect(g.x, g.y, 3, 3); ctx.fillRect(g.x+4, g.y-2, 2, 2); });
 
         // BEACH & WATER
-        let gradSand = ctx.createLinearGradient(0, 3150, 0, 3280);
+        let gradSand = ctx.createLinearGradient(0, 4150, 0, 4280);
         gradSand.addColorStop(0, Palette.grassMain); gradSand.addColorStop(0.3, Palette.sandDark); gradSand.addColorStop(1, Palette.sand);
-        ctx.fillStyle = gradSand; ctx.fillRect(0, 3150, Game.mapWidth, 150);
+        ctx.fillStyle = gradSand; ctx.fillRect(0, 4150, Game.mapWidth, 150);
 
-        let gradWater = ctx.createLinearGradient(0, 3280, 0, Game.mapHeight);
+        let gradWater = ctx.createLinearGradient(0, 4280, 0, Game.mapHeight);
         gradWater.addColorStop(0, Palette.waterFoam); gradWater.addColorStop(0.05, Palette.waterShallow);
         gradWater.addColorStop(0.4, Palette.waterDeep); gradWater.addColorStop(1, '#0f172a');
-        ctx.fillStyle = gradWater; ctx.fillRect(0, 3280, Game.mapWidth, Game.mapHeight - 3280);
+        ctx.fillStyle = gradWater; ctx.fillRect(0, 4280, Game.mapWidth, Game.mapHeight - 4280);
+
+        // TAMAN RIVERSIDE: SUNGAI (RIVER)
+        ctx.strokeStyle = Palette.waterShallow; ctx.lineWidth = 140; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+        ctx.beginPath(); ctx.moveTo(500, -100); ctx.quadraticCurveTo(100, 1000, 400, 2000); ctx.quadraticCurveTo(700, 3000, 300, 5100); ctx.stroke();
+        ctx.strokeStyle = Palette.waterDeep; ctx.lineWidth = 40; ctx.beginPath(); ctx.moveTo(520, -100); ctx.quadraticCurveTo(120, 1000, 420, 2000); ctx.quadraticCurveTo(720, 3000, 320, 5100); ctx.stroke();
 
         if (Env.time === 'malam') {
             ctx.fillStyle = 'rgba(56, 189, 248, 0.5)';
-            for(let i=0; i<100; i++) { let px = (Game.time*20 + i*150) % Game.mapWidth; let py = 3280 + Math.random()*30; ctx.beginPath(); ctx.arc(px, py, Math.random()*2+1, 0, Math.PI*2); ctx.fill(); }
+            for(let i=0; i<100; i++) { let px = (Game.time*20 + i*150) % Game.mapWidth; let py = 4280 + Math.random()*30; ctx.beginPath(); ctx.arc(px, py, Math.random()*2+1, 0, Math.PI*2); ctx.fill(); }
         }
 
         for(let layer = 0; layer < 4; layer++) {
             let waveSpeed = Game.time * (0.5 + layer*0.2); let waveOffset = layer * 40;
-            ctx.fillStyle = `rgba(255, 255, 255, ${0.15 - layer*0.03})`; ctx.beginPath(); ctx.moveTo(0, 3280 + waveOffset);
-            for(let x = 0; x <= Game.mapWidth; x += 100) { let y = 3280 + waveOffset + Math.sin(x*0.01 + waveSpeed) * 15; ctx.quadraticCurveTo(x + 50, y - 10, x + 100, y); }
+            ctx.fillStyle = `rgba(255, 255, 255, ${0.15 - layer*0.03})`; ctx.beginPath(); ctx.moveTo(0, 4280 + waveOffset);
+            for(let x = 0; x <= Game.mapWidth; x += 100) { let y = 4280 + waveOffset + Math.sin(x*0.01 + waveSpeed) * 15; ctx.quadraticCurveTo(x + 50, y - 10, x + 100, y); }
             ctx.lineTo(Game.mapWidth, Game.mapHeight); ctx.lineTo(0, Game.mapHeight); ctx.fill();
         }
 
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)'; ctx.lineWidth = 4; ctx.lineCap = 'round';
-        ctx.beginPath(); ctx.moveTo(0, 3285); for(let x = 0; x <= Game.mapWidth; x += 60) { let wy = 3285 + Math.sin(x*0.02 + Game.time) * 10; ctx.lineTo(x, wy); } ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(0, 4285); for(let x = 0; x <= Game.mapWidth; x += 60) { let wy = 4285 + Math.sin(x*0.02 + Game.time) * 10; ctx.lineTo(x, wy); } ctx.stroke();
 
         BeachDecor.forEach(d => {
             if(d.type === 'rock') { ctx.fillStyle = '#64748b'; ctx.beginPath(); ctx.arc(d.x, d.y, d.size, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = '#475569'; ctx.beginPath(); ctx.arc(d.x+1, d.y+1, d.size*0.7, 0, Math.PI*2); ctx.fill(); } 
@@ -1166,7 +1232,7 @@
         });
 
         // PIERS
-        const Piers = [ { x: 1220, y: 3150, w: 180, h: 450 }, { x: 2580, y: 3150, w: 180, h: 450 } ];
+        const Piers = [ { x: 1220, y: 4150, w: 180, h: 450 }, { x: 2580, y: 4150, w: 180, h: 450 } ];
         Piers.forEach(p => {
             ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.fillRect(p.x + 15, p.y + 20, p.w, p.h);
             ctx.fillStyle = '#451a03'; ctx.fillRect(p.x - 10, p.y, 10, p.h); ctx.fillRect(p.x + p.w, p.y, 10, p.h);
@@ -1175,21 +1241,6 @@
             for(let i=20; i<p.h; i+=30) { ctx.beginPath(); ctx.moveTo(p.x, p.y + i); ctx.lineTo(p.x + p.w, p.y + i); ctx.stroke(); }
             ctx.fillStyle = '#290f01'; ctx.fillRect(p.x - 15, p.y + p.h - 10, 20, 20); ctx.fillRect(p.x + p.w - 5, p.y + p.h - 10, 20, 20);
         });
-
-        let sawitX = 100, sawitY = 1600, sawitW = 900, sawitH = 1200;
-        ctx.fillStyle = '#65a30d'; ctx.fillRect(sawitX, sawitY, sawitW, sawitH);
-        ctx.fillStyle = '#cbd5e1'; ctx.fillRect(sawitX + 50, sawitY + 50, 400, 150); ctx.fillStyle = '#475569'; ctx.fillRect(sawitX + 100, sawitY + 50, 300, 100);
-        ctx.fillStyle = 'white'; ctx.font = 'bold 20px Outfit'; ctx.textAlign = 'center'; ctx.fillText("PABRIK SAWIT", sawitX + 250, sawitY + 100);
-        ctx.fillStyle = '#b45309'; ctx.beginPath(); ctx.arc(sawitX + 80, sawitY + 80, 10, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(sawitX + 80, sawitY + 110, 10, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(sawitX + 100, sawitY + 95, 10, 0, Math.PI*2); ctx.fill();
-        ctx.fillStyle = '#dc2626'; ctx.fillRect(sawitX + 350, sawitY + 140, 40, 25); ctx.fillStyle = '#171717'; ctx.fillRect(sawitX + 355, sawitY + 135, 10, 35); ctx.fillRect(sawitX + 375, sawitY + 135, 10, 35);
-        ctx.fillStyle = '#a16207'; ctx.fillRect(sawitX + 220, sawitY + 200, 60, sawitH - 200); ctx.fillRect(sawitX + 50, sawitY + 500, 400, 40);
-        ctx.fillStyle = '#14532d';
-        for(let cy = sawitY + 250; cy < sawitY + sawitH - 50; cy += 60) {
-            for(let cx = sawitX + 80; cx < sawitX + sawitW - 50; cx += 60) {
-                if(cx > sawitX+200 && cx < sawitX+280) continue; if(cy > sawitY+480 && cy < sawitY+550) continue;
-                ctx.save(); ctx.translate(cx, cy); ctx.beginPath(); for(let i=0; i<8; i++) { ctx.rotate(Math.PI/4); ctx.moveTo(0,0); ctx.quadraticCurveTo(10, 15, 0, 25); ctx.quadraticCurveTo(-10, 15, 0, 0); } ctx.fill(); ctx.restore();
-            }
-        }
 
         MapObjects.forEach(obj => {
             if (obj.type === 'building' || obj.type === 'shop') {
@@ -1201,9 +1252,29 @@
                 if (obj.w > 200) { ctx.fillStyle = '#334155'; ctx.fillRect(obj.x + obj.w - 30, obj.y + 20, 4, 15); ctx.fillStyle = '#f8fafc'; ctx.beginPath(); ctx.arc(obj.x + obj.w - 28, obj.y + 20, 8, Math.PI/2, Math.PI*1.5); ctx.fill(); }
                 
                 ctx.fillStyle = obj.accent; ctx.fillRect(obj.x, obj.y, obj.w, 4); ctx.fillRect(obj.x, obj.y, 4, obj.h); 
-                
                 ctx.fillStyle = 'white'; ctx.font = '900 26px "Outfit"'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; 
                 ctx.fillText(obj.name, obj.x + obj.w/2, obj.y + obj.h/2);
+            }
+            else if (obj.type === 'picnic') {
+                // Taman Riverside Picnic Table
+                ctx.fillStyle = Palette.shadow; ctx.beginPath(); ctx.roundRect(obj.x+10, obj.y+10, obj.w, obj.h, 20); ctx.fill();
+                ctx.fillStyle = '#a3e635'; ctx.beginPath(); ctx.roundRect(obj.x, obj.y, obj.w, obj.h, 20); ctx.fill();
+                ctx.strokeStyle = '#65a30d'; ctx.lineWidth=6; ctx.stroke();
+                
+                // Kayu Meja
+                ctx.fillStyle = '#78350f'; ctx.fillRect(obj.x + 50, obj.y + 60, 200, 80);
+                // Kursi
+                ctx.fillStyle = '#451a03'; ctx.fillRect(obj.x + 60, obj.y + 30, 180, 20); ctx.fillRect(obj.x + 60, obj.y + 150, 180, 20);
+                
+                // Makanan di Meja
+                if(Player.isRiding === 'picnic_table' && Player.placedFood) renderFoodOnCanvas(ctx, Player.placedFood, obj.x + 100, obj.y + 100, 0.6);
+                for (const pid in NetworkPlayers) {
+                    let p = NetworkPlayers[pid];
+                    // Anti Ghost for Food Placement
+                    if(p && p.placedFood && p.lastActive && (Date.now() - p.lastActive < 10000) && p.x > obj.x && p.x < obj.x+obj.w && p.y > obj.y && p.y < obj.y+obj.h) {
+                        renderFoodOnCanvas(ctx, p.placedFood, p.x, p.y + 40, 0.5);
+                    }
+                }
             }
             else if (obj.id === 'themepark') {
                 ctx.fillStyle = Palette.sand; ctx.beginPath(); ctx.roundRect(obj.x, obj.y, obj.w, obj.h, 40); ctx.fill();
@@ -1258,6 +1329,21 @@
                     let a = Game.time * 3 + (i * Math.PI*2/12);
                     let r = 25 + (Math.sin(Game.time*5 + i)*10);
                     ctx.beginPath(); ctx.arc(cx + Math.cos(a)*r, cy + Math.sin(a)*r, 6, 0, Math.PI*2); ctx.fill();
+                }
+            }
+            else if (obj.id === 'sawit') {
+                ctx.fillStyle = '#65a30d'; ctx.fillRect(obj.x, obj.y, obj.w, obj.h);
+                ctx.fillStyle = '#cbd5e1'; ctx.fillRect(obj.x + 50, obj.y + 50, 400, 150); ctx.fillStyle = '#475569'; ctx.fillRect(obj.x + 100, obj.y + 50, 300, 100);
+                ctx.fillStyle = 'white'; ctx.font = 'bold 20px Outfit'; ctx.textAlign = 'center'; ctx.fillText("PABRIK SAWIT", obj.x + 250, obj.y + 100);
+                ctx.fillStyle = '#b45309'; ctx.beginPath(); ctx.arc(obj.x + 80, obj.y + 80, 10, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(obj.x + 80, obj.y + 110, 10, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(obj.x + 100, obj.y + 95, 10, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#dc2626'; ctx.fillRect(obj.x + 350, obj.y + 140, 40, 25); ctx.fillStyle = '#171717'; ctx.fillRect(obj.x + 355, obj.y + 135, 10, 35); ctx.fillRect(obj.x + 375, obj.y + 135, 10, 35);
+                ctx.fillStyle = '#a16207'; ctx.fillRect(obj.x + 220, obj.y + 200, 60, obj.h - 200); ctx.fillRect(obj.x + 50, obj.y + 500, 400, 40);
+                ctx.fillStyle = '#14532d';
+                for(let cy = obj.y + 250; cy < obj.y + obj.h - 50; cy += 60) {
+                    for(let cx = obj.x + 80; cx < obj.x + obj.w - 50; cx += 60) {
+                        if(cx > obj.x+200 && cx < obj.x+280) continue; if(cy > obj.y+480 && cy < obj.y+550) continue;
+                        ctx.save(); ctx.translate(cx, cy); ctx.beginPath(); for(let i=0; i<8; i++) { ctx.rotate(Math.PI/4); ctx.moveTo(0,0); ctx.quadraticCurveTo(10, 15, 0, 25); ctx.quadraticCurveTo(-10, 15, 0, 0); } ctx.fill(); ctx.restore();
+                    }
                 }
             }
             else if (obj.id === 'sentul_racer' || obj.id === 'sentul_drift') {
@@ -1321,21 +1407,32 @@
             }
         });
 
+        // KEMBANG API & PARTIKEL
+        for (let i = 0; i < FireworksArray.length; i++) {
+            let f = FireworksArray[i];
+            ctx.fillStyle = f.color; ctx.beginPath(); ctx.arc(f.x, f.y, 3, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.beginPath(); ctx.arc(f.x, f.y + 5, 2, 0, Math.PI*2); ctx.fill();
+        }
+
         PlayerParticles.forEach(p => { 
             if(p.text) {
                 ctx.fillStyle = `rgba(250, 204, 21, ${p.life})`; ctx.font = 'bold 20px Outfit'; ctx.textAlign='center';
                 ctx.fillText(p.text, p.x, p.y - (1-p.life)*30);
             } else {
-                ctx.fillStyle = p.c; ctx.beginPath(); ctx.arc(p.x, p.y, p.s, 0, Math.PI*2); ctx.fill(); 
+                ctx.fillStyle = p.c; ctx.globalAlpha = p.life; ctx.beginPath(); ctx.arc(p.x, p.y, p.s, 0, Math.PI*2); ctx.fill(); ctx.globalAlpha = 1;
             }
         });
 
-        // NETWORK PLAYERS RENDERING
+        // NETWORK PLAYERS RENDERING DENGAN FILTER ANTI GHOST (Maksimum diam/hilang sinyal 10 detik)
         for (const pid in NetworkPlayers) {
             if (pid === myPlayerId) continue;
             let p = NetworkPlayers[pid];
             if (!p || !p.x || !p.colors) continue;
-            drawCharacter(ctx, p.x, p.y, p.angle || 0, 14, p.walkCycle || 0, p.colors.shirt, p.colors.pants, 'backward_cap', 1, p.colors.skin, p.colors.hat, p.name || 'Warga');
+            
+            // ANTI GHOST LOGIC:
+            if (!p.lastActive || (Date.now() - p.lastActive > 10000)) continue;
+
+            drawCharacter(ctx, p.x, p.y, p.angle || 0, 14, p.walkCycle || 0, p.colors.shirt, p.colors.pants, 'backward_cap', 1, p.colors.skin, p.colors.hat, p.name || 'Warga', p.emote);
         }
 
         NPCs.forEach(npc => {
@@ -1358,7 +1455,7 @@
             ctx.fillStyle = pGlow; ctx.beginPath(); ctx.arc(Player.x, Player.y, 80, 0, Math.PI*2); ctx.fill();
         }
 
-        drawCharacter(ctx, Player.x, Player.y, Player.angle, Player.radius, Player.walkCycle, Player.colors.shirt, Player.colors.pants, 'backward_cap', 1, Player.colors.skin, Player.colors.hat, Player.name);
+        drawCharacter(ctx, Player.x, Player.y, Player.angle, Player.radius, Player.walkCycle, Player.colors.shirt, Player.colors.pants, 'backward_cap', 1, Player.colors.skin, Player.colors.hat, Player.name, Player.emote);
 
         if (Env.darkness > 0.01) {
             ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); 
@@ -1411,7 +1508,7 @@
 
             if (Env.time === 'malam') {
                 ctx.fillStyle = `rgba(56, 189, 248, ${0.8 * Env.darkness})`;
-                for(let i=0; i<100; i++) { let px = (Game.time*20 + i*150) % Game.mapWidth; let py = 3280 + Math.random()*30; ctx.beginPath(); ctx.arc(px, py, Math.random()*2+1, 0, Math.PI*2); ctx.fill(); }
+                for(let i=0; i<100; i++) { let px = (Game.time*20 + i*150) % Game.mapWidth; let py = 4280 + Math.random()*30; ctx.beginPath(); ctx.arc(px, py, Math.random()*2+1, 0, Math.PI*2); ctx.fill(); }
             }
 
             if (Player.flashlightOn) {
@@ -1421,6 +1518,22 @@
                 ctx.fillStyle = grad; ctx.beginPath(); ctx.moveTo(0, 0); ctx.arc(0, 0, 350, -Math.PI/5, Math.PI/5); ctx.fill();
                 ctx.beginPath(); ctx.arc(0, 0, 40, 0, Math.PI*2); ctx.fillStyle = `rgba(255, 255, 230, ${0.3 * Env.darkness})`; ctx.fill(); ctx.restore();
             }
+
+            // Kembang Api Glow in Dark
+            for (let i = 0; i < FireworksArray.length; i++) {
+                let f = FireworksArray[i];
+                let fGlow = ctx.createRadialGradient(f.x, f.y, 5, f.x, f.y, 50);
+                fGlow.addColorStop(0, `rgba(255,255,255, ${Env.darkness})`); fGlow.addColorStop(1, 'rgba(255,255,255, 0)');
+                ctx.fillStyle = fGlow; ctx.beginPath(); ctx.arc(f.x, f.y, 50, 0, Math.PI*2); ctx.fill();
+            }
+
+            PlayerParticles.forEach(p => { 
+                if(p.isExplosion) {
+                    let pg = ctx.createRadialGradient(p.x, p.y, 2, p.x, p.y, 20);
+                    pg.addColorStop(0, p.c); pg.addColorStop(1, 'transparent');
+                    ctx.fillStyle = pg; ctx.globalAlpha = p.life; ctx.beginPath(); ctx.arc(p.x, p.y, 20, 0, Math.PI*2); ctx.fill(); ctx.globalAlpha = 1;
+                }
+            });
 
             if (Player.buff === 'ramen') {
                 PlayerParticles.forEach(p => {
@@ -1444,10 +1557,10 @@
                 let gradInteract = ctx.createRadialGradient(obj.door.x + obj.door.w/2, obj.door.y + obj.door.h/2, 10, obj.door.x + obj.door.w/2, obj.door.y + obj.door.h/2, 45);
                 gradInteract.addColorStop(0, `rgba(${hexToRgb(obj.accent)}, 0.6)`); gradInteract.addColorStop(1, 'rgba(0,0,0,0)'); 
                 ctx.fillStyle = gradInteract; ctx.fill();
-            } else if (obj.type === 'ride') {
-                ctx.fillStyle = 'rgba(255,255,255,0.2)'; ctx.beginPath(); ctx.arc(obj.x, obj.y, 25, 0, Math.PI*2); ctx.fill();
+            } else if (obj.type === 'ride' || obj.type === 'picnic') {
+                ctx.fillStyle = 'rgba(255,255,255,0.2)'; ctx.beginPath(); ctx.arc(obj.x + (obj.w||0)/2, obj.y + (obj.h||0)/2, 25, 0, Math.PI*2); ctx.fill();
                 ctx.strokeStyle = '#fef08a'; ctx.lineWidth = 3; ctx.stroke();
-                ctx.fillStyle = '#fff'; ctx.font = '900 18px Outfit'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText("E", obj.x, obj.y);
+                ctx.fillStyle = '#fff'; ctx.font = '900 18px Outfit'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText("E", obj.x + (obj.w||0)/2, obj.y + (obj.h||0)/2);
             }
         });
 
@@ -1462,12 +1575,18 @@
     function hexToRgb(hex) { let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex); return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '255,255,255'; }
     
     function gameLoop() { 
-        if(document.getElementById('game-modal').classList.contains('hidden') && document.getElementById('settings-modal').classList.contains('hidden') && document.getElementById('shop-modal').classList.contains('hidden') && document.getElementById('wardrobe-modal').classList.contains('hidden') && document.getElementById('login-modal').classList.contains('hidden')) update(); 
+        if(document.getElementById('game-modal').classList.contains('hidden') && document.getElementById('settings-modal').classList.contains('hidden') && document.getElementById('shop-modal').classList.contains('hidden') && document.getElementById('wardrobe-modal').classList.contains('hidden') && document.getElementById('login-modal').classList.contains('hidden') && document.getElementById('inventory-modal').classList.contains('hidden')) update(); 
         draw(); 
         if(mapOpen && !Player.isRiding) drawMap(); 
         requestAnimationFrame(gameLoop); 
     }
     
+    setInterval(() => { 
+        if(document.getElementById('game-modal').classList.contains('hidden') && !Player.isRiding) { 
+            window.saveGameData();
+        } 
+    }, 2000);
+
     gameLoop();
 </script>
 </body>
