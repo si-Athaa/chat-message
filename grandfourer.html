@@ -13,7 +13,7 @@
         body, html { margin: 0; padding: 0; width: 100vw; height: 100vh; background-color: #0f172a; font-family: 'Outfit', sans-serif; overflow: hidden; user-select: none; touch-action: none; }
         #game-canvas { display: block; width: 100%; height: 100%; }
 
-        #game-modal, #map-modal, #settings-modal, #shop-modal, #wardrobe-modal, #login-modal, #inventory-modal { transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1); backdrop-filter: blur(10px); }
+        #game-modal, #map-modal, #settings-modal, #shop-modal, #wardrobe-modal, #login-modal, #inventory-modal, #players-modal { transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1); backdrop-filter: blur(10px); }
 
         .joystick-base { position: absolute; bottom: 50px; left: 50px; width: 130px; height: 130px; background: rgba(255, 255, 255, 0.05); border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: inset 0 0 20px rgba(0,0,0,0.2), 0 10px 30px rgba(0,0,0,0.3); pointer-events: auto; z-index: 10; backdrop-filter: blur(5px); }
         .joystick-stick { position: absolute; top: 50%; left: 50%; width: 50px; height: 50px; background: linear-gradient(135deg, #f8fafc, #cbd5e1); border-radius: 50%; transform: translate(-50%, -50%); box-shadow: 0 8px 15px rgba(0,0,0,0.4), inset 0 -3px 5px rgba(0,0,0,0.1); }
@@ -129,7 +129,17 @@
                         <i data-lucide="message-square-text"></i>
                         <span class="absolute -bottom-8 bg-slate-800 text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-white z-50">Stoat Chat</span>
                     </button>
-
+<div id="players-modal" class="fixed inset-0 z-[60] bg-slate-950/80 hidden opacity-0 flex items-center justify-center p-4 transition-opacity duration-300">
+        <div class="glass-panel p-6 rounded-3xl border border-slate-700/50 shadow-2xl relative w-full max-w-md flex flex-col gap-4 pointer-events-auto">
+            <div class="flex justify-between items-center border-b border-slate-700/50 pb-3">
+                <h2 class="text-white font-black text-xl flex items-center gap-2"><i data-lucide="users" class="text-indigo-400"></i> Daftar Warga GWC</h2>
+                <button onclick="window.togglePlayers()" class="text-slate-400 hover:text-white transition-colors"><i data-lucide="x"></i></button>
+            </div>
+            <div class="flex flex-col gap-3 overflow-y-auto max-h-[50vh] custom-scroll p-2" id="players-container">
+                </div>
+            <p class="text-xs text-slate-400 text-center mt-2">Menampilkan semua akun yang pernah terdaftar di GWC.</p>
+        </div>
+    </div>
                     <button id="btn-firework" class="app-btn group relative !bg-orange-500 !border-orange-400 hover:!bg-orange-400 hidden" onclick="window.shootFirework()">
                         <i data-lucide="sparkles" class="text-white"></i>
                         <span class="absolute -bottom-8 bg-orange-600 text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-white z-50">Petasan!</span>
@@ -150,6 +160,10 @@
                 </div>
 
                 <div id="main-dropdown-menu" class="flex flex-col gap-2 glass-panel p-2 rounded-xl opacity-0 pointer-events-none transform -translate-y-4 transition-all duration-300 absolute top-[100%] right-0 mt-2 z-50">
+                    <button class="app-btn group relative" onclick="window.togglePlayers(); window.toggleMainMenu();">
+        <i data-lucide="users"></i>
+        <span class="absolute right-[55px] top-1/2 -translate-y-1/2 bg-slate-800 text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-white z-50">Daftar Warga</span>
+    </button>
                     <button class="app-btn group relative" onclick="window.toggleMap(); window.toggleMainMenu();">
                         <i data-lucide="map"></i>
                         <span class="absolute right-[55px] top-1/2 -translate-y-1/2 bg-slate-800 text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-white z-50">Map Kota</span>
@@ -498,6 +512,8 @@
     let gameStartTime = 0; 
     let isMultiplayerActive = false;
     let NetworkPlayers = {};
+    let RegisteredUsers = {};
+    window.playersOpen = false;
     let NetworkFireworks = {}; 
     let myPlayerRef = null;
     let myPlayerId = Player.uid; 
@@ -516,6 +532,14 @@
         try {
             const app = initializeApp(firebaseConfig);
             const db = getDatabase(app);
+            set(ref(db, 'gwc_users/' + myPlayerId), { name: Player.name, lastLogin: Date.now() });
+
+            // Pantau siapa saja yang pernah login
+            onValue(ref(db, 'gwc_users'), (snap) => { 
+                RegisteredUsers = snap.val() || {}; 
+                if(window.playersOpen) { window.renderPlayersList(); }
+            });
+
             myPlayerRef = ref(db, 'gwc_players/' + myPlayerId); 
             onDisconnect(myPlayerRef).remove();
             
@@ -706,6 +730,51 @@
         const modal = document.getElementById('map-modal');
         if (mapOpen) { modal.classList.add('opacity-0'); setTimeout(() => modal.classList.add('hidden'), 300); mapOpen = false; } 
         else { modal.classList.remove('hidden'); setTimeout(() => modal.classList.remove('opacity-0'), 10); mapOpen = true; }
+    }
+
+    window.togglePlayers = function() {
+        const m = document.getElementById('players-modal');
+        if (window.playersOpen) { 
+            m.classList.add('opacity-0'); setTimeout(() => m.classList.add('hidden'), 300); window.playersOpen = false; 
+        } else { 
+            m.classList.remove('hidden'); setTimeout(() => m.classList.remove('opacity-0'), 10); window.playersOpen = true; 
+            window.renderPlayersList(); 
+        }
+    }
+
+    window.renderPlayersList = function() {
+        const c = document.getElementById('players-container'); 
+        c.innerHTML = '';
+        let onlineCount = 0; const now = Date.now(); let htmlStr = '';
+
+        Object.keys(RegisteredUsers).forEach(uid => {
+            let u = RegisteredUsers[uid]; 
+            
+            // FILTER ANTI TROLL (MENGHILANGKAN NAMA TESTER)
+            let nameLower = (u.name || '').toLowerCase();
+            if (nameLower.includes('tester') || nameLower.includes('testing')) return; // Abaikan akun ini
+
+            // Cek Status Online
+            let isOnline = false; 
+            let np = NetworkPlayers[uid];
+            if (np && np.lastActive && (now - np.lastActive < 10000)) isOnline = true;
+            if (uid === myPlayerId) isOnline = true; 
+            
+            if(isOnline) onlineCount++;
+
+            let sDot = isOnline ? '<div class="w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div>' : '<div class="w-3 h-3 rounded-full bg-slate-600"></div>';
+            let sText = isOnline ? '<span class="text-emerald-400 text-xs font-bold">Online</span>' : '<span class="text-slate-500 text-xs">Offline</span>';
+
+            htmlStr += `
+                <div class="flex justify-between items-center bg-slate-800/50 border border-slate-700 p-3 rounded-xl">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-slate-700 border border-slate-600 flex items-center justify-center font-bold text-white text-lg">${(u.name||'W').charAt(0).toUpperCase()}</div>
+                        <div><p class="text-white font-bold leading-tight">${u.name||'Warga'}</p><p class="text-[9px] text-slate-500 font-mono tracking-wide">ID: ${uid.substring(0,8)}</p></div>
+                    </div>
+                    <div class="flex items-center gap-2">${sText} ${sDot}</div>
+                </div>`;
+        });
+        c.innerHTML = `<p class="text-xs text-indigo-300 font-bold px-1 mb-1 tracking-widest uppercase">Total Warga Online: ${onlineCount}</p>` + htmlStr;
     }
 
     let emoteOpen = false; 
